@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>PIXEL QUEST - Prototype</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #0B0F2A;
+    touch-action: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans", sans-serif;
+    color: #F4F6FF;
+  }
+  #app { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #game { display: block; background: linear-gradient(180deg, #1a2348 0%, #2d3766 50%, #3d4878 100%); width: 100%; height: 100%; image-rendering: pixelated; }
+
+  /* HUD */
+  .hud {
+    position: fixed; top: env(safe-area-inset-top, 0); left: 0; right: 0;
+    padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    pointer-events: none;
+    font-weight: 700; font-size: 14px; z-index: 10;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  }
+  .hud .left, .hud .right { display: flex; align-items: center; gap: 10px; }
+  .stage-label { color: #fff; letter-spacing: 0.05em; }
+  .coin-counter { color: #FFD23F; display: flex; align-items: center; gap: 4px; }
+  .coin-counter::before {
+    content: ""; display: inline-block; width: 14px; height: 14px;
+    border-radius: 50%; background: radial-gradient(circle at 30% 30%, #FFE57F, #FFB300);
+    border: 1.5px solid #8B6914;
+  }
+  .timer { color: #fff; font-variant-numeric: tabular-nums; }
+  .icon-btn {
+    pointer-events: auto;
+    width: 36px; height: 36px;
+    background: rgba(0,0,0,0.35);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; backdrop-filter: blur(4px);
+    font-size: 16px; color: #fff;
+  }
+  .icon-btn.off { opacity: 0.4; }
+  .pause-icon { display: block; width: 12px; height: 14px; border-left: 4px solid #fff; border-right: 4px solid #fff; }
+
+  /* Modals */
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(11,15,42,0.85);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100; backdrop-filter: blur(4px);
+  }
+  .modal.show { display: flex; }
+  .modal-card {
+    background: #171C42; border-top: 4px solid #FF4D6D;
+    padding: 28px 24px; border-radius: 14px;
+    text-align: center; min-width: 280px; max-width: 360px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  }
+  .modal-card h2 { font-size: 26px; margin-bottom: 16px; color: #FFD23F; }
+  .modal-card .stars { font-size: 30px; margin: 8px 0 14px; letter-spacing: 4px; }
+  .modal-card .stat { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; border-bottom: 1px solid rgba(154,163,199,0.2); }
+  .modal-card .stat:last-of-type { border-bottom: none; margin-bottom: 16px; }
+  .modal-card .stat .label { color: #9AA3C7; }
+  .modal-card .stat .value { color: #F4F6FF; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .btn { display: block; width: 100%; margin-top: 8px; padding: 12px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: transform 0.06s ease; color: #fff; }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary { background: #FF4D6D; }
+  .btn.secondary { background: rgba(255,255,255,0.1); color: #F4F6FF; }
+  .pause-card h2 { color: #3DDCFF; }
+
+  /* Tutorial */
+  .tutorial {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none; align-items: center; justify-content: center;
+    z-index: 50; pointer-events: auto;
+    backdrop-filter: blur(2px);
+  }
+  .tutorial.show { display: flex; }
+  .tutorial-card {
+    background: #171C42; border: 2px solid #FF4D6D;
+    padding: 24px 28px; border-radius: 14px;
+    text-align: center; max-width: 320px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  }
+  .tutorial-card h2 { font-size: 20px; color: #FFD23F; margin-bottom: 12px; }
+  .tutorial-card p { font-size: 14px; line-height: 1.6; margin-bottom: 6px; }
+  .tutorial-card .icon { font-size: 36px; margin: 8px 0; }
+  .tutorial-card .hint { font-size: 12px; color: #9AA3C7; margin-top: 14px; }
+
+  /* Title */
+  .title-screen {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 200;
+    background: linear-gradient(180deg, #0B0F2A 0%, #1a2348 100%);
+  }
+  .title-screen h1 {
+    font-family: Impact, "Anton", sans-serif;
+    font-size: clamp(40px, 14vw, 72px); letter-spacing: 4px;
+    color: #F4F6FF; text-shadow: 0 4px 20px rgba(255,77,109,0.5);
+    text-align: center; padding: 0 16px;
+  }
+  .title-screen .tagline { color: #3DDCFF; letter-spacing: 4px; font-weight: 700; margin-top: 8px; }
+  .title-screen .start-prompt { margin-top: 40px; font-size: 16px; color: #FFD23F; animation: blink 1.2s infinite; }
+  @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.3; } }
+  .title-cat { margin: 20px 0; }
+  .deco-dots { position: absolute; top: 24px; display: flex; gap: 8px; }
+  .deco-dots.left { left: 24px; } .deco-dots.right { right: 24px; }
+  .deco-dots span { width: 14px; height: 14px; border-radius: 2px; }
+  .deco-dots .d1 { background: #FF4D6D; }
+  .deco-dots .d2 { background: #FFD23F; }
+  .deco-dots .d3 { background: #3DDCFF; }
+
+  /* デバッグ表示 */
+  #audioDebug {
+    position: fixed; bottom: 8px; left: 8px;
+    font-size: 10px; color: #FFD23F; opacity: 0.7;
+    background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px;
+    z-index: 9999; pointer-events: none;
+    font-family: monospace;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="game"></canvas>
+
+  <div class="hud" id="hud" style="display:none">
+    <div class="left">
+      <div class="icon-btn" id="pauseBtn"><span class="pause-icon"></span></div>
+      <div class="stage-label" id="stageLabel">STAGE 1-1</div>
+    </div>
+    <div class="right">
+      <div class="coin-counter"><span id="coinCount">× 0</span></div>
+      <div class="timer" id="timer">00:00</div>
+      <div class="icon-btn" id="soundBtn">🔊</div>
+    </div>
+  </div>
+
+  <div class="tutorial" id="tutorial">
+    <div class="tutorial-card">
+      <h2>あそびかた</h2>
+      <div class="icon">👆</div>
+      <p><strong>タップ</strong>でジャンプ</p>
+      <div class="icon">👇</div>
+      <p><strong>下スワイプ</strong>でスライド</p>
+      <p class="hint">画面のどこをタップしてもOK<br>タップして開始</p>
+    </div>
+  </div>
+
+  <div class="modal" id="resultModal">
+    <div class="modal-card">
+      <h2>STAGE CLEAR!</h2>
+      <div class="stars" id="resultStars">★★★</div>
+      <div class="stat"><span class="label">SCORE</span><span class="value" id="resultScore">0</span></div>
+      <div class="stat"><span class="label">TIME</span><span class="value" id="resultTime">00:00</span></div>
+      <div class="stat"><span class="label">COINS</span><span class="value" id="resultCoins">0</span></div>
+      <button class="btn primary" id="nextBtn">次のステージへ</button>
+      <button class="btn secondary" id="retryBtn">もう一度</button>
+    </div>
+  </div>
+
+  <div class="modal" id="gameOverModal">
+    <div class="modal-card">
+      <h2 style="color:#FF4D6D">GAME OVER</h2>
+      <p style="margin:12px 0 20px;color:#9AA3C7;font-size:14px">もう一度挑戦しよう</p>
+      <button class="btn primary" id="overRetryBtn">リトライ</button>
+      <button class="btn secondary" id="overTitleBtn">タイトルへ</button>
+    </div>
+  </div>
+
+  <div class="modal" id="pauseModal">
+    <div class="modal-card pause-card">
+      <h2>PAUSED</h2>
+      <button class="btn primary" id="resumeBtn">つづける</button>
+      <button class="btn secondary" id="pauseRetryBtn">はじめから</button>
+      <button class="btn secondary" id="pauseTitleBtn">タイトルへ</button>
+    </div>
+  </div>
+
+  <div class="title-screen" id="titleScreen">
+    <div class="deco-dots left"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    <div class="deco-dots right"><span class="d3"></span><span class="d2"></span><span class="d1"></span></div>
+    <h1>PIXEL QUEST</h1>
+    <div class="tagline">INDIE EDITION</div>
+    <svg class="title-cat" width="180" height="160" viewBox="0 0 180 160" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="90" cy="130" rx="55" ry="20" fill="rgba(0,0,0,0.3)"/>
+      <ellipse cx="90" cy="100" rx="48" ry="42" fill="#7A8896"/>
+      <ellipse cx="90" cy="110" rx="42" ry="28" fill="#8A99A8"/>
+      <path d="M 130 115 Q 155 110 160 85 Q 158 75 150 78" fill="none" stroke="#7A8896" stroke-width="14" stroke-linecap="round"/>
+      <ellipse cx="90" cy="55" rx="40" ry="36" fill="#8A99A8"/>
+      <path d="M 60 35 L 55 12 L 78 28 Z" fill="#7A8896"/>
+      <path d="M 120 35 L 125 12 L 102 28 Z" fill="#7A8896"/>
+      <path d="M 62 32 L 60 20 L 72 28 Z" fill="#FFB4C0"/>
+      <path d="M 118 32 L 120 20 L 108 28 Z" fill="#FFB4C0"/>
+      <ellipse cx="76" cy="55" rx="8" ry="9" fill="#FFFFFF"/>
+      <ellipse cx="104" cy="55" rx="8" ry="9" fill="#FFFFFF"/>
+      <ellipse cx="76" cy="56" rx="6" ry="7" fill="#FFA726"/>
+      <ellipse cx="104" cy="56" rx="6" ry="7" fill="#FFA726"/>
+      <ellipse cx="76" cy="58" rx="2" ry="5" fill="#0B0F2A"/>
+      <ellipse cx="104" cy="58" rx="2" ry="5" fill="#0B0F2A"/>
+      <ellipse cx="74" cy="54" rx="1.5" ry="1.5" fill="#FFFFFF"/>
+      <ellipse cx="102" cy="54" rx="1.5" ry="1.5" fill="#FFFFFF"/>
+      <path d="M 86 66 L 94 66 L 90 71 Z" fill="#FFB4C0"/>
+      <path d="M 90 71 Q 85 76 80 73" stroke="#5A6878" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M 90 71 Q 95 76 100 73" stroke="#5A6878" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <line x1="60" y1="68" x2="40" y2="65" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+      <line x1="60" y1="72" x2="40" y2="73" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+      <line x1="120" y1="68" x2="140" y2="65" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+      <line x1="120" y1="72" x2="140" y2="73" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+      <ellipse cx="70" cy="135" rx="9" ry="6" fill="#7A8896"/>
+      <ellipse cx="110" cy="135" rx="9" ry="6" fill="#7A8896"/>
+    </svg>
+    <div class="start-prompt">TAP TO START</div>
+  </div>
+
+  <div id="audioDebug">audio: not started</div>
+  <!-- HTML5 audio fallback for iOS silent mode -->
+  <audio id="fallbackAudio" preload="auto" src="data:audio/wav;base64,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"></audio>
+</div>
+
+<script>
+"use strict";
+
+// ============================================================
+// Config: 全定数・ステージデータ
+// ============================================================
+const Config = {
+  VW: 480,
+  VH: 800,
+  GROUND_SCREEN_Y: 680,
+
+  player: {
+    width: 44, height: 50,
+    moveSpeed: 4.2, jumpPower: 13.5, gravity: 0.65,
+    slideDuration: 0.6, slideSpeedMultiplier: 1.3,
+    holdJumpDuration: 0.15, holdJumpForce: 0.2,
+  },
+
+  input: {
+    swipeThreshold: 40,
+  },
+
+  score: {
+    coinValue: 100,
+    clearBonus: 1000,
+    timeBonusFactor: 50,
+    timeBonusMax: 60,
+    starThresholds: { three: 3000, two: 2000 },
+  },
+
+  stages: [
+    {
+      id: '1-1', name: 'はじめての森', length: 3200,
+      bgmKey: 'world1', bgColor: ['#1a2348', '#3d4878'],
+      objects: [
+        { type: 'platform', x: 600, y: 100, w: 140, h: 16 },
+        { type: 'coin', x: 650, y: 140 },
+        { type: 'coin', x: 690, y: 140 },
+        { type: 'platform', x: 900, y: 180, w: 120, h: 16 },
+        { type: 'coin', x: 940, y: 220 },
+        { type: 'enemy', x: 1150, kind: 'slime' },
+        { type: 'coin', x: 1200, y: 70 },
+        { type: 'platform', x: 1400, y: 130, w: 180, h: 16 },
+        { type: 'coin', x: 1450, y: 170 },
+        { type: 'coin', x: 1490, y: 170 },
+        { type: 'coin', x: 1530, y: 170 },
+        { type: 'pit', x: 1700, w: 100 },
+        { type: 'enemy', x: 2000, kind: 'slime' },
+        { type: 'platform', x: 2150, y: 90, w: 100, h: 16 },
+        { type: 'coin', x: 2180, y: 130 },
+        { type: 'pit', x: 2400, w: 120 },
+        { type: 'platform', x: 2600, y: 60, w: 80, h: 16 },
+        { type: 'platform', x: 2750, y: 140, w: 80, h: 16 },
+        { type: 'coin', x: 2780, y: 180 },
+        { type: 'goal', x: 3050 },
+      ],
+    },
+    {
+      id: '1-2', name: 'こもれびの道', length: 3500,
+      bgmKey: 'world2', bgColor: ['#2d1a48', '#583878'],
+      objects: [
+        { type: 'enemy', x: 500, kind: 'slime' },
+        { type: 'platform', x: 700, y: 120, w: 100, h: 16 },
+        { type: 'platform', x: 870, y: 200, w: 100, h: 16 },
+        { type: 'coin', x: 910, y: 240 },
+        { type: 'platform', x: 1040, y: 280, w: 100, h: 16 },
+        { type: 'coin', x: 1080, y: 320 },
+        { type: 'pit', x: 1250, w: 140 },
+        { type: 'enemy', x: 1500, kind: 'slime' },
+        { type: 'enemy', x: 1600, kind: 'slime' },
+        { type: 'platform', x: 1800, y: 100, w: 200, h: 16 },
+        { type: 'coin', x: 1850, y: 140 },
+        { type: 'coin', x: 1900, y: 140 },
+        { type: 'coin', x: 1950, y: 140 },
+        { type: 'pit', x: 2100, w: 100 },
+        { type: 'pit', x: 2280, w: 100 },
+        { type: 'platform', x: 2450, y: 160, w: 120, h: 16 },
+        { type: 'enemy', x: 2700, kind: 'slime' },
+        { type: 'coin', x: 2900, y: 60 },
+        { type: 'coin', x: 2950, y: 60 },
+        { type: 'coin', x: 3000, y: 60 },
+        { type: 'goal', x: 3350 },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// AudioEngine: サウンドエンジン (堅牢版)
+//
+// 設計上の重要ポイント:
+//  1. AudioContext生成はユーザージェスチャー内で同期的に行う
+//  2. 生成直後にダミー音 (1サンプルbuffer) を即座に鳴らしてアンロック
+//  3. すべての音再生関数は ctx存在チェック + resume() 試行 を行う
+//  4. resume() のPromiseは捨てる (awaitしない) - ジェスチャー境界保持
+//  5. WebAudio非対応端末でも例外を吐かず黙って動作継続
+//  6. デバッグ表示で状態を可視化
+// ============================================================
+const AudioEngine = (() => {
+  let ctx = null;
+  let masterGain = null;
+  let bgmGain = null;
+  let seGain = null;
+  let unlocked = false;
+  let enabled = true;
+  let bgmTimer = null;
+  let bgmPattern = null;
+  let bgmStep = 0;
+  let currentBgm = null;
+  let debugEl = null;
+
+  const NOTE = {
+    C3:130.81, D3:146.83, E3:164.81, F3:174.61, G3:196.00, A3:220.00, B3:246.94,
+    C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392.00, A4:440.00, B4:493.88,
+    C5:523.25, D5:587.33, E5:659.25, F5:698.46, G5:783.99, A5:880.00, B5:987.77,
+    C6:1046.50, D6:1174.66, E6:1318.51, F6:1396.91, G6:1567.98,
+  };
+
+  const PATTERNS = {
+    world1: {
+      tempo: 0.16, length: 32,
+      melody: ['E4','G4','C5','G4','E4','G4','C5','E5','D5','B4','G4','B4','C5',null,'G4',null,
+               'A4','C5','E5','C5','A4','C5','E5','G5','F5','D5','B4','D5','C5',null,null,null],
+      bass:   ['C3',null,'C3',null,'G3',null,'G3',null,'C3',null,'C3',null,'G3',null,'G3',null,
+               'F3',null,'F3',null,'G3',null,'G3',null,'C3',null,'C3',null,'G3',null,'C3',null],
+    },
+    world2: {
+      tempo: 0.17, length: 32,
+      melody: ['A4',null,'C5','E5','A4',null,'C5','E5','G4',null,'B4','D5','G4',null,'B4','D5',
+               'F4','A4','C5','A4','F4','A4','C5','E5','E4','G4','B4','G4','A4',null,null,null],
+      bass:   ['A3',null,null,null,'E3',null,null,null,'G3',null,null,null,'D3',null,null,null,
+               'F3',null,null,null,'C3',null,null,null,'E3',null,null,null,'A3',null,null,null],
+    },
+    title: {
+      tempo: 0.24, length: 16,
+      melody: ['C5',null,'E5',null,'G5',null,'E5',null,'A4',null,'C5',null,'E5',null,null,null],
+      bass:   ['C3',null,null,null,'C3',null,null,null,'A3',null,null,null,'F3',null,'G3',null],
+    },
+  };
+
+  let statusText = 'not started';
+  let toneCount = 0;
+  let lastSfxName = '-';
+
+  function updateDebug() {
+    if (!debugEl) return;
+    const state = ctx ? ctx.state : '-';
+    debugEl.textContent = `${statusText} | state:${state} | tones:${toneCount} | last:${lastSfxName}`;
+  }
+
+  function log(msg) {
+    statusText = msg;
+    updateDebug();
+    console.log('[Audio]', msg);
+  }
+
+  function countTone(name) {
+    toneCount++;
+    lastSfxName = name;
+    updateDebug();
+  }
+
+  function setDebugEl(el) { debugEl = el; updateDebug(); }
+
+  // === ユーザージェスチャー内で同期実行されるアンロック ===
+  function unlock() {
+    // HTML5 audio フォールバック (iOSサイレントモード回避)
+    try {
+      const fallback = document.getElementById('fallbackAudio');
+      if (fallback) {
+        fallback.volume = 0.5;
+        const p = fallback.play();
+        if (p && p.then) {
+          p.then(() => countTone('html5-ok'), e => log(`html5 err: ${e.message}`));
+        } else {
+          countTone('html5-ok');
+        }
+      }
+    } catch (e) {
+      log(`html5 err: ${e.message}`);
+    }
+
+    if (unlocked) {
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      log(`ready (${ctx.state})`);
+      return true;
+    }
+
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) {
+      log('WebAudio not supported');
+      return false;
+    }
+
+    try {
+      ctx = new AC();
+      log(`created (${ctx.state})`);
+
+      // iOS Safari アンロック: 1サンプル無音バッファを即座に再生
+      const buf = ctx.createBuffer(1, 1, 22050);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.start(0);
+
+      // resume呼び出し (Promiseは捨てる)
+      if (ctx.state === 'suspended') {
+        const p = ctx.resume();
+        if (p && p.then) p.then(() => log(`resumed (${ctx.state})`), e => log(`resume err: ${e.message}`));
+      }
+
+      // ゲインノードチェーン
+      masterGain = ctx.createGain();
+      masterGain.gain.value = 0.5;
+      masterGain.connect(ctx.destination);
+
+      bgmGain = ctx.createGain();
+      bgmGain.gain.value = 0.15;
+      bgmGain.connect(masterGain);
+
+      seGain = ctx.createGain();
+      seGain.gain.value = 0.5;
+      seGain.connect(masterGain);
+
+      unlocked = true;
+      log(`unlocked (${ctx.state})`);
+      return true;
+    } catch (e) {
+      log(`init err: ${e.message}`);
+      return false;
+    }
+  }
+
+  function isReady() {
+    return unlocked && ctx && ctx.state === 'running';
+  }
+
+  // === 単音再生 ===
+  function tone(freq, duration, type = 'square', volume = 1, dest = null) {
+    if (!unlocked || !enabled || !ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+
+      const t = ctx.currentTime;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(volume, t + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+
+      osc.connect(gain);
+      gain.connect(dest || seGain);
+      osc.start(t);
+      osc.stop(t + duration + 0.05);
+      countTone('tone');
+    } catch (e) {
+      console.warn('tone err', e);
+      log(`tone err: ${e.message}`);
+    }
+  }
+
+  function noise(duration, volume = 0.3) {
+    if (!unlocked || !enabled || !ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+
+    try {
+      const len = Math.floor(ctx.sampleRate * duration);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      }
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const gain = ctx.createGain();
+      gain.gain.value = volume;
+      src.connect(gain);
+      gain.connect(seGain);
+      src.start();
+    } catch (e) {
+      console.warn('noise err', e);
+    }
+  }
+
+  // === BGM ===
+  function startBgm(name) {
+    if (!unlocked) return;
+    stopBgm();
+    if (!enabled) { currentBgm = name; return; }
+    currentBgm = name;
+    bgmPattern = PATTERNS[name];
+    if (!bgmPattern) return;
+    bgmStep = 0;
+    tickBgm();
+  }
+
+  function tickBgm() {
+    if (!bgmPattern || !enabled || !unlocked) return;
+    const idx = bgmStep % bgmPattern.length;
+    const m = bgmPattern.melody[idx];
+    const b = bgmPattern.bass[idx];
+    const dur = bgmPattern.tempo * 0.95;
+    if (m && NOTE[m]) tone(NOTE[m], dur, 'square', 1, bgmGain);
+    if (b && NOTE[b]) tone(NOTE[b], dur, 'triangle', 1, bgmGain);
+    bgmStep++;
+    bgmTimer = setTimeout(tickBgm, bgmPattern.tempo * 1000);
+  }
+
+  function stopBgm() {
+    if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+    bgmPattern = null;
+  }
+
+  // === HTML5 audio フォールバック (iOSサイレントモードでも鳴る) ===
+  function playFallback(volume = 0.5) {
+    if (!enabled) return;
+    try {
+      const audio = document.getElementById('fallbackAudio');
+      if (audio) {
+        audio.volume = volume;
+        audio.currentTime = 0;
+        const p = audio.play();
+        if (p && p.catch) p.catch(() => {});
+      }
+    } catch (e) {}
+  }
+
+  // === SE ===
+  const sfx = {
+    jump: () => {
+      playFallback(0.3);
+      if (!unlocked || !enabled || !ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+      try {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'square';
+        const t = ctx.currentTime;
+        osc.frequency.setValueAtTime(440, t);
+        osc.frequency.exponentialRampToValueAtTime(880, t + 0.1);
+        g.gain.setValueAtTime(0.3, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+        osc.connect(g); g.connect(seGain);
+        osc.start(t); osc.stop(t + 0.15);
+        countTone('jump');
+      } catch (e) {}
+    },
+    coin: () => {
+      playFallback(0.4);
+      tone(NOTE.E5, 0.08, 'square', 0.5);
+      setTimeout(() => tone(NOTE.G5, 0.15, 'square', 0.5), 70);
+    },
+    slide: () => {
+      playFallback(0.2);
+      noise(0.15, 0.15);
+    },
+    enemy: () => {
+      playFallback(0.4);
+      if (!unlocked || !enabled || !ctx) return;
+      if (ctx.state === 'suspended') ctx.resume();
+      try {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'square';
+        const t = ctx.currentTime;
+        osc.frequency.setValueAtTime(220, t);
+        osc.frequency.exponentialRampToValueAtTime(110, t + 0.2);
+        g.gain.setValueAtTime(0.3, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+        osc.connect(g); g.connect(seGain);
+        osc.start(t); osc.stop(t + 0.25);
+        countTone('enemy');
+      } catch (e) {}
+      noise(0.1, 0.2);
+    },
+    goal: () => {
+      playFallback(0.5);
+      ['C5','E5','G5','C6'].forEach((n, i) => setTimeout(() => tone(NOTE[n], 0.25, 'square', 0.5), i * 100));
+    },
+    gameOver: () => {
+      playFallback(0.4);
+      ['G4','F4','E4','D4','C4'].forEach((n, i) => setTimeout(() => tone(NOTE[n], 0.2, 'triangle', 0.4), i * 120));
+    },
+  };
+
+  function setEnabled(v) {
+    enabled = v;
+    if (!enabled) stopBgm();
+    else if (currentBgm) startBgm(currentBgm);
+  }
+
+  return {
+    setDebugEl, unlock, isReady,
+    startBgm, stopBgm, setEnabled,
+    isEnabled: () => enabled,
+    sfx,
+  };
+})();
+
+// ============================================================
+// Input: 入力管理 (タップ・スワイプ・キーボード)
+// ============================================================
+const Input = (() => {
+  let onJump = null, onSlide = null, onJumpRelease = null;
+  let touchStartY = null, swipeFired = false;
+
+  function setup(canvas, callbacks) {
+    onJump = callbacks.onJump;
+    onSlide = callbacks.onSlide;
+    onJumpRelease = callbacks.onJumpRelease;
+
+    const start = (x, y) => {
+      touchStartY = y;
+      swipeFired = false;
+      onJump && onJump();
+    };
+    const move = (x, y) => {
+      if (touchStartY === null) return;
+      if (y - touchStartY > Config.input.swipeThreshold && !swipeFired) {
+        swipeFired = true;
+        onSlide && onSlide();
+      }
+    };
+    const end = () => {
+      touchStartY = null;
+      onJumpRelease && onJumpRelease();
+    };
+
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); start(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+    canvas.addEventListener('touchmove', e => { e.preventDefault(); move(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+    canvas.addEventListener('touchend', e => { e.preventDefault(); end(); }, { passive: false });
+    canvas.addEventListener('touchcancel', e => { e.preventDefault(); end(); }, { passive: false });
+    canvas.addEventListener('mousedown', e => start(e.clientX, e.clientY));
+    canvas.addEventListener('mousemove', e => { if (e.buttons === 1) move(e.clientX, e.clientY); });
+    canvas.addEventListener('mouseup', end);
+
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space' || e.code === 'ArrowUp') onJump && onJump();
+      else if (e.code === 'ArrowDown') onSlide && onSlide();
+    });
+    document.addEventListener('keyup', e => {
+      if (e.code === 'Space' || e.code === 'ArrowUp') onJumpRelease && onJumpRelease();
+    });
+  }
+
+  return { setup };
+})();
+
+// ============================================================
+// Player: プレイヤー状態
+// ============================================================
+class Player {
+  constructor() {
+    const pc = Config.player;
+    this.x = 80; this.y = 0;
+    this.w = pc.width; this.h = pc.height;
+    this.vx = 0; this.vy = 0;
+    this.moveSpeed = pc.moveSpeed;
+    this.jumpPower = pc.jumpPower;
+    this.gravity = pc.gravity;
+    this.grounded = true; this.jumping = false;
+    this.sliding = false; this.slideTimer = 0;
+    this.holdingJump = false; this.holdTimer = 0;
+    this.animTime = 0;
+    this.finishing = false;
+  }
+
+  tryJump() {
+    if (!this.grounded || this.sliding) return false;
+    this.vy = this.jumpPower;
+    this.grounded = false;
+    this.jumping = true;
+    this.holdingJump = true;
+    this.holdTimer = 0;
+    return true;
+  }
+
+  releaseJump() { this.holdingJump = false; }
+
+  trySlide() {
+    if (!this.grounded || this.sliding) return false;
+    this.sliding = true;
+    this.slideTimer = 0;
+    return true;
+  }
+
+  hitbox() {
+    return { x: this.x, y: this.y, w: this.w, h: this.sliding ? 24 : this.h };
+  }
+}
+
+// ============================================================
+// Stage: ステージ状態
+// ============================================================
+class Stage {
+  constructor(stageData) {
+    this.data = stageData;
+    this.length = stageData.length;
+    this.platforms = [];
+    this.coins = [];
+    this.enemies = [];
+    this.pits = [];
+    this.goal = null;
+
+    for (const obj of stageData.objects) {
+      switch (obj.type) {
+        case 'platform': this.platforms.push({ x: obj.x, y: obj.y, w: obj.w, h: obj.h }); break;
+        case 'coin': this.coins.push({ x: obj.x, y: obj.y, r: 12, collected: false, anim: Math.random() * Math.PI * 2 }); break;
+        case 'enemy': this.enemies.push({ x: obj.x, y: 0, w: 36, h: 30, kind: obj.kind, vx: -1.2, alive: true, anim: 0 }); break;
+        case 'pit': this.pits.push({ x: obj.x, w: obj.w }); break;
+        case 'goal': this.goal = { x: obj.x, y: 0 }; break;
+      }
+    }
+  }
+}
+
+// ============================================================
+// Physics: 移動・衝突判定
+// ============================================================
+const Physics = {
+  update(player, stage, dt, fx) {
+    const pc = Config.player;
+
+    if (player.holdingJump && player.jumping) {
+      player.holdTimer += dt;
+      if (player.holdTimer < pc.holdJumpDuration && player.vy > 0) {
+        player.vy += pc.holdJumpForce;
+      }
+    }
+
+    if (player.sliding) {
+      player.slideTimer += dt;
+      if (player.slideTimer > pc.slideDuration) player.sliding = false;
+    }
+
+    let speed = player.moveSpeed;
+    if (player.sliding) speed *= pc.slideSpeedMultiplier;
+    if (!player.finishing) player.x += speed;
+
+    player.vy -= player.gravity;
+    player.y += player.vy;
+
+    let onPlatform = false;
+    if (player.vy <= 0) {
+      for (const plat of stage.platforms) {
+        if (player.x + player.w > plat.x && player.x < plat.x + plat.w) {
+          const top = plat.y + plat.h;
+          if (player.y <= top && player.y >= top - 16 - Math.abs(player.vy)) {
+            player.y = top; player.vy = 0;
+            player.grounded = true; player.jumping = false;
+            onPlatform = true;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!onPlatform) {
+      let onPit = false;
+      for (const pit of stage.pits) {
+        if (player.x + player.w / 2 > pit.x && player.x + player.w / 2 < pit.x + pit.w) {
+          onPit = true; break;
+        }
+      }
+      if (!onPit && player.y <= 0) {
+        player.y = 0; player.vy = 0;
+        player.grounded = true; player.jumping = false;
+      } else {
+        player.grounded = false;
+      }
+    }
+
+    if (player.y < -100) { fx.onDeath(); return; }
+
+    for (const e of stage.enemies) {
+      if (!e.alive) continue;
+      e.anim += dt;
+      e.x += e.vx;
+      if (this._collides(player, e)) {
+        if (player.vy < -3 && player.y + player.hitbox().h >= e.y + e.h - 10) {
+          e.alive = false; player.vy = 8;
+          fx.onEnemyDefeat(e);
+        } else if (player.sliding) {
+          e.alive = false;
+          fx.onEnemyDefeat(e);
+        } else {
+          fx.onDeath(); return;
+        }
+      }
+    }
+
+    for (const c of stage.coins) {
+      if (c.collected) continue;
+      c.anim += dt * 4;
+      const dx = player.x + player.w / 2 - c.x;
+      const dy = player.y + player.h / 2 - c.y;
+      if (dx * dx + dy * dy < (c.r + 18) * (c.r + 18)) {
+        c.collected = true;
+        fx.onCoinCollect(c);
+      }
+    }
+
+    if (stage.goal && !player.finishing && player.x + player.w / 2 >= stage.goal.x) {
+      player.finishing = true;
+      fx.onGoal();
+    }
+
+    player.animTime += dt;
+  },
+
+  _collides(player, e) {
+    const hb = player.hitbox();
+    return hb.x + hb.w > e.x && hb.x < e.x + e.w
+        && hb.y < e.y + e.h && hb.y + hb.h > e.y;
+  },
+};
+
+// ============================================================
+// Renderer: Canvas描画
+// ============================================================
+const Renderer = (() => {
+  let canvas, ctx;
+
+  function init(canvasEl) {
+    canvas = canvasEl;
+    ctx = canvas.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
+  }
+
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    const w = window.innerWidth, h = window.innerHeight;
+    const aspect = Config.VW / Config.VH;
+    let cw, ch;
+    if (w / h > aspect) { ch = h; cw = h * aspect; }
+    else { cw = w; ch = w / aspect; }
+    canvas.style.width = cw + 'px';
+    canvas.style.height = ch + 'px';
+    canvas.width = cw * dpr; canvas.height = ch * dpr;
+    const s = (cw / Config.VW) * dpr;
+    ctx.setTransform(s, 0, 0, s, 0, 0);
+  }
+
+  function drawScene(s) {
+    drawBg(s.stage);
+    if (!s.stage) return;
+    drawClouds(s.camera);
+    ctx.save();
+    ctx.translate(-s.camera.x, 0);
+    drawMountains(s.camera);
+    drawGround(s.stage, s.camera);
+    s.stage.platforms.forEach(drawPlatform);
+    s.stage.coins.forEach(c => { if (!c.collected) drawCoin(c); });
+    s.stage.enemies.forEach(e => { if (e.alive) drawSlime(e); });
+    if (s.stage.goal) drawGoal(s.stage.goal);
+    if (s.player) drawCat(s.player);
+    s.particles.forEach(drawParticle);
+    ctx.restore();
+  }
+
+  function drawBg(stage) {
+    const g = ctx.createLinearGradient(0, 0, 0, Config.VH);
+    if (stage) { g.addColorStop(0, stage.data.bgColor[0]); g.addColorStop(1, stage.data.bgColor[1]); }
+    else { g.addColorStop(0, '#1a2348'); g.addColorStop(1, '#3d4878'); }
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, Config.VW, Config.VH);
+    ctx.save();
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = '#FFD23F';
+    ctx.beginPath(); ctx.arc(Config.VW - 90, 110, 40, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#1a2348';
+    ctx.beginPath(); ctx.arc(Config.VW - 75, 100, 35, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawClouds(cam) {
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    const o = (cam.x * 0.2) % (Config.VW + 200);
+    drawCloud(Config.VW - o, 80);
+    drawCloud(Config.VW * 0.3 - o * 0.5, 150);
+    drawCloud(Config.VW * 0.7 - o * 0.3, 200);
+  }
+
+  function drawCloud(x, y) {
+    ctx.beginPath();
+    ctx.arc(x, y, 24, 0, Math.PI * 2);
+    ctx.arc(x + 20, y - 6, 22, 0, Math.PI * 2);
+    ctx.arc(x + 40, y, 20, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawMountains(cam) {
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    const baseY = Config.GROUND_SCREEN_Y;
+    const off = cam.x * 0.3;
+    for (let i = -1; i < 8; i++) {
+      const x = cam.x + i * 250 - (off % 250);
+      ctx.beginPath();
+      ctx.moveTo(x, baseY);
+      ctx.lineTo(x + 125, baseY - 180);
+      ctx.lineTo(x + 250, baseY);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
+  function drawGround(stage, cam) {
+    const y = Config.GROUND_SCREEN_Y;
+    ctx.fillStyle = '#3a2818';
+    ctx.fillRect(cam.x, y, Config.VW, Config.VH - y);
+    ctx.fillStyle = '#57E389';
+    ctx.fillRect(cam.x, y, Config.VW, 12);
+    ctx.fillStyle = '#0B0F2A';
+    for (const pit of stage.pits) {
+      ctx.fillRect(pit.x, y, pit.w, Config.VH - y);
+    }
+    ctx.fillStyle = '#3da866';
+    for (let x = Math.floor(cam.x / 30) * 30; x < cam.x + Config.VW; x += 30) {
+      let inPit = false;
+      for (const pit of stage.pits) {
+        if (x > pit.x - 10 && x < pit.x + pit.w + 10) { inPit = true; break; }
+      }
+      if (!inPit) {
+        ctx.fillRect(x, y - 4, 4, 8);
+        ctx.fillRect(x + 8, y - 3, 3, 6);
+      }
+    }
+  }
+
+  function drawPlatform(plat) {
+    const y = Config.GROUND_SCREEN_Y - plat.y - plat.h;
+    ctx.fillStyle = '#8B5A2B';
+    ctx.fillRect(plat.x, y, plat.w, plat.h);
+    ctx.fillStyle = '#57E389';
+    ctx.fillRect(plat.x, y, plat.w, 6);
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    for (let i = 0; i < plat.w; i += 20) ctx.fillRect(plat.x + i, y + 6, 1, plat.h - 6);
+  }
+
+  function drawCoin(c) {
+    const y = Config.GROUND_SCREEN_Y - c.y;
+    const wob = Math.sin(c.anim) * 3;
+    ctx.save();
+    ctx.translate(c.x, y + wob);
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(0, 14, 10, 3, 0, 0, Math.PI * 2); ctx.fill();
+    const g = ctx.createRadialGradient(-3, -3, 1, 0, 0, 12);
+    g.addColorStop(0, '#FFE57F'); g.addColorStop(1, '#FFB300');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#8B6914'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FFF'; ctx.fillRect(-1, -5, 2, 10);
+    ctx.restore();
+  }
+
+  function drawSlime(e) {
+    const y = Config.GROUND_SCREEN_Y - e.h;
+    const sq = Math.sin(e.anim * 5) * 0.1;
+    ctx.save();
+    ctx.translate(e.x + e.w / 2, y + e.h);
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(0, 4, 18, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#9c27b0';
+    ctx.beginPath(); ctx.ellipse(0, -e.h / 2, e.w / 2, e.h / 2 + sq * 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.beginPath(); ctx.ellipse(-6, -e.h / 2 - 4, 4, 6, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-6, -e.h / 2 - 2, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(6, -e.h / 2 - 2, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath(); ctx.arc(-6, -e.h / 2 - 2, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(6, -e.h / 2 - 2, 2, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawGoal(goal) {
+    const y = Config.GROUND_SCREEN_Y;
+    ctx.fillStyle = '#888'; ctx.fillRect(goal.x, y - 200, 6, 200);
+    const w = Math.sin(performance.now() / 200) * 4;
+    ctx.fillStyle = '#FF4D6D';
+    ctx.beginPath();
+    ctx.moveTo(goal.x + 6, y - 200);
+    ctx.lineTo(goal.x + 60 + w, y - 180);
+    ctx.lineTo(goal.x + 6, y - 160);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#FFD23F'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('★', goal.x + 30, y - 175);
+  }
+
+  function drawParticle(p) {
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = Math.min(1, p.life * 2);
+    const sy = Config.GROUND_SCREEN_Y - p.y;
+    ctx.fillRect(p.x - p.size / 2, sy - p.size / 2, p.size, p.size);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawCat(p) {
+    const sy = Config.GROUND_SCREEN_Y - p.y - p.h;
+    const cx = p.x + p.w / 2, cy = sy + p.h / 2;
+    const bob = p.grounded ? Math.sin(p.animTime * 12) * 2 : 0;
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.globalAlpha = Math.max(0.1, 0.4 - Math.abs(p.vy) * 0.03);
+    ctx.beginPath(); ctx.ellipse(cx, Config.GROUND_SCREEN_Y - 2, 22, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+
+    if (p.sliding) {
+      drawCatSliding(cx, Config.GROUND_SCREEN_Y - 20);
+      ctx.restore(); return;
+    }
+
+    const frame = Math.floor(p.animTime * 14) % 4;
+    ctx.translate(cx, cy + bob);
+    drawCatTail(p);
+    drawCatBackLegs(p, frame);
+    const bg = ctx.createRadialGradient(-4, -8, 2, 0, 0, 26);
+    bg.addColorStop(0, '#9CACB8'); bg.addColorStop(1, '#6F7D8B');
+    ctx.fillStyle = bg;
+    ctx.beginPath(); ctx.ellipse(0, 6, 22, 20, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath(); ctx.ellipse(-2, 10, 12, 10, 0, 0, Math.PI * 2); ctx.fill();
+    drawCatFrontLegs(p, frame);
+    drawCatHead();
+    ctx.restore();
+  }
+
+  function drawCatHead() {
+    const hy = -16;
+    ctx.fillStyle = '#5F6D7B';
+    ctx.beginPath(); ctx.moveTo(-15, hy - 8); ctx.lineTo(-19, hy - 22); ctx.lineTo(-7, hy - 12); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(15, hy - 8); ctx.lineTo(19, hy - 22); ctx.lineTo(7, hy - 12); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#FFB4C0';
+    ctx.beginPath(); ctx.moveTo(-14, hy - 10); ctx.lineTo(-17, hy - 18); ctx.lineTo(-10, hy - 12); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(14, hy - 10); ctx.lineTo(17, hy - 18); ctx.lineTo(10, hy - 12); ctx.closePath(); ctx.fill();
+    const hg = ctx.createRadialGradient(-4, hy - 4, 2, 0, hy, 20);
+    hg.addColorStop(0, '#9CACB8'); hg.addColorStop(1, '#6F7D8B');
+    ctx.fillStyle = hg;
+    ctx.beginPath(); ctx.ellipse(0, hy, 18, 17, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.beginPath(); ctx.ellipse(-8, hy + 4, 6, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(8, hy + 4, 6, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.ellipse(-6, hy - 2, 4.5, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(6, hy - 2, 4.5, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FFA726';
+    ctx.beginPath(); ctx.ellipse(-6, hy - 1, 3.5, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(6, hy - 1, 3.5, 4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#0B0F2A';
+    ctx.beginPath(); ctx.ellipse(-6, hy, 1.2, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(6, hy, 1.2, 3.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(-7, hy - 3, 1, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(5, hy - 3, 1, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FFB4C0';
+    ctx.beginPath(); ctx.moveTo(-2.5, hy + 4); ctx.lineTo(2.5, hy + 4); ctx.lineTo(0, hy + 7); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#4A5564'; ctx.lineWidth = 1.2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(0, hy + 7); ctx.quadraticCurveTo(-3, hy + 10, -5, hy + 8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, hy + 7); ctx.quadraticCurveTo(3, hy + 10, 5, hy + 8); ctx.stroke();
+    ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 0.8; ctx.globalAlpha = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(-10, hy + 5); ctx.lineTo(-18, hy + 3);
+    ctx.moveTo(-10, hy + 7); ctx.lineTo(-18, hy + 7);
+    ctx.moveTo(10, hy + 5); ctx.lineTo(18, hy + 3);
+    ctx.moveTo(10, hy + 7); ctx.lineTo(18, hy + 7);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawCatTail(p) {
+    ctx.strokeStyle = '#6F7D8B'; ctx.lineWidth = 7; ctx.lineCap = 'round';
+    const w = Math.sin(p.animTime * 10) * 5;
+    ctx.beginPath();
+    ctx.moveTo(-18, 8);
+    ctx.quadraticCurveTo(-26, -2 + w, -24, -14 + w);
+    ctx.stroke();
+    ctx.strokeStyle = '#9CACB8'; ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(-25, -10 + w);
+    ctx.quadraticCurveTo(-25, -14 + w, -23, -14 + w);
+    ctx.stroke();
+  }
+
+  function drawCatFrontLegs(p, frame) {
+    ctx.fillStyle = '#6F7D8B';
+    if (p.grounded && !p.jumping) {
+      const offs = [[-8, 0], [-6, -2], [-10, 0], [-8, -2]];
+      const o = offs[frame];
+      ctx.beginPath(); ctx.ellipse(o[0], 22 + o[1], 5, 8, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(o[0] + 4, 22 - o[1], 5, 8, 0, 0, Math.PI * 2); ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.ellipse(-6, 18, 5, 8, -0.3, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-2, 18, 5, 8, -0.3, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  function drawCatBackLegs(p, frame) {
+    ctx.fillStyle = '#5F6D7B';
+    if (p.grounded && !p.jumping) {
+      const offs = [[10, -2], [12, 0], [8, -2], [10, 0]];
+      const o = offs[frame];
+      ctx.beginPath(); ctx.ellipse(o[0], 22 + o[1], 6, 10, 0, 0, Math.PI * 2); ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.ellipse(12, 16, 6, 10, 0.3, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  function drawCatSliding(cx, y) {
+    ctx.save();
+    ctx.translate(cx, y);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.beginPath(); ctx.ellipse(0, 18, 30, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#6F7D8B'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-22, 5); ctx.lineTo(-32, 0); ctx.stroke();
+    const bg = ctx.createRadialGradient(-4, -4, 2, 0, 0, 30);
+    bg.addColorStop(0, '#9CACB8'); bg.addColorStop(1, '#6F7D8B');
+    ctx.fillStyle = bg;
+    ctx.beginPath(); ctx.ellipse(0, 6, 30, 14, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#8A99A8';
+    ctx.beginPath(); ctx.ellipse(18, 0, 16, 13, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#5F6D7B';
+    ctx.beginPath(); ctx.moveTo(10, -8); ctx.lineTo(6, -14); ctx.lineTo(16, -10); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(20, -10); ctx.lineTo(22, -16); ctx.lineTo(26, -8); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#0B0F2A'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(14, -2); ctx.lineTo(18, -2);
+    ctx.moveTo(22, -2); ctx.lineTo(26, -2); ctx.stroke();
+    ctx.strokeStyle = '#3DDCFF'; ctx.lineWidth = 2; ctx.globalAlpha = 0.7;
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-40 - i * 8, -5 + i * 5);
+      ctx.lineTo(-25 - i * 8, -5 + i * 5);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  return { init, drawScene };
+})();
+
+// ============================================================
+// UI: DOM操作
+// ============================================================
+const UI = (() => {
+  const els = {};
+  const ids = ['titleScreen','hud','tutorial','resultModal','gameOverModal','pauseModal',
+               'stageLabel','coinCount','timer','resultStars','resultScore','resultTime',
+               'resultCoins','nextBtn','soundBtn'];
+
+  function init() {
+    ids.forEach(id => els[id] = document.getElementById(id));
+  }
+
+  return {
+    init,
+    show: id => { els[id].style.display = 'flex'; },
+    hide: id => { els[id].style.display = 'none'; },
+    showModal: id => els[id].classList.add('show'),
+    hideModal: id => els[id].classList.remove('show'),
+    setStage: id => els.stageLabel.textContent = `STAGE ${id}`,
+    setCoins: n => els.coinCount.textContent = `× ${n}`,
+    setTimer: t => {
+      const m = Math.floor(t / 60).toString().padStart(2, '0');
+      const s = Math.floor(t % 60).toString().padStart(2, '0');
+      els.timer.textContent = `${m}:${s}`;
+    },
+    showResult: (stars, score, t, coins, hasNext) => {
+      els.resultStars.textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+      els.resultScore.textContent = score;
+      const m = Math.floor(t / 60).toString().padStart(2, '0');
+      const s = Math.floor(t % 60).toString().padStart(2, '0');
+      els.resultTime.textContent = `${m}:${s}`;
+      els.resultCoins.textContent = coins;
+      els.nextBtn.style.display = hasNext ? 'block' : 'none';
+      els.resultModal.classList.add('show');
+    },
+    setSoundIcon: enabled => {
+      els.soundBtn.textContent = enabled ? '🔊' : '🔇';
+      els.soundBtn.classList.toggle('off', !enabled);
+    },
+    on: (id, handler) => document.getElementById(id).addEventListener('click', handler),
+  };
+})();
+
+// ============================================================
+// Game: ゲーム状態と進行
+// ============================================================
+const STATE = { TITLE: 'title', PLAYING: 'playing', PAUSED: 'paused', RESULT: 'result', GAMEOVER: 'gameover' };
+
+const Game = (() => {
+  const state = {
+    mode: STATE.TITLE,
+    stageIdx: 0, stage: null, player: null,
+    camera: { x: 0 },
+    coins: 0, timer: 0,
+    particles: [],
+    shownTutorial: false,
+  };
+
+  function addParticles(x, y, n, color) {
+    for (let i = 0; i < n; i++) {
+      state.particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 6,
+        vy: Math.random() * 5 + 2,
+        life: 0.5 + Math.random() * 0.3,
+        color, size: 3 + Math.random() * 2,
+      });
+    }
+  }
+
+  function loadStage(idx) {
+    state.stageIdx = idx;
+    state.stage = new Stage(Config.stages[idx]);
+    state.player = new Player();
+    state.camera.x = 0;
+    state.coins = 0; state.timer = 0;
+    state.particles = [];
+    UI.setStage(state.stage.data.id);
+    UI.show('hud');
+    AudioEngine.startBgm(state.stage.data.bgmKey);
+  }
+
+  function start() {
+    loadStage(0);
+    if (!state.shownTutorial) {
+      UI.show('tutorial');
+      state.mode = STATE.TITLE;
+    } else {
+      state.mode = STATE.PLAYING;
+    }
+  }
+
+  function dismissTutorial() {
+    UI.hide('tutorial');
+    state.shownTutorial = true;
+    state.mode = STATE.PLAYING;
+  }
+
+  function pause() {
+    if (state.mode !== STATE.PLAYING) return;
+    state.mode = STATE.PAUSED;
+    AudioEngine.stopBgm();
+    UI.showModal('pauseModal');
+  }
+
+  function resume() {
+    if (state.mode !== STATE.PAUSED) return;
+    UI.hideModal('pauseModal');
+    state.mode = STATE.PLAYING;
+    AudioEngine.startBgm(state.stage.data.bgmKey);
+  }
+
+  function retry() {
+    UI.hideModal('pauseModal');
+    UI.hideModal('gameOverModal');
+    UI.hideModal('resultModal');
+    loadStage(state.stageIdx);
+    state.mode = STATE.PLAYING;
+  }
+
+  function nextStage() {
+    UI.hideModal('resultModal');
+    if (state.stageIdx < Config.stages.length - 1) {
+      loadStage(state.stageIdx + 1);
+      state.mode = STATE.PLAYING;
+    } else {
+      backToTitle();
+    }
+  }
+
+  function backToTitle() {
+    UI.hideModal('resultModal');
+    UI.hideModal('gameOverModal');
+    UI.hideModal('pauseModal');
+    UI.hide('hud');
+    UI.show('titleScreen');
+    state.mode = STATE.TITLE;
+    AudioEngine.startBgm('title');
+  }
+
+  function gameOver() {
+    state.mode = STATE.GAMEOVER;
+    AudioEngine.stopBgm();
+    AudioEngine.sfx.gameOver();
+    UI.showModal('gameOverModal');
+  }
+
+  function stageClear() {
+    state.mode = STATE.RESULT;
+    AudioEngine.stopBgm();
+    AudioEngine.sfx.goal();
+
+    const sc = Config.score;
+    const timeBonus = Math.max(0, Math.floor((sc.timeBonusMax - state.timer) * sc.timeBonusFactor));
+    const score = state.coins * sc.coinValue + timeBonus + sc.clearBonus;
+    let stars = 1;
+    if (score >= sc.starThresholds.three) stars = 3;
+    else if (score >= sc.starThresholds.two) stars = 2;
+
+    setTimeout(() => {
+      UI.showResult(stars, score, state.timer, state.coins,
+                    state.stageIdx < Config.stages.length - 1);
+    }, 800);
+  }
+
+  const inputHandlers = {
+    onJump: () => {
+      if (state.mode !== STATE.PLAYING) return;
+      if (state.player.tryJump()) {
+        addParticles(state.player.x + state.player.w / 2, state.player.y, 6, '#FFD23F');
+        AudioEngine.sfx.jump();
+      }
+    },
+    onJumpRelease: () => { if (state.player) state.player.releaseJump(); },
+    onSlide: () => {
+      if (state.mode !== STATE.PLAYING) return;
+      if (state.player.trySlide()) {
+        addParticles(state.player.x + state.player.w / 2, state.player.y + 4, 4, '#3DDCFF');
+        AudioEngine.sfx.slide();
+      }
+    },
+  };
+
+  const physicsFx = {
+    onCoinCollect: c => {
+      state.coins++;
+      addParticles(c.x, c.y, 6, '#FFD23F');
+      AudioEngine.sfx.coin();
+    },
+    onEnemyDefeat: e => {
+      addParticles(e.x + e.w / 2, e.y + e.h / 2, 8, '#FF4D6D');
+      AudioEngine.sfx.enemy();
+    },
+    onGoal: () => stageClear(),
+    onDeath: () => gameOver(),
+  };
+
+  function update(dt) {
+    if (state.mode !== STATE.PLAYING) return;
+
+    state.timer += dt;
+    Physics.update(state.player, state.stage, dt, physicsFx);
+
+    const tx = state.player.x - Config.VW * 0.3;
+    state.camera.x += (tx - state.camera.x) * 0.15;
+    state.camera.x = Math.max(0, Math.min(state.camera.x, state.stage.length - Config.VW));
+
+    for (let i = state.particles.length - 1; i >= 0; i--) {
+      const p = state.particles[i];
+      p.x += p.vx; p.y += p.vy; p.vy -= 0.3; p.life -= dt;
+      if (p.life <= 0) state.particles.splice(i, 1);
+    }
+
+    UI.setCoins(state.coins);
+    UI.setTimer(state.timer);
+  }
+
+  return {
+    state, inputHandlers,
+    start, dismissTutorial, pause, resume, retry, nextStage, backToTitle, update,
+  };
+})();
+
+// ============================================================
+// Main: 起動・ループ・UIイベント連携
+// ============================================================
+(function main() {
+  UI.init();
+  Renderer.init(document.getElementById('game'));
+  AudioEngine.setDebugEl(document.getElementById('audioDebug'));
+  Input.setup(document.getElementById('game'), Game.inputHandlers);
+
+  // タイトルタップで音とゲーム開始 (重要: 同期的にunlock→sfx)
+  UI.on('titleScreen', () => {
+    AudioEngine.unlock();
+    AudioEngine.sfx.coin();
+    UI.hide('titleScreen');
+    Game.start();
+  });
+
+  UI.on('tutorial', () => Game.dismissTutorial());
+  UI.on('pauseBtn', () => Game.pause());
+  UI.on('resumeBtn', () => Game.resume());
+  UI.on('pauseRetryBtn', () => Game.retry());
+  UI.on('pauseTitleBtn', () => Game.backToTitle());
+  UI.on('retryBtn', () => Game.retry());
+  UI.on('nextBtn', () => Game.nextStage());
+  UI.on('overRetryBtn', () => Game.retry());
+  UI.on('overTitleBtn', () => Game.backToTitle());
+
+  UI.on('soundBtn', () => {
+    AudioEngine.unlock();
+    const next = !AudioEngine.isEnabled();
+    AudioEngine.setEnabled(next);
+    UI.setSoundIcon(next);
+    if (next) AudioEngine.sfx.coin();
+  });
+
+  let lastTime = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.033, (now - lastTime) / 1000);
+    lastTime = now;
+    Game.update(dt);
+    Renderer.drawScene(Game.state);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
