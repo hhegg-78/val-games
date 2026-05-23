@@ -247,9 +247,9 @@ const Config = {
 
   player: {
     width: 44, height: 50,
-    moveSpeed: 5.5, jumpPower: 12.5, gravity: 0.82,
-    slideDuration: 0.38, slideSpeedMultiplier: 1.3,
-    holdJumpDuration: 0.10, holdJumpForce: 0.15,
+    moveSpeed: 6.0, jumpPower: 12.0, gravity: 0.88,
+    slideDuration: 0.35, slideSpeedMultiplier: 1.3,
+    holdJumpDuration: 0.08, holdJumpForce: 0.12,
   },
 
   input: {
@@ -266,61 +266,74 @@ const Config = {
 
   stages: [
     {
-      id: '1-1', name: 'はじめての森', length: 3200,
+      id: '1-1', name: 'はじめての森', length: 3400,
       bgmKey: 'world1', bgColor: ['#1a2348', '#3d4878'],
       objects: [
-        { type: 'platform', x: 600, y: 100, w: 100, h: 16 },
-        { type: 'coin', x: 640, y: 140 },
-        { type: 'enemy', x: 850, kind: 'slime' },
-        { type: 'platform', x: 900, y: 180, w: 100, h: 16 },
-        { type: 'coin', x: 940, y: 220 },
-        { type: 'pit', x: 1050, w: 80 },
-        { type: 'enemy', x: 1150, kind: 'slime' },
-        { type: 'coin', x: 1200, y: 70 },
-        { type: 'platform', x: 1350, y: 130, w: 120, h: 16 },
-        { type: 'coin', x: 1390, y: 170 },
-        { type: 'coin', x: 1430, y: 170 },
-        { type: 'pit', x: 1560, w: 120 },
-        { type: 'enemy', x: 1760, kind: 'slime' },
-        { type: 'enemy', x: 1860, kind: 'slime' },
-        { type: 'pit', x: 2000, w: 100 },
-        { type: 'platform', x: 2150, y: 90, w: 80, h: 16 },
-        { type: 'coin', x: 2175, y: 130 },
-        { type: 'pit', x: 2300, w: 140 },
-        { type: 'enemy', x: 2520, kind: 'slime' },
-        { type: 'platform', x: 2600, y: 60, w: 70, h: 16 },
-        { type: 'platform', x: 2740, y: 140, w: 70, h: 16 },
-        { type: 'coin', x: 2765, y: 180 },
-        { type: 'pit', x: 2870, w: 100 },
+        // 序盤: コウモリ洗礼
+        { type: 'enemy', x: 500, kind: 'bat', floatY: 100 },
+        { type: 'platform', x: 620, y: 100, w: 90, h: 16 },
+        { type: 'coin', x: 655, y: 140 },
+
+        // 中盤前半: スライムと落とし穴
+        { type: 'pit', x: 800, w: 90 },
+        { type: 'enemy', x: 980, kind: 'slime' },
+        { type: 'enemy', x: 1080, kind: 'bat', floatY: 80 },
+        { type: 'platform', x: 1150, y: 120, w: 80, h: 16 },
+        { type: 'coin', x: 1180, y: 160 },
+
+        // 鳥が突進してくる地帯
+        { type: 'pit', x: 1320, w: 100 },
+        { type: 'enemy', x: 1600, kind: 'bird', floatY: 70 },
+        { type: 'enemy', x: 1800, kind: 'slime' },
+        { type: 'enemy', x: 1900, kind: 'slime' },
+
+        // コウモリ+落とし穴コンボ
+        { type: 'pit', x: 2050, w: 110 },
+        { type: 'enemy', x: 2200, kind: 'bat', floatY: 60 },
+        { type: 'enemy', x: 2350, kind: 'bat', floatY: 130 },
+        { type: 'platform', x: 2280, y: 80, w: 70, h: 16 },
+        { type: 'coin', x: 2305, y: 120 },
+
+        // 中盤後半: 鳥ラッシュ
+        { type: 'pit', x: 2450, w: 120 },
+        { type: 'enemy', x: 2700, kind: 'bird', floatY: 50 },
+        { type: 'enemy', x: 2900, kind: 'bird', floatY: 90 },
         { type: 'enemy', x: 3000, kind: 'slime' },
-        { type: 'goal', x: 3100 },
+
+        // ラスト: 落とし穴+スライム
+        { type: 'pit', x: 3100, w: 100 },
+        { type: 'enemy', x: 3260, kind: 'bat', floatY: 100 },
+        { type: 'goal', x: 3350 },
       ],
     },
     {
-      id: '1-2', name: 'こもれびの道', length: 3500,
+      id: '1-2', name: 'こもれびの道', length: 3600,
       bgmKey: 'world2', bgColor: ['#2d1a48', '#583878'],
       objects: [
-        { type: 'enemy', x: 500, kind: 'slime' },
-        { type: 'platform', x: 700, y: 120, w: 100, h: 16 },
-        { type: 'platform', x: 870, y: 200, w: 100, h: 16 },
-        { type: 'coin', x: 910, y: 240 },
-        { type: 'platform', x: 1040, y: 280, w: 100, h: 16 },
-        { type: 'coin', x: 1080, y: 320 },
-        { type: 'pit', x: 1250, w: 140 },
+        { type: 'enemy', x: 400, kind: 'bird', floatY: 60 },
+        { type: 'enemy', x: 600, kind: 'slime' },
+        { type: 'platform', x: 750, y: 120, w: 80, h: 16 },
+        { type: 'enemy', x: 850, kind: 'bat', floatY: 150 },
+        { type: 'platform', x: 950, y: 200, w: 80, h: 16 },
+        { type: 'coin', x: 980, y: 240 },
+        { type: 'pit', x: 1100, w: 150 },
+        { type: 'enemy', x: 1350, kind: 'bird', floatY: 80 },
         { type: 'enemy', x: 1500, kind: 'slime' },
-        { type: 'enemy', x: 1600, kind: 'slime' },
-        { type: 'platform', x: 1800, y: 100, w: 200, h: 16 },
-        { type: 'coin', x: 1850, y: 140 },
-        { type: 'coin', x: 1900, y: 140 },
-        { type: 'coin', x: 1950, y: 140 },
-        { type: 'pit', x: 2100, w: 100 },
-        { type: 'pit', x: 2280, w: 100 },
-        { type: 'platform', x: 2450, y: 160, w: 120, h: 16 },
+        { type: 'enemy', x: 1600, kind: 'bat', floatY: 100 },
+        { type: 'platform', x: 1750, y: 100, w: 160, h: 16 },
+        { type: 'coin', x: 1810, y: 140 },
+        { type: 'coin', x: 1860, y: 140 },
+        { type: 'pit', x: 2000, w: 120 },
+        { type: 'enemy', x: 2200, kind: 'bird', floatY: 55 },
+        { type: 'pit', x: 2380, w: 120 },
+        { type: 'enemy', x: 2580, kind: 'bat', floatY: 90 },
         { type: 'enemy', x: 2700, kind: 'slime' },
-        { type: 'coin', x: 2900, y: 60 },
-        { type: 'coin', x: 2950, y: 60 },
-        { type: 'coin', x: 3000, y: 60 },
-        { type: 'goal', x: 3350 },
+        { type: 'platform', x: 2800, y: 160, w: 100, h: 16 },
+        { type: 'enemy', x: 2980, kind: 'bird', floatY: 70 },
+        { type: 'enemy', x: 3100, kind: 'bat', floatY: 120 },
+        { type: 'pit', x: 3200, w: 130 },
+        { type: 'enemy', x: 3400, kind: 'slime' },
+        { type: 'goal', x: 3500 },
       ],
     },
   ],
@@ -746,7 +759,28 @@ class Stage {
       switch (obj.type) {
         case 'platform': this.platforms.push({ x: obj.x, y: obj.y, w: obj.w, h: obj.h }); break;
         case 'coin': this.coins.push({ x: obj.x, y: obj.y, r: 12, collected: false, anim: Math.random() * Math.PI * 2 }); break;
-        case 'enemy': this.enemies.push({ x: obj.x, y: 0, w: 36, h: 30, kind: obj.kind, vx: -2.0, alive: true, anim: 0 }); break;
+        case 'enemy':
+          if (obj.kind === 'bat') {
+            // コウモリ: 空中を上下にサイン波で飛ぶ。踏めない。スライドでも倒せない。避けるしかない
+            this.enemies.push({
+              x: obj.x, y: obj.floatY || 120,
+              w: 34, h: 24,
+              kind: 'bat', vx: -2.5, alive: true, anim: 0,
+              baseY: obj.floatY || 120, waveAmp: 40, waveSpeed: 2.5,
+            });
+          } else if (obj.kind === 'bird') {
+            // 鳥: 高速で突進してくる。ジャンプで避けるしかない
+            this.enemies.push({
+              x: obj.x, y: obj.floatY || 60,
+              w: 38, h: 26,
+              kind: 'bird', vx: -4.5, alive: true, anim: 0,
+              baseY: obj.floatY || 60, waveAmp: 0, waveSpeed: 0,
+            });
+          } else {
+            // slime: 地上を歩く
+            this.enemies.push({ x: obj.x, y: 0, w: 36, h: 30, kind: 'slime', vx: -2.2, alive: true, anim: 0 });
+          }
+          break;
         case 'pit': this.pits.push({ x: obj.x, w: obj.w }); break;
         case 'goal': this.goal = { x: obj.x, y: 0 }; break;
       }
@@ -816,8 +850,17 @@ const Physics = {
       if (!e.alive) continue;
       e.anim += dt;
       e.x += e.vx;
+
+      // 空中を飛ぶ敵はY座標をサイン波で動かす
+      if (e.kind === 'bat' || e.kind === 'bird') {
+        e.y = e.baseY + Math.sin(e.anim * e.waveSpeed) * e.waveAmp;
+      }
+
       if (this._collides(player, e)) {
-        if (player.vy < -3 && player.y + player.hitbox().h >= e.y + e.h - 10) {
+        if (e.kind === 'bat' || e.kind === 'bird') {
+          // 飛行敵は踏めない・スライドも無効 → 必ずミス
+          fx.onDeath(); return;
+        } else if (player.vy < -3 && player.y + player.hitbox().h >= e.y + e.h - 10) {
           e.alive = false; player.vy = 8;
           fx.onEnemyDefeat(e);
         } else if (player.sliding) {
@@ -892,7 +935,7 @@ const Renderer = (() => {
     drawGround(s.stage, s.camera);
     s.stage.platforms.forEach(drawPlatform);
     s.stage.coins.forEach(c => { if (!c.collected) drawCoin(c); });
-    s.stage.enemies.forEach(e => { if (e.alive) drawSlime(e); });
+    s.stage.enemies.forEach(e => { if (e.alive) drawEnemy(e); });
     if (s.stage.goal) drawGoal(s.stage.goal);
     if (s.player) drawCat(s.player);
     s.particles.forEach(drawParticle);
@@ -990,6 +1033,103 @@ const Renderer = (() => {
     ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = '#8B6914'; ctx.lineWidth = 1.5; ctx.stroke();
     ctx.fillStyle = '#FFF'; ctx.fillRect(-1, -5, 2, 10);
+    ctx.restore();
+  }
+
+  function drawEnemy(e) {
+    if (e.kind === 'bat') drawBat(e);
+    else if (e.kind === 'bird') drawBird(e);
+    else drawSlime(e);
+  }
+
+  function drawBat(e) {
+    // 空中座標: e.yは地面からの高さ
+    const sy = Config.GROUND_SCREEN_Y - e.y - e.h;
+    const flap = Math.sin(e.anim * 12) * 0.4; // 羽ばたき
+    ctx.save();
+    ctx.translate(e.x + e.w / 2, sy + e.h / 2);
+
+    // 翼 (左右に広がる)
+    ctx.fillStyle = '#5c2a8a';
+    // 左翼
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(-22, -8 + flap * 18, -30, 4 + flap * 10);
+    ctx.quadraticCurveTo(-18, 8, 0, 4);
+    ctx.closePath(); ctx.fill();
+    // 右翼
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(22, -8 + flap * 18, 30, 4 + flap * 10);
+    ctx.quadraticCurveTo(18, 8, 0, 4);
+    ctx.closePath(); ctx.fill();
+
+    // 体
+    ctx.fillStyle = '#7b3fad';
+    ctx.beginPath(); ctx.ellipse(0, 2, 10, 10, 0, 0, Math.PI * 2); ctx.fill();
+
+    // 耳
+    ctx.fillStyle = '#5c2a8a';
+    ctx.beginPath(); ctx.moveTo(-5, -6); ctx.lineTo(-8, -14); ctx.lineTo(-2, -8); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(5, -6); ctx.lineTo(8, -14); ctx.lineTo(2, -8); ctx.closePath(); ctx.fill();
+
+    // 目 (赤く光る)
+    ctx.fillStyle = '#FF4D6D';
+    ctx.beginPath(); ctx.arc(-4, -1, 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(4, -1, 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-3, -2, 0.8, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(5, -2, 0.8, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawBird(e) {
+    const sy = Config.GROUND_SCREEN_Y - e.y - e.h;
+    const flap = Math.sin(e.anim * 16) * 0.5;
+    ctx.save();
+    ctx.translate(e.x + e.w / 2, sy + e.h / 2);
+
+    // 翼
+    ctx.fillStyle = '#FF8C00';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(-15, -10 + flap * 14, -26, -2 + flap * 8);
+    ctx.quadraticCurveTo(-12, 6, 0, 2);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(15, -10 + flap * 14, 26, -2 + flap * 8);
+    ctx.quadraticCurveTo(12, 6, 0, 2);
+    ctx.closePath(); ctx.fill();
+
+    // 体
+    ctx.fillStyle = '#FFD23F';
+    ctx.beginPath(); ctx.ellipse(0, 1, 11, 9, 0, 0, Math.PI * 2); ctx.fill();
+
+    // くちばし (左向き=前方)
+    ctx.fillStyle = '#FF6B00';
+    ctx.beginPath();
+    ctx.moveTo(-10, 0);
+    ctx.lineTo(-18, -2);
+    ctx.lineTo(-10, 4);
+    ctx.closePath(); ctx.fill();
+
+    // 目
+    ctx.fillStyle = '#0B0F2A';
+    ctx.beginPath(); ctx.arc(-4, -2, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(-3, -3, 1, 0, Math.PI * 2); ctx.fill();
+
+    // 速度線
+    ctx.strokeStyle = '#FFD23F'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.5;
+    for (let i = 1; i <= 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(8 + i * 7, -3 + i * 2);
+      ctx.lineTo(16 + i * 7, -3 + i * 2);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
     ctx.restore();
   }
 
