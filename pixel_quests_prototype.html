@@ -196,39 +196,109 @@
   <div class="title-screen" id="titleScreen">
     <div class="deco-dots left"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
     <div class="deco-dots right"><span class="d3"></span><span class="d2"></span><span class="d1"></span></div>
-    <h1>PIXEL QUEST</h1>
-    <div class="tagline">INDIE EDITION</div>
-    <svg class="title-cat" width="180" height="160" viewBox="0 0 180 160" xmlns="http://www.w3.org/2000/svg">
-      <ellipse cx="90" cy="130" rx="55" ry="20" fill="rgba(0,0,0,0.3)"/>
-      <ellipse cx="90" cy="100" rx="48" ry="42" fill="#7A8896"/>
-      <ellipse cx="90" cy="110" rx="42" ry="28" fill="#8A99A8"/>
-      <path d="M 130 115 Q 155 110 160 85 Q 158 75 150 78" fill="none" stroke="#7A8896" stroke-width="14" stroke-linecap="round"/>
-      <ellipse cx="90" cy="55" rx="40" ry="36" fill="#8A99A8"/>
-      <path d="M 60 35 L 55 12 L 78 28 Z" fill="#7A8896"/>
-      <path d="M 120 35 L 125 12 L 102 28 Z" fill="#7A8896"/>
-      <path d="M 62 32 L 60 20 L 72 28 Z" fill="#FFB4C0"/>
-      <path d="M 118 32 L 120 20 L 108 28 Z" fill="#FFB4C0"/>
-      <ellipse cx="76" cy="55" rx="8" ry="9" fill="#FFFFFF"/>
-      <ellipse cx="104" cy="55" rx="8" ry="9" fill="#FFFFFF"/>
-      <ellipse cx="76" cy="56" rx="6" ry="7" fill="#FFA726"/>
-      <ellipse cx="104" cy="56" rx="6" ry="7" fill="#FFA726"/>
-      <ellipse cx="76" cy="58" rx="2" ry="5" fill="#0B0F2A"/>
-      <ellipse cx="104" cy="58" rx="2" ry="5" fill="#0B0F2A"/>
-      <ellipse cx="74" cy="54" rx="1.5" ry="1.5" fill="#FFFFFF"/>
-      <ellipse cx="102" cy="54" rx="1.5" ry="1.5" fill="#FFFFFF"/>
-      <path d="M 86 66 L 94 66 L 90 71 Z" fill="#FFB4C0"/>
-      <path d="M 90 71 Q 85 76 80 73" stroke="#5A6878" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <path d="M 90 71 Q 95 76 100 73" stroke="#5A6878" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <line x1="60" y1="68" x2="40" y2="65" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
-      <line x1="60" y1="72" x2="40" y2="73" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
-      <line x1="120" y1="68" x2="140" y2="65" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
-      <line x1="120" y1="72" x2="140" y2="73" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
-      <ellipse cx="70" cy="135" rx="9" ry="6" fill="#7A8896"/>
-      <ellipse cx="110" cy="135" rx="9" ry="6" fill="#7A8896"/>
+    <h1 style="font-family:-apple-system,sans-serif;font-size:clamp(22px,7vw,38px);letter-spacing:2px;font-weight:900;">ここちゃんとなるちゃんの冒険</h1>
+    <div class="tagline" style="font-size:13px;letter-spacing:2px;">なるちゃんのおうちを目指せ！</div>
+    <!-- 2匹並んで座るSVG -->
+    <svg class="title-cat" width="240" height="160" viewBox="0 0 240 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- 影 -->
+      <ellipse cx="75" cy="148" rx="40" ry="10" fill="rgba(0,0,0,0.2)"/>
+      <ellipse cx="168" cy="148" rx="40" ry="10" fill="rgba(0,0,0,0.2)"/>
+
+      <!-- ここちゃん(グレー・左) -->
+      <!-- しっぽ -->
+      <path d="M 50 120 Q 28 110 26 90 Q 25 80 32 82" fill="none" stroke="#7A8896" stroke-width="10" stroke-linecap="round"/>
+      <!-- 体 -->
+      <ellipse cx="75" cy="112" rx="34" ry="30" fill="#7A8896"/>
+      <ellipse cx="75" cy="122" rx="28" ry="18" fill="#8A99A8"/>
+      <!-- 耳 -->
+      <path d="M 55 82 L 50 62 L 68 75 Z" fill="#6F7D8B"/>
+      <path d="M 95 82 L 100 62 L 82 75 Z" fill="#6F7D8B"/>
+      <path d="M 57 80 L 54 67 L 65 75 Z" fill="#FFB4C0"/>
+      <path d="M 93 80 L 96 67 L 85 75 Z" fill="#FFB4C0"/>
+      <!-- 顔 -->
+      <ellipse cx="75" cy="82" rx="26" ry="24" fill="#8A99A8"/>
+      <!-- 目 -->
+      <ellipse cx="66" cy="80" rx="6" ry="7" fill="#FFF"/>
+      <ellipse cx="84" cy="80" rx="6" ry="7" fill="#FFF"/>
+      <ellipse cx="66" cy="81" rx="5" ry="6" fill="#C8A800"/>
+      <ellipse cx="84" cy="81" rx="5" ry="6" fill="#C8A800"/>
+      <ellipse cx="66" cy="82" rx="1.8" ry="4.5" fill="#111"/>
+      <ellipse cx="84" cy="82" rx="1.8" ry="4.5" fill="#111"/>
+      <ellipse cx="64" cy="78" rx="1.2" ry="1.2" fill="#FFF"/>
+      <ellipse cx="82" cy="78" rx="1.2" ry="1.2" fill="#FFF"/>
+      <!-- 鼻口 -->
+      <path d="M 72 89 L 78 89 L 75 93 Z" fill="#FFB4C0"/>
+      <path d="M 75 93 Q 71 97 68 95" stroke="#5A6878" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M 75 93 Q 79 97 82 95" stroke="#5A6878" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <!-- ヒゲ -->
+      <line x1="57" y1="90" x2="42" y2="88" stroke="#FFF" stroke-width="0.9" stroke-linecap="round"/>
+      <line x1="57" y1="93" x2="42" y2="93" stroke="#FFF" stroke-width="0.9" stroke-linecap="round"/>
+      <line x1="93" y1="90" x2="108" y2="88" stroke="#FFF" stroke-width="0.9" stroke-linecap="round"/>
+      <line x1="93" y1="93" x2="108" y2="93" stroke="#FFF" stroke-width="0.9" stroke-linecap="round"/>
+      <!-- 前足 -->
+      <ellipse cx="63" cy="142" rx="9" ry="6" fill="#7A8896"/>
+      <ellipse cx="87" cy="142" rx="9" ry="6" fill="#7A8896"/>
+
+      <!-- なるちゃん(茶白・右) -->
+      <!-- しっぽ(長めふわふわ) -->
+      <path d="M 190 118 Q 218 108 220 85 Q 219 74 212 77" fill="none" stroke="#D4894A" stroke-width="12" stroke-linecap="round"/>
+      <path d="M 213 80 Q 220 70 215 65" fill="none" stroke="#F5C48A" stroke-width="7" stroke-linecap="round"/>
+      <!-- 体(ふわふわ感を楕円の重ね合わせで) -->
+      <ellipse cx="168" cy="115" rx="36" ry="31" fill="#E8975A"/>
+      <ellipse cx="168" cy="112" rx="30" ry="22" fill="#F5C48A"/>
+      <ellipse cx="168" cy="125" rx="26" ry="16" fill="#FAFAFA"/>
+      <!-- 耳 -->
+      <path d="M 148 84 L 143 64 L 161 77 Z" fill="#D4894A"/>
+      <path d="M 188 84 L 193 64 L 175 77 Z" fill="#D4894A"/>
+      <path d="M 150 82 L 147 70 L 158 77 Z" fill="#FFB4C0"/>
+      <path d="M 186 82 L 189 70 L 178 77 Z" fill="#FFB4C0"/>
+      <!-- 顔(白っぽい) -->
+      <ellipse cx="168" cy="82" rx="27" ry="25" fill="#F5E6D0"/>
+      <ellipse cx="160" cy="86" rx="10" ry="8" fill="#FAFAFA"/>
+      <!-- 目(茶色) -->
+      <ellipse cx="159" cy="79" rx="6" ry="7" fill="#FFF"/>
+      <ellipse cx="177" cy="79" rx="6" ry="7" fill="#FFF"/>
+      <ellipse cx="159" cy="80" rx="5" ry="6" fill="#8B4513"/>
+      <ellipse cx="177" cy="80" rx="5" ry="6" fill="#8B4513"/>
+      <ellipse cx="159" cy="81" rx="1.8" ry="4.5" fill="#111"/>
+      <ellipse cx="177" cy="81" rx="1.8" ry="4.5" fill="#111"/>
+      <ellipse cx="157" cy="77" rx="1.2" ry="1.2" fill="#FFF"/>
+      <ellipse cx="175" cy="77" rx="1.2" ry="1.2" fill="#FFF"/>
+      <!-- 鼻口 -->
+      <path d="M 165 89 L 171 89 L 168 93 Z" fill="#FFB4C0"/>
+      <path d="M 168 93 Q 164 97 161 95" stroke="#8B6060" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M 168 93 Q 172 97 175 95" stroke="#8B6060" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <!-- ヒゲ -->
+      <line x1="150" y1="89" x2="135" y2="87" stroke="#FFF" stroke-width="0.9" stroke-linecap="round"/>
+      <line x1="150" y1="92" x2="135" y2="92" stroke="#FFF" stroke-width="0.9" stroke-linecap="round"/>
+      <line x1="186" y1="89" x2="201" y2="87" stroke="#FFF" stroke-width="0.9" stroke-linecap="round"/>
+      <line x1="186" y1="92" x2="201" y2="92" stroke="#FFF" stroke-width="0.9" stroke-linecap="round"/>
+      <!-- 赤い水玉リボン首輪 -->
+      <rect x="152" y="100" width="32" height="7" rx="3.5" fill="#E53935"/>
+      <circle cx="158" cy="103" r="1.5" fill="#FFCDD2"/>
+      <circle cx="165" cy="103" r="1.5" fill="#FFCDD2"/>
+      <circle cx="172" cy="103" r="1.5" fill="#FFCDD2"/>
+      <!-- リボン -->
+      <path d="M 162 104 L 157 99 L 162 101 Z" fill="#C62828"/>
+      <path d="M 166 104 L 171 99 L 166 101 Z" fill="#C62828"/>
+      <!-- 鈴 -->
+      <circle cx="164" cy="106" r="3.5" fill="#FFD700" stroke="#B8860B" stroke-width="0.8"/>
+      <line x1="164" y1="106" x2="164" y2="108" stroke="#B8860B" stroke-width="1"/>
+      <!-- 前足 -->
+      <ellipse cx="156" cy="142" rx="9" ry="6" fill="#E8975A"/>
+      <ellipse cx="180" cy="142" rx="9" ry="6" fill="#FAFAFA"/>
     </svg>
-    <div class="start-prompt">TAP TO START</div>
+    <div class="start-prompt">タップしてスタート</div>
   </div>
 
+  <div class="modal" id="storyModal">
+    <div class="modal-card" style="max-width:340px;">
+      <div id="storyIcon" style="font-size:48px;margin-bottom:8px;">🐾</div>
+      <h2 id="storyTitle" style="font-size:18px;color:#FFD23F;margin-bottom:12px;">幕間</h2>
+      <p id="storyText" style="font-size:13px;line-height:1.8;color:#C8D0E8;text-align:left;"></p>
+      <button class="btn primary" id="storyNextBtn" style="margin-top:20px;">つぎへ →</button>
+    </div>
+  </div>
   <div id="audioDebug">audio: not started</div>
   <!-- HTML5 audio fallback for iOS silent mode -->
   <audio id="fallbackAudio" preload="auto" src="data:audio/wav;base64,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"></audio>
@@ -266,8 +336,15 @@ const Config = {
 
   stages: [
     {
-      id: '1-1', name: 'はじめての森', length: 3400,
-      bgmKey: 'world1', bgColor: ['#1a2348', '#3d4878'],
+      id: '1-1', name: 'お家を出発', length: 3400,
+      bgmKey: 'world1',
+      bgColor: ['#87CEEB', '#E8D5A3'], // 朝の青空〜クリーム
+      groundColor: '#8B6914', groundTop: '#7CBA3D',
+      story: {
+        icon: '🏠',
+        title: 'オープニング',
+        text: 'ある晴れた朝、グレーのここちゃんは大きな黄金色の瞳をぱちりと開けました。\n\n「今日はなるちゃんのおうちに遊びに行く日にゃ！」\n\nしっぽをピンと立てて、元気よく出発！',
+      },
       objects: [
         // 序盤: コウモリ洗礼
         { type: 'enemy', x: 500, kind: 'bat', floatY: 100 },
@@ -307,8 +384,15 @@ const Config = {
       ],
     },
     {
-      id: '1-2', name: 'こもれびの道', length: 3600,
-      bgmKey: 'world2', bgColor: ['#2d1a48', '#583878'],
+      id: '1-2', name: '街を駆け抜けろ', length: 3600,
+      bgmKey: 'world2',
+      bgColor: ['#5BB8F5', '#B8E0A0'], // 昼の青空〜緑
+      groundColor: '#5A4A2A', groundTop: '#5DAA2E',
+      story: {
+        icon: '🔔',
+        title: '幕間',
+        text: '無事にお家を抜け出したここちゃん。でも道は長い……。\n\n「こっちで合ってるかにゃ？」\n\nその時、遠くから「チリン♪」と鈴の音が。なるちゃんが呼んでいる！\n\n「待っててにゃ、なるちゃん！」',
+      },
       objects: [
         { type: 'enemy', x: 400, kind: 'bird', floatY: 60 },
         { type: 'enemy', x: 600, kind: 'slime' },
@@ -945,24 +1029,34 @@ const Renderer = (() => {
   function drawBg(stage) {
     const g = ctx.createLinearGradient(0, 0, 0, Config.VH);
     if (stage) { g.addColorStop(0, stage.data.bgColor[0]); g.addColorStop(1, stage.data.bgColor[1]); }
-    else { g.addColorStop(0, '#1a2348'); g.addColorStop(1, '#3d4878'); }
+    else { g.addColorStop(0, '#87CEEB'); g.addColorStop(1, '#E8D5A3'); }
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, Config.VW, Config.VH);
+
+    // 太陽
     ctx.save();
-    ctx.globalAlpha = 0.7;
-    ctx.fillStyle = '#FFD23F';
-    ctx.beginPath(); ctx.arc(Config.VW - 90, 110, 40, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#1a2348';
-    ctx.beginPath(); ctx.arc(Config.VW - 75, 100, 35, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = '#FFE066';
+    ctx.beginPath(); ctx.arc(Config.VW - 80, 80, 36, 0, Math.PI * 2); ctx.fill();
+    // 光芒
+    ctx.strokeStyle = '#FFE066'; ctx.lineWidth = 3; ctx.globalAlpha = 0.4;
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(Config.VW - 80 + Math.cos(angle) * 42, 80 + Math.sin(angle) * 42);
+      ctx.lineTo(Config.VW - 80 + Math.cos(angle) * 58, 80 + Math.sin(angle) * 58);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
   function drawClouds(cam) {
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    const o = (cam.x * 0.2) % (Config.VW + 200);
-    drawCloud(Config.VW - o, 80);
-    drawCloud(Config.VW * 0.3 - o * 0.5, 150);
-    drawCloud(Config.VW * 0.7 - o * 0.3, 200);
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    const o = (cam.x * 0.15) % (Config.VW + 200);
+    drawCloud(Config.VW * 0.2 - o, 100);
+    drawCloud(Config.VW * 0.6 - o * 0.7, 70);
+    drawCloud(Config.VW - o * 0.4, 130);
+    drawCloud(Config.VW * 1.4 - o, 90);
   }
 
   function drawCloud(x, y) {
@@ -974,16 +1068,27 @@ const Renderer = (() => {
   }
 
   function drawMountains(cam) {
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    // 遠景の丘(緑)
+    ctx.fillStyle = 'rgba(100,180,80,0.4)';
     const baseY = Config.GROUND_SCREEN_Y;
-    const off = cam.x * 0.3;
+    const off = cam.x * 0.25;
     for (let i = -1; i < 8; i++) {
-      const x = cam.x + i * 250 - (off % 250);
+      const x = cam.x + i * 300 - (off % 300);
       ctx.beginPath();
       ctx.moveTo(x, baseY);
-      ctx.lineTo(x + 125, baseY - 180);
-      ctx.lineTo(x + 250, baseY);
+      ctx.bezierCurveTo(x + 60, baseY - 120, x + 180, baseY - 120, x + 300, baseY);
       ctx.closePath(); ctx.fill();
+    }
+    // 中景の建物シルエット
+    ctx.fillStyle = 'rgba(80,120,60,0.3)';
+    for (let i = -1; i < 6; i++) {
+      const x = cam.x + i * 220 - ((cam.x * 0.4) % 220);
+      ctx.beginPath();
+      ctx.moveTo(x + 40, baseY);
+      ctx.lineTo(x + 40, baseY - 80);
+      ctx.lineTo(x + 80, baseY - 80);
+      ctx.lineTo(x + 80, baseY);
+      ctx.fill();
     }
   }
 
@@ -1154,17 +1259,80 @@ const Renderer = (() => {
   }
 
   function drawGoal(goal) {
-    const y = Config.GROUND_SCREEN_Y;
-    ctx.fillStyle = '#888'; ctx.fillRect(goal.x, y - 200, 6, 200);
-    const w = Math.sin(performance.now() / 200) * 4;
-    ctx.fillStyle = '#FF4D6D';
-    ctx.beginPath();
-    ctx.moveTo(goal.x + 6, y - 200);
-    ctx.lineTo(goal.x + 60 + w, y - 180);
-    ctx.lineTo(goal.x + 6, y - 160);
-    ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#FFD23F'; ctx.font = 'bold 16px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('★', goal.x + 30, y - 175);
+    const gY = Config.GROUND_SCREEN_Y;
+    // なるちゃんがゴール地点で待っているシルエット
+    const bell = Math.sin(performance.now() / 300) * 3; // ゆらゆら
+    ctx.save();
+    ctx.translate(goal.x + 30, gY - 10);
+
+    // 影
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    ctx.beginPath(); ctx.ellipse(0, 0, 30, 8, 0, 0, Math.PI * 2); ctx.fill();
+
+    // しっぽ(ふわふわ)
+    ctx.strokeStyle = '#D4894A'; ctx.lineWidth = 10; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(28, -30); ctx.quadraticCurveTo(50, -50 + bell, 45, -70 + bell); ctx.stroke();
+    ctx.strokeStyle = '#F5C48A'; ctx.lineWidth = 6;
+    ctx.beginPath(); ctx.moveTo(44, -68 + bell); ctx.quadraticCurveTo(52, -78 + bell, 48, -80 + bell); ctx.stroke();
+
+    // 体
+    ctx.fillStyle = '#E8975A';
+    ctx.beginPath(); ctx.ellipse(0, -45, 26, 24, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#F5C48A';
+    ctx.beginPath(); ctx.ellipse(0, -42, 20, 16, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FAFAFA';
+    ctx.beginPath(); ctx.ellipse(-4, -35, 14, 10, 0, 0, Math.PI * 2); ctx.fill();
+
+    // 頭
+    ctx.fillStyle = '#F0D8B8';
+    ctx.beginPath(); ctx.ellipse(0, -76, 20, 18, 0, 0, Math.PI * 2); ctx.fill();
+    // 白い顔部分
+    ctx.fillStyle = '#FAFAFA';
+    ctx.beginPath(); ctx.ellipse(-5, -74, 12, 10, 0, 0, Math.PI * 2); ctx.fill();
+
+    // 耳
+    ctx.fillStyle = '#D4894A';
+    ctx.beginPath(); ctx.moveTo(-14, -86); ctx.lineTo(-18, -102); ctx.lineTo(-6, -90); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(14, -86); ctx.lineTo(18, -102); ctx.lineTo(6, -90); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#FFB4C0';
+    ctx.beginPath(); ctx.moveTo(-13, -88); ctx.lineTo(-15, -97); ctx.lineTo(-8, -90); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(13, -88); ctx.lineTo(15, -97); ctx.lineTo(8, -90); ctx.closePath(); ctx.fill();
+
+    // 目(こっちを見てる)
+    ctx.fillStyle = '#FFF';
+    ctx.beginPath(); ctx.ellipse(-7, -77, 5, 5.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(7, -77, 5, 5.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#6B3A2A';
+    ctx.beginPath(); ctx.ellipse(-7, -76, 4, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(7, -76, 4, 5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FFF';
+    ctx.beginPath(); ctx.arc(-5.5, -78, 1, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(8.5, -78, 1, 0, Math.PI * 2); ctx.fill();
+
+    // 鼻
+    ctx.fillStyle = '#FFB4C0';
+    ctx.beginPath(); ctx.moveTo(-2, -70); ctx.lineTo(2, -70); ctx.lineTo(0, -67); ctx.closePath(); ctx.fill();
+
+    // 赤い水玉首輪
+    ctx.fillStyle = '#E53935';
+    ctx.beginPath(); ctx.rect(-14, -63, 28, 6); ctx.fill();
+    ctx.fillStyle = '#FFCDD2';
+    [-8, -1, 6].forEach(x => { ctx.beginPath(); ctx.arc(x, -60, 1.2, 0, Math.PI * 2); ctx.fill(); });
+    // 鈴(ゆれる)
+    ctx.fillStyle = '#FFD700';
+    ctx.strokeStyle = '#B8860B'; ctx.lineWidth = 0.8;
+    ctx.beginPath(); ctx.arc(0, -55 + bell * 0.5, 4, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+
+    // 「にゃ〜！」吹き出し
+    ctx.fillStyle = '#FFF';
+    ctx.beginPath(); ctx.roundRect(8, -115, 52, 24, 8); ctx.fill();
+    ctx.fillStyle = '#E53935';
+    ctx.beginPath(); ctx.moveTo(12, -91); ctx.lineTo(20, -98); ctx.lineTo(25, -91); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#333'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('にゃ〜！', 14, -99);
+
+    ctx.restore();
   }
 
   function drawParticle(p) {
@@ -1324,9 +1492,9 @@ const Renderer = (() => {
 // ============================================================
 const UI = (() => {
   const els = {};
-  const ids = ['titleScreen','hud','tutorial','resultModal','gameOverModal','pauseModal',
+  const ids = ['titleScreen','hud','tutorial','resultModal','gameOverModal','pauseModal','storyModal',
                'stageLabel','coinCount','timer','resultStars','resultScore','resultTime',
-               'resultCoins','nextBtn','soundBtn'];
+               'resultCoins','nextBtn','soundBtn','storyTitle','storyText','storyIcon'];
 
   function init() {
     ids.forEach(id => els[id] = document.getElementById(id));
@@ -1467,6 +1635,20 @@ const Game = (() => {
     UI.showModal('gameOverModal');
   }
 
+  function showStory(stageIdx, onDone) {
+    const nextStageData = Config.stages[stageIdx + 1];
+    if (!nextStageData || !nextStageData.story) { onDone(); return; }
+    const s = nextStageData.story;
+    document.getElementById('storyIcon').textContent = s.icon;
+    document.getElementById('storyTitle').textContent = s.title;
+    document.getElementById('storyText').textContent = s.text;
+    document.getElementById('storyNextBtn').onclick = () => {
+      document.getElementById('storyModal').classList.remove('show');
+      onDone();
+    };
+    document.getElementById('storyModal').classList.add('show');
+  }
+
   function stageClear() {
     state.mode = STATE.RESULT;
     AudioEngine.stopBgm();
@@ -1480,8 +1662,11 @@ const Game = (() => {
     else if (score >= sc.starThresholds.two) stars = 2;
 
     setTimeout(() => {
-      UI.showResult(stars, score, state.timer, state.coins,
-                    state.stageIdx < Config.stages.length - 1);
+      // まずストーリーを表示、その後リザルト
+      showStory(state.stageIdx, () => {
+        UI.showResult(stars, score, state.timer, state.coins,
+                      state.stageIdx < Config.stages.length - 1);
+      });
     }, 800);
   }
 
@@ -1557,7 +1742,16 @@ const Game = (() => {
     AudioEngine.unlock();
     AudioEngine.sfx.coin();
     UI.hide('titleScreen');
-    Game.start();
+    // オープニングストーリー
+    const opening = Config.stages[0].story;
+    document.getElementById('storyIcon').textContent = opening.icon;
+    document.getElementById('storyTitle').textContent = opening.title;
+    document.getElementById('storyText').textContent = opening.text;
+    document.getElementById('storyNextBtn').onclick = () => {
+      document.getElementById('storyModal').classList.remove('show');
+      Game.start();
+    };
+    document.getElementById('storyModal').classList.add('show');
   });
 
   UI.on('tutorial', () => Game.dismissTutorial());
