@@ -883,15 +883,21 @@ const Physics = {
 //   新しい背景要素はここに関数追加し、drawBg()内で呼ぶ。
 // ============================================================
 const BgRenderer = {
+  _err: null,
+  _trace(step, fn) {
+    if (this._err) return;
+    try { fn(); }
+    catch (e) { this._err = `bg.${step}: ${e.message}`; const d=document.getElementById('dbg'); if (d){d.style.color='#FF6680';d.style.opacity='1';d.textContent=this._err.slice(0,220);} }
+  },
   draw(ctx, stage, camera, VW, VH, groundY) {
-    this._sky(ctx, stage, VW, VH);
-    this._sun(ctx, VW);
-    this._clouds(ctx, camera, VW);
+    this._trace('sky',     () => this._sky(ctx, stage, VW, VH));
+    this._trace('sun',     () => this._sun(ctx, VW));
+    this._trace('clouds',  () => this._clouds(ctx, camera, VW));
     ctx.save();
     ctx.translate(-camera.x, 0);
-    this._hills(ctx, camera, groundY, VW);
-    this._ground(ctx, stage, camera, groundY, VH, VW);
-    this._platforms(ctx, stage, groundY);
+    this._trace('hills',   () => this._hills(ctx, camera, groundY, VW));
+    this._trace('ground',  () => this._ground(ctx, stage, camera, groundY, VH, VW));
+    this._trace('platforms', () => this._platforms(ctx, stage, groundY));
     ctx.restore();
   },
 
@@ -1750,13 +1756,29 @@ const Game = (() => {
   UI.on('overRetryBtn', () => Game.retry());
   UI.on('overTitleBtn', () => Game.backToTitle());
 
+  // エラー表示用
+  const dbgEl = document.getElementById('dbg');
+  function _showError(label, err) {
+    if (!dbgEl) return;
+    const msg = (err && err.message) ? err.message : String(err);
+    const stack = (err && err.stack) ? String(err.stack).split('\n').slice(0,3).join(' / ') : '';
+    dbgEl.style.color = '#FF6680';
+    dbgEl.style.opacity = '1';
+    dbgEl.textContent = `[${label}] ${msg} ${stack}`.slice(0, 220);
+  }
+  window.addEventListener('error', e => _showError('window', e.error || e.message));
+  window.addEventListener('unhandledrejection', e => _showError('promise', e.reason));
+
   // メインループ(60fps固定、最大フレーム時間は33ms)
   let lastTime = performance.now();
+  let _errReported = false;
   function loop(now) {
     const dt = Math.min(0.033, (now - lastTime) / 1000);
     lastTime = now;
-    Game.update(dt);
-    Renderer.draw(Game.state);
+    try { Game.update(dt); }
+    catch (e) { if (!_errReported) { _showError('update', e); _errReported = true; } }
+    try { Renderer.draw(Game.state); }
+    catch (e) { if (!_errReported) { _showError('draw', e); _errReported = true; } }
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
