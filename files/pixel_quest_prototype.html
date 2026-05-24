@@ -366,18 +366,22 @@ const Config = {
 
   player: {
     w: 44, h: 50,
-    speed: 6.0, jump: 15.5, gravity: 0.62,
-    holdTime: 0.18, holdForce: 0.25,
-    slideTime: 0.55, slideBoost: 1.3,
-    stomped: 8,
+    // 走り速度を 6.0 → 4.5 に下げ反応時間を確保
+    // ジャンプを 15.5 → 17.5 に上げて余裕を持ってジャンプ可能に
+    // 重力を 0.62 → 0.55 にしてふんわり長く滞空
+    speed: 4.5, jump: 17.5, gravity: 0.55,
+    holdTime: 0.22, holdForce: 0.28,
+    slideTime: 0.6, slideBoost: 1.35,
+    stomped: 9,
   },
 
   input: { swipeThreshold: 20 },
 
   score: {
     coinVal: 100, clearBonus: 1000,
-    timeBonus: 50, timeBonusCap: 60,
-    star3: 3000, star2: 2000,
+    timeBonus: 50, timeBonusCap: 90,
+    // ★3 / ★2 の閾値も難易度低下に合わせて調整
+    star3: 2200, star2: 1500,
   },
 
   notes: {
@@ -411,31 +415,35 @@ const Config = {
         icon: '🏠', title: 'オープニング',
         text: 'ある晴れた朝、グレーのここちゃんは\n大きな黄金色の瞳をぱちりと開けました。\n\n「今日はなるちゃんのおうちに\n　遊びに行く日にゃ！」\n\nしっぽをピンと立てて、元気よく出発！',
       },
+      // 1-1 はチュートリアル相当。敵やピットは最小限、コインで楽しく。
+      // 障害物の間隔を 600〜800px 確保して反応時間に余裕を持たせる。
       objects: [
-        { type:'enemy', x:500,  kind:'bat',   floatY:100 },
-        { type:'platform', x:620, y:100, w:90, h:16 },
-        { type:'coin', x:655, y:140 },
-        { type:'pit', x:800, w:90 },
-        { type:'enemy', x:980,  kind:'slime' },
-        { type:'enemy', x:1080, kind:'bat',   floatY:80 },
-        { type:'platform', x:1150, y:120, w:80, h:16 },
-        { type:'coin', x:1180, y:160 },
-        { type:'pit', x:1320, w:100 },
-        { type:'enemy', x:1600, kind:'bird',  floatY:70 },
-        { type:'enemy', x:1800, kind:'slime' },
-        { type:'enemy', x:1900, kind:'slime' },
-        { type:'pit', x:2050, w:110 },
-        { type:'enemy', x:2200, kind:'bat',   floatY:60 },
-        { type:'enemy', x:2350, kind:'bat',   floatY:130 },
-        { type:'platform', x:2280, y:80, w:70, h:16 },
-        { type:'coin', x:2305, y:120 },
-        { type:'pit', x:2450, w:120 },
-        { type:'enemy', x:2700, kind:'bird',  floatY:50 },
-        { type:'enemy', x:2900, kind:'bird',  floatY:90 },
-        { type:'enemy', x:3000, kind:'slime' },
-        { type:'pit', x:3100, w:100 },
-        { type:'enemy', x:3260, kind:'bat',   floatY:100 },
-        { type:'goal', x:3350 },
+        // ウォームアップゾーン：コインだけ並ぶ
+        { type:'coin',     x:380,  y:60 },
+        { type:'coin',     x:440,  y:60 },
+        { type:'coin',     x:500,  y:60 },
+        // 最初の落とし穴（狭い）
+        { type:'pit',      x:700,  w:60 },
+        { type:'coin',     x:730,  y:120 },
+        // 安全地帯
+        { type:'platform', x:1000, y:90,  w:120, h:16 },
+        { type:'coin',     x:1060, y:130 },
+        // 最初の敵（スライム1匹だけ）
+        { type:'enemy',    x:1350, kind:'slime' },
+        // 2つ目の穴
+        { type:'pit',      x:1700, w:70 },
+        { type:'coin',     x:1735, y:130 },
+        // 高めの足場
+        { type:'platform', x:2000, y:110, w:140, h:16 },
+        { type:'coin',     x:2070, y:150 },
+        // 飛行敵1匹（バット）
+        { type:'enemy',    x:2400, kind:'bat',   floatY:140 },
+        // 最後の挑戦：スライムの後にゴール
+        { type:'enemy',    x:2750, kind:'slime' },
+        { type:'coin',     x:2900, y:60 },
+        { type:'coin',     x:2950, y:60 },
+        { type:'coin',     x:3000, y:60 },
+        { type:'goal',     x:3100 },
       ],
     },
     {
@@ -445,31 +453,27 @@ const Config = {
         icon: '🔔', title: '幕間',
         text: '無事にお家を抜け出したここちゃん。\nでもなるちゃんのおうちまでは長い……。\n\n「こっちで合ってるかにゃ？」\n\nその時、遠くから「チリン♪」と鈴の音が！\nなるちゃんが呼んでいる！\n\n「待っててにゃ、なるちゃん！」',
       },
+      // 1-2 は少し難しめ。それでも障害物の間隔は 450〜600px 確保。
       objects: [
-        { type:'enemy', x:400,  kind:'bird',  floatY:60 },
-        { type:'enemy', x:600,  kind:'slime' },
-        { type:'platform', x:750, y:120, w:80, h:16 },
-        { type:'enemy', x:850,  kind:'bat',   floatY:150 },
-        { type:'platform', x:950, y:200, w:80, h:16 },
-        { type:'coin', x:980, y:240 },
-        { type:'pit', x:1100, w:150 },
-        { type:'enemy', x:1350, kind:'bird',  floatY:80 },
-        { type:'enemy', x:1500, kind:'slime' },
-        { type:'enemy', x:1600, kind:'bat',   floatY:100 },
-        { type:'platform', x:1750, y:100, w:160, h:16 },
-        { type:'coin', x:1810, y:140 },
-        { type:'coin', x:1860, y:140 },
-        { type:'pit', x:2000, w:120 },
-        { type:'enemy', x:2200, kind:'bird',  floatY:55 },
-        { type:'pit', x:2380, w:120 },
-        { type:'enemy', x:2580, kind:'bat',   floatY:90 },
-        { type:'enemy', x:2700, kind:'slime' },
-        { type:'platform', x:2800, y:160, w:100, h:16 },
-        { type:'enemy', x:2980, kind:'bird',  floatY:70 },
-        { type:'enemy', x:3100, kind:'bat',   floatY:120 },
-        { type:'pit', x:3200, w:130 },
-        { type:'enemy', x:3400, kind:'slime' },
-        { type:'goal', x:3500 },
+        { type:'enemy',    x:500,  kind:'slime' },
+        { type:'coin',     x:680,  y:60 },
+        { type:'pit',      x:900,  w:80 },
+        { type:'platform', x:1100, y:100, w:120, h:16 },
+        { type:'coin',     x:1150, y:140 },
+        { type:'enemy',    x:1450, kind:'bat',   floatY:130 },
+        { type:'pit',      x:1700, w:90 },
+        { type:'coin',     x:1740, y:120 },
+        { type:'platform', x:1950, y:130, w:140, h:16 },
+        { type:'coin',     x:2010, y:170 },
+        { type:'coin',     x:2050, y:170 },
+        { type:'enemy',    x:2350, kind:'slime' },
+        { type:'enemy',    x:2500, kind:'bird',  floatY:80 },
+        { type:'pit',      x:2750, w:90 },
+        { type:'platform', x:2950, y:110, w:120, h:16 },
+        { type:'coin',     x:3010, y:150 },
+        { type:'enemy',    x:3250, kind:'bat',   floatY:120 },
+        { type:'enemy',    x:3450, kind:'slime' },
+        { type:'goal',     x:3600 },
       ],
     },
   ],
