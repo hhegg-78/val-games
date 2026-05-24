@@ -66,12 +66,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#1a2040;touch-action
 
 /* ===== Debug ===== */
 #dbg{position:fixed;bottom:6px;left:6px;font-size:9px;color:#FFD23F;opacity:.65;background:rgba(0,0,0,.5);padding:3px 7px;border-radius:4px;z-index:9999;pointer-events:none;font-family:monospace}
+#dbg2{position:fixed;bottom:24px;left:6px;right:6px;font-size:10px;color:#3DDCFF;opacity:.9;background:rgba(0,0,0,.65);padding:4px 7px;border-radius:4px;z-index:9999;pointer-events:none;font-family:monospace;word-break:break-all;line-height:1.3}
 </style>
 </head>
 <body>
 <div id="app">
   <canvas id="game"></canvas>
 
+  <div id="dbg2"></div>
   <!-- HUD -->
   <div class="hud" id="hud" style="display:none">
     <div class="left">
@@ -1756,22 +1758,36 @@ const Game = (() => {
   UI.on('overRetryBtn', () => Game.retry());
   UI.on('overTitleBtn', () => Game.backToTitle());
 
-  // エラー表示用
-  const dbgEl = document.getElementById('dbg');
+  // ===== デバッグ表示（独立要素・上書きされない） =====
+  const dbg2El = document.getElementById('dbg2');
+  let _lastErr = '';
   function _showError(label, err) {
-    if (!dbgEl) return;
+    if (!dbg2El) return;
     const msg = (err && err.message) ? err.message : String(err);
-    const stack = (err && err.stack) ? String(err.stack).split('\n').slice(0,3).join(' / ') : '';
-    dbgEl.style.color = '#FF6680';
-    dbgEl.style.opacity = '1';
-    dbgEl.textContent = `[${label}] ${msg} ${stack}`.slice(0, 220);
+    const stack = (err && err.stack) ? String(err.stack).split('\n')[1] || '' : '';
+    _lastErr = `ERR[${label}] ${msg} | ${stack}`.slice(0, 240);
+    dbg2El.style.color = '#FF6680';
   }
-  window.addEventListener('error', e => _showError('window', e.error || e.message));
-  window.addEventListener('unhandledrejection', e => _showError('promise', e.reason));
+  window.addEventListener('error', e => _showError('win', e.error || e.message));
+  window.addEventListener('unhandledrejection', e => _showError('prm', e.reason));
+
+  function _updateDbg2() {
+    if (!dbg2El) return;
+    if (_lastErr) { dbg2El.textContent = _lastErr; return; }
+    const canvas = document.getElementById('game');
+    const s = Game.state || {};
+    const p = s.player || {};
+    const c = s.camera || {};
+    dbg2El.textContent =
+      `win=${innerWidth}x${innerHeight} dpr=${devicePixelRatio} ` +
+      `cv=${canvas.width}x${canvas.height}(${canvas.style.width}x${canvas.style.height}) ` +
+      `mode=${s.mode} px=${p.x|0} py=${p.y|0} g=${p.grounded?1:0} cx=${c.x|0}`;
+  }
 
   // メインループ(60fps固定、最大フレーム時間は33ms)
   let lastTime = performance.now();
   let _errReported = false;
+  let _frameCount = 0;
   function loop(now) {
     const dt = Math.min(0.033, (now - lastTime) / 1000);
     lastTime = now;
@@ -1779,6 +1795,7 @@ const Game = (() => {
     catch (e) { if (!_errReported) { _showError('update', e); _errReported = true; } }
     try { Renderer.draw(Game.state); }
     catch (e) { if (!_errReported) { _showError('draw', e); _errReported = true; } }
+    if ((_frameCount++ & 15) === 0) _updateDbg2();
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
