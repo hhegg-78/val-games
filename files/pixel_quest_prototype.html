@@ -606,16 +606,32 @@ const Input = (() => {
     cb.onJumpRelease && cb.onJumpRelease();
   }
 
+  function _isUITarget(e) {
+    let el = e.target;
+    while (el && el !== document.body) {
+      const cls = el.classList;
+      if (el.tagName === 'BUTTON' ||
+          (cls && (cls.contains('btn') || cls.contains('icon-btn') ||
+                   cls.contains('title') || cls.contains('modal') || cls.contains('tutorial')))) return true;
+      el = el.parentElement;
+    }
+    return false;
+  }
+
   return {
     setup(canvas, callbacks) {
       cb = callbacks;
-      canvas.addEventListener('touchstart', e => { e.preventDefault(); _start(e.touches[0].clientY); }, { passive:false });
-      canvas.addEventListener('touchmove',  e => { e.preventDefault(); _move(e.touches[0].clientY); },  { passive:false });
-      canvas.addEventListener('touchend',   e => { e.preventDefault(); _end(); }, { passive:false });
-      canvas.addEventListener('touchcancel',e => { e.preventDefault(); _end(); }, { passive:false });
-      canvas.addEventListener('mousedown',  e => _start(e.clientY));
-      canvas.addEventListener('mousemove',  e => { if (e.buttons===1) _move(e.clientY); });
-      canvas.addEventListener('mouseup',    _end);
+      // canvasではなくdocument全体でリッスン（レターボックスやiframe問題を回避）
+      document.addEventListener('touchstart', e => {
+        if (_isUITarget(e)) return;
+        e.preventDefault(); _start(e.touches[0].clientY);
+      }, { passive: false });
+      document.addEventListener('touchmove',  e => { e.preventDefault(); _move(e.touches[0].clientY); }, { passive: false });
+      document.addEventListener('touchend',   e => { e.preventDefault(); _end(); }, { passive: false });
+      document.addEventListener('touchcancel',e => { e.preventDefault(); _end(); }, { passive: false });
+      document.addEventListener('mousedown',  e => { if (_isUITarget(e)) return; _start(e.clientY); });
+      document.addEventListener('mousemove',  e => { if (e.buttons === 1) _move(e.clientY); });
+      document.addEventListener('mouseup',    _end);
       document.addEventListener('keydown', e => {
         if (e.code==='Space'||e.code==='ArrowUp')   cb.onJump  && cb.onJump();
         else if (e.code==='ArrowDown')               cb.onSlide && cb.onSlide();
@@ -1655,13 +1671,21 @@ const Game = (() => {
   Input.setup(document.getElementById('game'), Game.inputCb);
 
   // タイトルタップ: AudioContextアンロック → オープニング → ゲーム開始
-  UI.on('titleScreen', () => {
+  let _titleFired = false;
+  function _startFromTitle() {
+    if (_titleFired) return;
+    _titleFired = true;
     AudioEngine.unlock();
     AudioEngine.sfx.coin();
     UI.hide('titleScreen');
     const opening = Config.stages[0].story;
     UI.showStory(opening, () => Game.start());
-  });
+  }
+  UI.on('titleScreen', _startFromTitle);
+  document.getElementById('titleScreen').addEventListener('touchstart', e => {
+    e.stopPropagation();
+    _startFromTitle();
+  }, { passive: true });
 
   // チュートリアル（iOS Safari のclick遅延対策でtouchstartも登録）
   UI.on('tutorial', () => Game.dismissTutorial());
