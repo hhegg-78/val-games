@@ -1382,13 +1382,27 @@ const NaruRenderer = {
 // ============================================================
 const Renderer = (() => {
   let canvas, ctx;
+  let _lastCw = 0, _lastCh = 0;
+
+  // ビューポートサイズを取得（iframe内でinnerWidthが嘘をつくケースに対応）
+  // visualViewportが最も正確。なければinnerWidth/Heightとscreenの小さい方を使う
+  function _getViewport() {
+    const vv = window.visualViewport;
+    if (vv && vv.width && vv.height) return { w: vv.width, h: vv.height };
+    const w = Math.min(window.innerWidth || 0, screen.width || Infinity);
+    const h = Math.min(window.innerHeight || 0, screen.height || Infinity);
+    return { w: w || window.innerWidth || 360, h: h || window.innerHeight || 640 };
+  }
 
   function _resize() {
     const dpr = window.devicePixelRatio||1;
-    const w = window.innerWidth, h = window.innerHeight;
+    const { w, h } = _getViewport();
     const aspect = Config.VW / Config.VH;
     let cw, ch;
     if (w/h > aspect) { ch=h; cw=h*aspect; } else { cw=w; ch=w/aspect; }
+    // サイズが変わってない場合はスキップ（毎フレーム呼ばれても軽い）
+    if (Math.abs(cw - _lastCw) < 0.5 && Math.abs(ch - _lastCh) < 0.5) return;
+    _lastCw = cw; _lastCh = ch;
     canvas.style.width = cw+'px'; canvas.style.height = ch+'px';
     canvas.width = cw*dpr; canvas.height = ch*dpr;
     ctx.setTransform((cw/Config.VW)*dpr, 0, 0, (cw/Config.VW)*dpr, 0, 0);
@@ -1399,7 +1413,15 @@ const Renderer = (() => {
       canvas = canvasEl; ctx = canvas.getContext('2d');
       _resize();
       window.addEventListener('resize', _resize);
+      window.addEventListener('orientationchange', _resize);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', _resize);
+        window.visualViewport.addEventListener('scroll', _resize);
+      }
     },
+
+    // 毎フレーム呼ぶ：iframe内でinnerWidthが遅れて正しい値になるケースに備える
+    syncSize() { _resize(); },
 
     draw(state) {
       const { stage, camera, player, particles } = state;
@@ -1791,6 +1813,8 @@ const Game = (() => {
   function loop(now) {
     const dt = Math.min(0.033, (now - lastTime) / 1000);
     lastTime = now;
+    // iframe内でinnerWidthが後から正しい値になるケースに備えて毎フレームサイズ同期
+    try { Renderer.syncSize && Renderer.syncSize(); } catch(_){}
     try { Game.update(dt); }
     catch (e) { if (!_errReported) { _showError('update', e); _errReported = true; } }
     try { Renderer.draw(Game.state); }
