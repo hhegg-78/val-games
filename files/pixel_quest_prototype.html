@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>ここちゃんとなるちゃんの冒険</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ここちゃんの冒険">
+<meta name="theme-color" content="#1a2040">
+<style>
+/* ===== Reset & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a2040;touch-action:none;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Helvetica Neue",sans-serif;color:#F4F6FF}
+#app{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#game{display:block;width:100%;height:100%;touch-action:none}
+
+/* ===== HUD ===== */
+.hud{position:fixed;top:env(safe-area-inset-top,0);left:0;right:0;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;font-weight:700;font-size:13px;z-index:10;text-shadow:0 2px 4px rgba(0,0,0,.5)}
+.hud .left,.hud .right{display:flex;align-items:center;gap:8px}
+#stageLabel{color:#fff;letter-spacing:.04em}
+#coinCount{color:#FFD23F}
+#timer{color:#fff;font-variant-numeric:tabular-nums}
+.icon-btn{pointer-events:auto;width:36px;height:36px;background:rgba(0,0,0,.35);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px);font-size:16px;color:#fff}
+.icon-btn.off{opacity:.4}
+.pause-icon{display:block;width:11px;height:13px;border-left:4px solid #fff;border-right:4px solid #fff}
+
+/* ===== Modal ===== */
+.modal{position:fixed;inset:0;background:rgba(11,15,42,.85);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
+.modal.show{display:flex}
+.card{background:#1e2550;border-top:4px solid #FF4D6D;padding:26px 22px;border-radius:14px;text-align:center;min-width:280px;max-width:340px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+.card h2{font-size:24px;margin-bottom:14px;color:#FFD23F}
+.card .stars{font-size:28px;margin:8px 0 12px;letter-spacing:4px}
+.card .stat{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(154,163,199,.2)}
+.card .stat:last-of-type{border-bottom:none;margin-bottom:14px}
+.card .stat .lbl{color:#9AA3C7}
+.card .stat .val{color:#F4F6FF;font-weight:700;font-variant-numeric:tabular-nums}
+.btn{display:block;width:100%;margin-top:8px;padding:12px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:transform .06s ease;color:#fff}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:#FF4D6D}
+.btn.secondary{background:rgba(255,255,255,.1);color:#F4F6FF}
+
+/* ===== Story modal ===== */
+#storyModal .card{max-width:350px}
+#storyText{font-size:13px;line-height:1.85;color:#C8D0E8;text-align:left;white-space:pre-wrap}
+
+/* ===== Tutorial ===== */
+.tutorial{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50;pointer-events:auto;backdrop-filter:blur(2px);cursor:pointer;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+.tutorial.show{display:flex}
+.tut-card{background:#1e2550;border:2px solid #FF4D6D;padding:22px 26px;border-radius:14px;text-align:center;max-width:300px}
+.tut-card h2{font-size:19px;color:#FFD23F;margin-bottom:10px}
+.tut-card p{font-size:13px;line-height:1.7;margin-bottom:4px}
+.tut-card .big{font-size:34px;margin:6px 0}
+.tut-card .hint{font-size:11px;color:#9AA3C7;margin-top:12px}
+
+/* ===== Title screen ===== */
+.title{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;background:linear-gradient(180deg,#0d1525 0%,#1a2040 100%)}
+.title h1{font-size:clamp(20px,6.5vw,36px);font-weight:900;letter-spacing:2px;text-align:center;padding:0 14px;color:#F4F6FF;text-shadow:0 3px 16px rgba(255,77,109,.5)}
+.title .sub{color:#3DDCFF;font-size:12px;letter-spacing:3px;font-weight:700;margin-top:6px}
+.title .tap{margin-top:36px;font-size:15px;color:#FFD23F;animation:blink 1.2s infinite}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:.25}}
+.dots{position:absolute;top:22px;display:flex;gap:7px}
+.dots.l{left:20px}.dots.r{right:20px}
+.dots span{width:12px;height:12px;border-radius:2px}
+.d1{background:#FF4D6D}.d2{background:#FFD23F}.d3{background:#3DDCFF}
+
+/* ===== Debug ===== */
+#dbg{position:fixed;bottom:6px;left:6px;font-size:9px;color:#FFD23F;opacity:.65;background:rgba(0,0,0,.5);padding:3px 7px;border-radius:4px;z-index:9999;pointer-events:none;font-family:monospace}
+</style>
+</head>
+<body>
+<div id="app">
+  <canvas id="game"></canvas>
+
+  <!-- HUD -->
+  <div class="hud" id="hud" style="display:none">
+    <div class="left">
+      <div class="icon-btn" id="pauseBtn"><span class="pause-icon"></span></div>
+      <div id="stageLabel">STAGE 1-1</div>
+    </div>
+    <div class="right">
+      <span id="coinCount">🔔 0</span>
+      <div id="timer">00:00</div>
+      <div class="icon-btn" id="soundBtn">🔊</div>
+    </div>
+  </div>
+
+  <!-- Tutorial -->
+  <div class="tutorial" id="tutorial">
+    <div class="tut-card">
+      <h2>あそびかた</h2>
+      <div class="big">👆</div>
+      <p><strong>タップ</strong>でジャンプ</p>
+      <div class="big">👇</div>
+      <p><strong>下スワイプ</strong>でスライド</p>
+      <p class="hint">画面のどこでもOK・タップして開始</p>
+    </div>
+  </div>
+
+  <!-- Story modal -->
+  <div class="modal" id="storyModal">
+    <div class="card">
+      <div id="storyIcon" style="font-size:44px;margin-bottom:8px"></div>
+      <h2 id="storyTitle"></h2>
+      <p id="storyText"></p>
+      <button class="btn primary" id="storyNext" style="margin-top:18px">つぎへ →</button>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="modal" id="resultModal">
+    <div class="card">
+      <h2>ゴール！</h2>
+      <div class="stars" id="resultStars">★★★</div>
+      <div class="stat"><span class="lbl">スコア</span><span class="val" id="resultScore">0</span></div>
+      <div class="stat"><span class="lbl">タイム</span><span class="val" id="resultTime">00:00</span></div>
+      <div class="stat"><span class="lbl">すず</span><span class="val" id="resultCoins">0</span></div>
+      <button class="btn primary" id="nextBtn">つぎのステージへ</button>
+      <button class="btn secondary" id="retryBtn">もう一度</button>
+    </div>
+  </div>
+
+  <!-- GameOver -->
+  <div class="modal" id="gameOverModal">
+    <div class="card">
+      <h2 style="color:#FF4D6D">やられた！</h2>
+      <p style="margin:10px 0 18px;color:#9AA3C7;font-size:13px">もう一度がんばろう</p>
+      <button class="btn primary" id="overRetryBtn">リトライ</button>
+      <button class="btn secondary" id="overTitleBtn">タイトルへ</button>
+    </div>
+  </div>
+
+  <!-- Pause -->
+  <div class="modal" id="pauseModal">
+    <div class="card" style="border-top-color:#3DDCFF">
+      <h2 style="color:#3DDCFF">ポーズ</h2>
+      <button class="btn primary" id="resumeBtn">つづける</button>
+      <button class="btn secondary" id="pauseRetryBtn">はじめから</button>
+      <button class="btn secondary" id="pauseTitleBtn">タイトルへ</button>
+    </div>
+  </div>
+
+  <!-- Title screen -->
+  <div class="title" id="titleScreen">
+    <div class="dots l"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+    <div class="dots r"><span class="d3"></span><span class="d2"></span><span class="d1"></span></div>
+    <h1>ここちゃんとなるちゃん<br>の冒険</h1>
+    <div class="sub">なるちゃんのおうちを目指せ！</div>
+    <!-- 2匹のSVGイラスト -->
+    <svg width="240" height="155" viewBox="0 0 240 155" style="margin:18px 0" xmlns="http://www.w3.org/2000/svg">
+      <!-- 影 -->
+      <ellipse cx="70" cy="146" rx="36" ry="8" fill="rgba(0,0,0,.2)"/>
+      <ellipse cx="168" cy="146" rx="36" ry="8" fill="rgba(0,0,0,.2)"/>
+      <!-- ここちゃん(グレー・左) しっぽ -->
+      <path d="M48 116 Q28 106 27 86 Q26 76 33 78" fill="none" stroke="#7A8896" stroke-width="9" stroke-linecap="round"/>
+      <!-- 体 -->
+      <ellipse cx="70" cy="110" rx="30" ry="26" fill="#7A8896"/>
+      <ellipse cx="70" cy="118" rx="24" ry="15" fill="#8A99A8"/>
+      <!-- 耳 -->
+      <path d="M52 82 L47 63 L65 75Z" fill="#6A7888"/><path d="M54 80 L51 68 L62 75Z" fill="#FFB4C0"/>
+      <path d="M88 82 L93 63 L75 75Z" fill="#6A7888"/><path d="M86 80 L89 68 L78 75Z" fill="#FFB4C0"/>
+      <!-- 顔 -->
+      <ellipse cx="70" cy="79" rx="23" ry="21" fill="#8A99A8"/>
+      <!-- 目 -->
+      <ellipse cx="62" cy="77" rx="5.5" ry="6" fill="#fff"/><ellipse cx="62" cy="78" rx="4.5" ry="5.5" fill="#C8A800"/>
+      <ellipse cx="62" cy="79" rx="1.5" ry="4" fill="#111"/><ellipse cx="60" cy="75" rx="1" ry="1" fill="#fff"/>
+      <ellipse cx="78" cy="77" rx="5.5" ry="6" fill="#fff"/><ellipse cx="78" cy="78" rx="4.5" ry="5.5" fill="#C8A800"/>
+      <ellipse cx="78" cy="79" rx="1.5" ry="4" fill="#111"/><ellipse cx="76" cy="75" rx="1" ry="1" fill="#fff"/>
+      <!-- 鼻口 -->
+      <path d="M67 86 L73 86 L70 90Z" fill="#FFB4C0"/>
+      <path d="M70 90 Q66 94 63 92" stroke="#5A6878" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+      <path d="M70 90 Q74 94 77 92" stroke="#5A6878" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+      <!-- ヒゲ -->
+      <line x1="53" y1="87" x2="40" y2="85" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>
+      <line x1="53" y1="90" x2="40" y2="90" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>
+      <line x1="87" y1="87" x2="100" y2="85" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>
+      <line x1="87" y1="90" x2="100" y2="90" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>
+      <!-- 足 -->
+      <ellipse cx="59" cy="138" rx="8" ry="5" fill="#7A8896"/>
+      <ellipse cx="81" cy="138" rx="8" ry="5" fill="#7A8896"/>
+
+      <!-- なるちゃん(茶白・右) しっぽ -->
+      <path d="M188 114 Q210 104 212 82 Q211 72 204 74" fill="none" stroke="#D4894A" stroke-width="11" stroke-linecap="round"/>
+      <path d="M205 76 Q212 66 208 62" fill="none" stroke="#F5C48A" stroke-width="6" stroke-linecap="round"/>
+      <!-- 体 -->
+      <ellipse cx="168" cy="112" rx="32" ry="27" fill="#E8975A"/>
+      <ellipse cx="166" cy="108" rx="24" ry="18" fill="#F5C48A"/>
+      <ellipse cx="166" cy="122" rx="20" ry="13" fill="#FAFAFA"/>
+      <!-- 耳 -->
+      <path d="M149 82 L144 62 L162 75Z" fill="#D4894A"/><path d="M151 80 L148 68 L159 75Z" fill="#FFB4C0"/>
+      <path d="M187 82 L192 62 L174 75Z" fill="#D4894A"/><path d="M185 80 L188 68 L177 75Z" fill="#FFB4C0"/>
+      <!-- 顔 -->
+      <ellipse cx="168" cy="78" rx="24" ry="22" fill="#F0D8B8"/>
+      <ellipse cx="161" cy="82" rx="10" ry="8" fill="#FAFAFA"/>
+      <!-- 目 -->
+      <ellipse cx="160" cy="75" rx="5.5" ry="6" fill="#fff"/><ellipse cx="160" cy="76" rx="4.5" ry="5.5" fill="#7B3A1A"/>
+      <ellipse cx="160" cy="77" rx="1.5" ry="4" fill="#111"/><ellipse cx="158" cy="73" rx="1" ry="1" fill="#fff"/>
+      <ellipse cx="176" cy="75" rx="5.5" ry="6" fill="#fff"/><ellipse cx="176" cy="76" rx="4.5" ry="5.5" fill="#7B3A1A"/>
+      <ellipse cx="176" cy="77" rx="1.5" ry="4" fill="#111"/><ellipse cx="174" cy="73" rx="1" ry="1" fill="#fff"/>
+      <!-- 鼻口 -->
+      <path d="M165 86 L171 86 L168 90Z" fill="#FFB4C0"/>
+      <path d="M168 90 Q164 94 161 92" stroke="#8B6060" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+      <path d="M168 90 Q172 94 175 92" stroke="#8B6060" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+      <!-- ヒゲ -->
+      <line x1="150" y1="87" x2="137" y2="85" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>
+      <line x1="150" y1="90" x2="137" y2="90" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>
+      <line x1="186" y1="87" x2="199" y2="85" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>
+      <line x1="186" y1="90" x2="199" y2="90" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>
+      <!-- 首輪 -->
+      <rect x="153" y="97" width="30" height="6" rx="3" fill="#E53935"/>
+      <circle cx="158" cy="100" r="1.3" fill="#FFCDD2"/>
+      <circle cx="165" cy="100" r="1.3" fill="#FFCDD2"/>
+      <circle cx="172" cy="100" r="1.3" fill="#FFCDD2"/>
+      <!-- リボン -->
+      <path d="M162 101 L157 97 L162 99Z" fill="#C62828"/>
+      <path d="M166 101 L171 97 L166 99Z" fill="#C62828"/>
+      <!-- 鈴 -->
+      <circle cx="164" cy="104" r="3.2" fill="#FFD700" stroke="#B8860B" stroke-width=".7"/>
+      <line x1="164" y1="104" x2="164" y2="106" stroke="#B8860B" stroke-width=".9"/>
+      <!-- 足 -->
+      <ellipse cx="156" cy="138" rx="8" ry="5" fill="#E8975A"/>
+      <ellipse cx="178" cy="138" rx="8" ry="5" fill="#FAFAFA"/>
+    </svg>
+    <div class="tap">タップしてスタート</div>
+  </div>
+
+  <div id="dbg">audio: not started</div>
+</div>
+
+<script>
+"use strict";
+
+// ============================================================
+// Config: 全定数・マスターデータ
+// ステージ/ストーリー/音楽/プレイヤーの設定をここだけで管理。
+// 新しいステージを追加するには stages[] に1要素追加するだけ。
+// ============================================================
+const Config = {
+
+  // --- 画面解像度 ---
+  VW: 480,
+  VH: 800,
+  GROUND_Y: 680,   // 地面のスクリーンY座標(上端から)
+
+  // --- プレイヤー物理パラメータ ---
+  player: {
+    w: 44, h: 50,
+    speed:      6.0,   // オートラン速度(px/frame)
+    jump:       15.5,  // ジャンプ初速
+    gravity:    0.62,  // 重力加速度
+    holdTime:   0.18,  // 長押しジャンプの有効時間(秒)
+    holdForce:  0.25,  // 長押し中の上乗せ加速
+    slideTime:  0.55,  // スライド持続時間(秒)
+    slideBoost: 1.3,   // スライド中の速度倍率
+    stomped:    8,     // 敵踏みつけ後の跳ね上がり速度
+  },
+
+  // --- 入力パラメータ ---
+  input: {
+    swipeThreshold: 20, // スライド判定の下スワイプ距離(px)
+  },
+
+  // --- スコア計算パラメータ ---
+  score: {
+    coinVal:      100,  // 鈴1個の得点
+    clearBonus:   1000, // クリアボーナス
+    timeBonus:    50,   // 1秒あたりのタイムボーナス係数
+    timeBonusCap: 60,   // タイムボーナスの上限基準秒数
+    star3: 3000,        // ★3の閾値
+    star2: 2000,        // ★2の閾値
+  },
+
+  // --- 音符テーブル(Hz) ---
+  // AudioEngineで参照。ここだけ変えれば全音に影響する。
+  notes: {
+    C3:130.81,D3:146.83,E3:164.81,F3:174.61,G3:196.00,A3:220.00,B3:246.94,
+    C4:261.63,D4:293.66,E4:329.63,F4:349.23,G4:392.00,A4:440.00,B4:493.88,
+    C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880.00,B5:987.77,
+    C6:1046.50,E6:1318.51,G6:1567.98,
+  },
+
+  // --- BGMパターン ---
+  // melody/bassの各要素は notes のキー or null(休符)
+  bgm: {
+    title: {
+      tempo: 0.24, len: 16,
+      melody:['C5',null,'E5',null,'G5',null,'E5',null,'A4',null,'C5',null,'E5',null,null,null],
+      bass:  ['C3',null,null,null,'C3',null,null,null,'A3',null,null,null,'F3',null,'G3',null],
+    },
+    world1: {
+      tempo: 0.16, len: 32,
+      melody:['E4','G4','C5','G4','E4','G4','C5','E5','D5','B4','G4','B4','C5',null,'G4',null,
+              'A4','C5','E5','C5','A4','C5','E5','G5','F5','D5','B4','D5','C5',null,null,null],
+      bass:  ['C3',null,'C3',null,'G3',null,'G3',null,'C3',null,'C3',null,'G3',null,'G3',null,
+              'F3',null,'F3',null,'G3',null,'G3',null,'C3',null,'C3',null,'G3',null,'C3',null],
+    },
+    world2: {
+      tempo: 0.17, len: 32,
+      melody:['A4',null,'C5','E5','A4',null,'C5','E5','G4',null,'B4','D5','G4',null,'B4','D5',
+              'F4','A4','C5','A4','F4','A4','C5','E5','E4','G4','B4','G4','A4',null,null,null],
+      bass:  ['A3',null,null,null,'E3',null,null,null,'G3',null,null,null,'D3',null,null,null,
+              'F3',null,null,null,'C3',null,null,null,'E3',null,null,null,'A3',null,null,null],
+    },
+  },
+
+  // --- ステージマスターデータ ---
+  // 新ステージ追加: この配列に1要素追加するだけ。
+  // story: { icon, title, text } は「このステージ開始前に表示するストーリー」
+  // bgColor: [空グラデーション上, 下]
+  stages: [
+    {
+      id: '1-1', name: 'お家を出発',
+      bgmKey: 'world1',
+      bgColor: ['#87CEEB','#E8D5A3'],
+      story: {
+        icon: '🏠', title: 'オープニング',
+        text: 'ある晴れた朝、グレーのここちゃんは\n大きな黄金色の瞳をぱちりと開けました。\n\n「今日はなるちゃんのおうちに\n　遊びに行く日にゃ！」\n\nしっぽをピンと立てて、元気よく出発！',
+      },
+      objects: [
+        { type:'enemy', x:500,  kind:'bat',   floatY:100 },
+        { type:'platform', x:620, y:100, w:90, h:16 },
+        { type:'coin', x:655, y:140 },
+        { type:'pit', x:800, w:90 },
+        { type:'enemy', x:980,  kind:'slime' },
+        { type:'enemy', x:1080, kind:'bat',   floatY:80 },
+        { type:'platform', x:1150, y:120, w:80, h:16 },
+        { type:'coin', x:1180, y:160 },
+        { type:'pit', x:1320, w:100 },
+        { type:'enemy', x:1600, kind:'bird',  floatY:70 },
+        { type:'enemy', x:1800, kind:'slime' },
+        { type:'enemy', x:1900, kind:'slime' },
+        { type:'pit', x:2050, w:110 },
+        { type:'enemy', x:2200, kind:'bat',   floatY:60 },
+        { type:'enemy', x:2350, kind:'bat',   floatY:130 },
+        { type:'platform', x:2280, y:80, w:70, h:16 },
+        { type:'coin', x:2305, y:120 },
+        { type:'pit', x:2450, w:120 },
+        { type:'enemy', x:2700, kind:'bird',  floatY:50 },
+        { type:'enemy', x:2900, kind:'bird',  floatY:90 },
+        { type:'enemy', x:3000, kind:'slime' },
+        { type:'pit', x:3100, w:100 },
+        { type:'enemy', x:3260, kind:'bat',   floatY:100 },
+        { type:'goal', x:3350 },
+      ],
+    },
+    {
+      id: '1-2', name: '街を駆け抜けろ',
+      bgmKey: 'world2',
+      bgColor: ['#5BB8F5','#B8E0A0'],
+      story: {
+        icon: '🔔', title: '幕間',
+        text: '無事にお家を抜け出したここちゃん。\nでもなるちゃんのおうちまでは長い……。\n\n「こっちで合ってるかにゃ？」\n\nその時、遠くから「チリン♪」と鈴の音が！\nなるちゃんが呼んでいる！\n\n「待っててにゃ、なるちゃん！」',
+      },
+      objects: [
+        { type:'enemy', x:400,  kind:'bird',  floatY:60 },
+        { type:'enemy', x:600,  kind:'slime' },
+        { type:'platform', x:750, y:120, w:80, h:16 },
+        { type:'enemy', x:850,  kind:'bat',   floatY:150 },
+        { type:'platform', x:950, y:200, w:80, h:16 },
+        { type:'coin', x:980, y:240 },
+        { type:'pit', x:1100, w:150 },
+        { type:'enemy', x:1350, kind:'bird',  floatY:80 },
+        { type:'enemy', x:1500, kind:'slime' },
+        { type:'enemy', x:1600, kind:'bat',   floatY:100 },
+        { type:'platform', x:1750, y:100, w:160, h:16 },
+        { type:'coin', x:1810, y:140 },
+        { type:'coin', x:1860, y:140 },
+        { type:'pit', x:2000, w:120 },
+        { type:'enemy', x:2200, kind:'bird',  floatY:55 },
+        { type:'pit', x:2380, w:120 },
+        { type:'enemy', x:2580, kind:'bat',   floatY:90 },
+        { type:'enemy', x:2700, kind:'slime' },
+        { type:'platform', x:2800, y:160, w:100, h:16 },
+        { type:'enemy', x:2980, kind:'bird',  floatY:70 },
+        { type:'enemy', x:3100, kind:'bat',   floatY:120 },
+        { type:'pit', x:3200, w:130 },
+        { type:'enemy', x:3400, kind:'slime' },
+        { type:'goal', x:3500 },
+      ],
+    },
+  ],
+};
+
+// ============================================================
+// AudioEngine: BGM/SE エンジン
+//
+// 設計上の約束:
+//   1. AudioContext生成はユーザージェスチャー内で同期実行
+//   2. 生成直後に1サンプル無音バッファを鳴らしiOS Safariをアンロック
+//   3. resume()のPromiseは捨てる(ジェスチャー境界を守るため)
+//   4. 各音再生関数でもsuspended時にresume()を試みる
+//   5. try-catchで例外を握りつぶし、非対応端末でも動作継続
+//
+// 拡張方法:
+//   BGM追加 → Config.bgm に新エントリを追加してbgmKeyを指定
+//   SE追加  → AudioEngine.sfx に新メソッドを追加
+// ============================================================
+const AudioEngine = (() => {
+  // --- private state ---
+  let ctx = null;
+  let masterGain = null;
+  let bgmGain = null;
+  let seGain = null;
+  let unlocked = false;
+  let enabled = true;
+  let bgmTimer = null;
+  let bgmPat = null;
+  let bgmStep = 0;
+  let currentBgmKey = null;
+  let dbgEl = null;
+  let toneCount = 0;
+
+  // --- debug display ---
+  function log(msg) {
+    if (dbgEl) dbgEl.textContent = `audio: ${msg} | tones:${toneCount}`;
+  }
+
+  // --- internal: 単音生成 ---
+  function _tone(freq, dur, type = 'square', vol = 1, dest = null) {
+    if (!unlocked || !enabled || !ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    try {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      const t = ctx.currentTime;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      osc.connect(g);
+      g.connect(dest || seGain);
+      osc.start(t);
+      osc.stop(t + dur + 0.05);
+      toneCount++;
+      log(`running`);
+    } catch (e) {
+      log(`tone err: ${e.message}`);
+    }
+  }
+
+  // --- internal: ノイズ生成 ---
+  function _noise(dur, vol = 0.3) {
+    if (!unlocked || !enabled || !ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    try {
+      const len = Math.floor(ctx.sampleRate * dur);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const g = ctx.createGain();
+      g.gain.value = vol;
+      src.connect(g);
+      g.connect(seGain);
+      src.start();
+    } catch (e) {}
+  }
+
+  // --- internal: BGMのtick ---
+  function _tickBgm() {
+    if (!bgmPat || !enabled || !unlocked) return;
+    const N = Config.notes;
+    const idx = bgmStep % bgmPat.len;
+    const m = bgmPat.melody[idx];
+    const b = bgmPat.bass[idx];
+    const dur = bgmPat.tempo * 0.95;
+    if (m && N[m]) _tone(N[m], dur, 'square', 1, bgmGain);
+    if (b && N[b]) _tone(N[b], dur, 'triangle', 1, bgmGain);
+    bgmStep++;
+    bgmTimer = setTimeout(_tickBgm, bgmPat.tempo * 1000);
+  }
+
+  // --- public API ---
+  return {
+    setDebugEl(el) { dbgEl = el; log('not started'); },
+
+    // ユーザージェスチャー内で同期呼び出しすること
+    unlock() {
+      if (unlocked) {
+        if (ctx && ctx.state === 'suspended') ctx.resume();
+        return;
+      }
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) { log('not supported'); return; }
+      try {
+        ctx = new AC();
+        // iOS Safariアンロック: 無音1サンプルを即座に再生
+        const buf = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+        if (ctx.state === 'suspended') {
+          ctx.resume().then(
+            () => log(`unlocked (${ctx.state})`),
+            e  => log(`resume err: ${e.message}`)
+          );
+        }
+        masterGain = ctx.createGain(); masterGain.gain.value = 0.5; masterGain.connect(ctx.destination);
+        bgmGain = ctx.createGain(); bgmGain.gain.value = 0.15; bgmGain.connect(masterGain);
+        seGain  = ctx.createGain(); seGain.gain.value  = 0.5;  seGain.connect(masterGain);
+        unlocked = true;
+        log(`unlocked (${ctx.state})`);
+      } catch (e) {
+        log(`init err: ${e.message}`);
+      }
+    },
+
+    startBgm(key) {
+      if (!unlocked) return;
+      this.stopBgm();
+      currentBgmKey = key;
+      if (!enabled) return;
+      bgmPat = Config.bgm[key];
+      if (!bgmPat) return;
+      bgmStep = 0;
+      _tickBgm();
+    },
+
+    stopBgm() {
+      if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+      bgmPat = null;
+    },
+
+    setEnabled(v) {
+      enabled = v;
+      if (!enabled) this.stopBgm();
+      else if (currentBgmKey) this.startBgm(currentBgmKey);
+    },
+
+    isEnabled: () => enabled,
+
+    // --- 効果音 ---
+    sfx: {
+      jump() {
+        if (!unlocked || !enabled || !ctx) return;
+        if (ctx.state === 'suspended') ctx.resume();
+        try {
+          const osc = ctx.createOscillator(); const g = ctx.createGain();
+          osc.type = 'square';
+          const t = ctx.currentTime;
+          osc.frequency.setValueAtTime(440, t);
+          osc.frequency.exponentialRampToValueAtTime(880, t + 0.1);
+          g.gain.setValueAtTime(0.3, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+          osc.connect(g); g.connect(seGain); osc.start(t); osc.stop(t + 0.15);
+        } catch (e) {}
+      },
+      coin() {
+        const N = Config.notes;
+        _tone(N.E5, 0.08, 'square', 0.5);
+        setTimeout(() => _tone(N.G5, 0.15, 'square', 0.5), 70);
+      },
+      slide() { _noise(0.15, 0.15); },
+      enemy() {
+        if (!unlocked || !enabled || !ctx) return;
+        if (ctx.state === 'suspended') ctx.resume();
+        try {
+          const osc = ctx.createOscillator(); const g = ctx.createGain();
+          osc.type = 'square';
+          const t = ctx.currentTime;
+          osc.frequency.setValueAtTime(220, t);
+          osc.frequency.exponentialRampToValueAtTime(110, t + 0.2);
+          g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+          osc.connect(g); g.connect(seGain); osc.start(t); osc.stop(t + 0.25);
+        } catch (e) {}
+        _noise(0.1, 0.2);
+      },
+      goal() {
+        const N = Config.notes;
+        ['C5','E5','G5','C6'].forEach((k,i) => setTimeout(() => _tone(N[k], 0.25, 'square', 0.5), i * 100));
+      },
+      gameOver() {
+        const N = Config.notes;
+        ['G4','F4','E4','D4','C4'].forEach((k,i) => setTimeout(() => _tone(N[k], 0.2, 'triangle', 0.4), i * 120));
+      },
+    },
+  };
+})();
+
+// ============================================================
+// Input: 入力管理
+// 拡張方法: callbacksに新しいハンドラを追加し、
+//   対応するイベントをsetup内に追記する
+// ============================================================
+const Input = (() => {
+  let cb = {};
+  let startY = null;
+  let swipeFired = false;
+
+  function _start(y) {
+    startY = y; swipeFired = false;
+    cb.onJump && cb.onJump();
+  }
+  function _move(y) {
+    if (startY === null) return;
+    if (y - startY > Config.input.swipeThreshold && !swipeFired) {
+      swipeFired = true;
+      cb.onSlide && cb.onSlide();
+    }
+  }
+  function _end() {
+    startY = null;
+    cb.onJumpRelease && cb.onJumpRelease();
+  }
+
+  return {
+    setup(canvas, callbacks) {
+      cb = callbacks;
+      canvas.addEventListener('touchstart', e => { e.preventDefault(); _start(e.touches[0].clientY); }, { passive:false });
+      canvas.addEventListener('touchmove',  e => { e.preventDefault(); _move(e.touches[0].clientY); },  { passive:false });
+      canvas.addEventListener('touchend',   e => { e.preventDefault(); _end(); }, { passive:false });
+      canvas.addEventListener('touchcancel',e => { e.preventDefault(); _end(); }, { passive:false });
+      canvas.addEventListener('mousedown',  e => _start(e.clientY));
+      canvas.addEventListener('mousemove',  e => { if (e.buttons===1) _move(e.clientY); });
+      canvas.addEventListener('mouseup',    _end);
+      document.addEventListener('keydown', e => {
+        if (e.code==='Space'||e.code==='ArrowUp')   cb.onJump  && cb.onJump();
+        else if (e.code==='ArrowDown')               cb.onSlide && cb.onSlide();
+      });
+      document.addEventListener('keyup', e => {
+        if (e.code==='Space'||e.code==='ArrowUp') cb.onJumpRelease && cb.onJumpRelease();
+      });
+    },
+  };
+})();
+
+// ============================================================
+// Player: プレイヤー状態
+// 拡張方法: パラメータはすべてConfig.playerから読む。
+//   新しいアクション追加はメソッドを追加してPhysicsから呼ぶ。
+// ============================================================
+class Player {
+  constructor() {
+    const pc = Config.player;
+    this.x = 80; this.y = 0;
+    this.w = pc.w; this.h = pc.h;
+    this.vy = 0;
+    this.grounded = true; this.jumping = false;
+    this.sliding = false; this.slideTimer = 0;
+    this.holdingJump = false; this.holdTimer = 0;
+    this.animTime = 0;
+    this.finishing = false;
+  }
+  tryJump() {
+    if (!this.grounded || this.sliding) return false;
+    this.vy = Config.player.jump;
+    this.grounded = false; this.jumping = true;
+    this.holdingJump = true; this.holdTimer = 0;
+    return true;
+  }
+  releaseJump() { this.holdingJump = false; }
+  trySlide() {
+    if (!this.grounded || this.sliding) return false;
+    this.sliding = true; this.slideTimer = 0;
+    return true;
+  }
+  hitbox() {
+    return { x:this.x, y:this.y, w:this.w, h:this.sliding ? 24 : this.h };
+  }
+}
+
+// ============================================================
+// Stage: ステージ状態
+// 拡張方法: Config.stages[].objects に新しいtypeを追加し、
+//   Stage.constructorのswitch分岐 & Physics/Rendererに対応追加
+// ============================================================
+class Stage {
+  constructor(data) {
+    this.data = data;
+    this.platforms = [];
+    this.coins     = [];
+    this.enemies   = [];
+    this.pits      = [];
+    this.goal      = null;
+
+    for (const obj of data.objects) {
+      switch (obj.type) {
+        case 'platform':
+          this.platforms.push({ x:obj.x, y:obj.y, w:obj.w, h:obj.h });
+          break;
+        case 'coin':
+          this.coins.push({ x:obj.x, y:obj.y, r:12, collected:false, anim:Math.random()*Math.PI*2 });
+          break;
+        case 'enemy':
+          this.enemies.push(Stage._makeEnemy(obj));
+          break;
+        case 'pit':
+          this.pits.push({ x:obj.x, w:obj.w });
+          break;
+        case 'goal':
+          this.goal = { x:obj.x };
+          break;
+      }
+    }
+  }
+
+  // 敵オブジェクト生成。新しい敵種類はここに追加する。
+  static _makeEnemy(obj) {
+    const base = { x:obj.x, y:0, alive:true, anim:0, kind:obj.kind };
+    switch (obj.kind) {
+      case 'bat':
+        return { ...base, w:34, h:24, vx:-2.5, baseY:obj.floatY||120, amp:40, waveSpd:2.5 };
+      case 'bird':
+        return { ...base, w:38, h:26, vx:-4.5, baseY:obj.floatY||60,  amp:0,  waveSpd:0   };
+      default: // slime
+        return { ...base, w:36, h:30, vx:-2.2, baseY:0, amp:0, waveSpd:0 };
+    }
+  }
+}
+
+// ============================================================
+// Physics: 移動・衝突判定
+// 拡張方法: 新しい衝突対象はupdate内にfor...ofループを追加。
+//   fx(エフェクトコールバック)で副作用を注入する設計。
+// ============================================================
+const Physics = {
+  update(player, stage, dt, fx) {
+    const pc = Config.player;
+
+    // 長押しジャンプ
+    if (player.holdingJump && player.jumping) {
+      player.holdTimer += dt;
+      if (player.holdTimer < pc.holdTime && player.vy > 0) player.vy += pc.holdForce;
+    }
+
+    // スライド持続
+    if (player.sliding) {
+      player.slideTimer += dt;
+      if (player.slideTimer > pc.slideTime) player.sliding = false;
+    }
+
+    // 水平移動(オートラン)
+    if (!player.finishing) {
+      player.x += player.sliding ? pc.speed * pc.slideBoost : pc.speed;
+    }
+
+    // 重力・垂直移動
+    player.vy -= pc.gravity;
+    player.y  += player.vy;
+
+    // プラットフォーム着地
+    let onPlatform = false;
+    if (player.vy <= 0) {
+      for (const p of stage.platforms) {
+        if (player.x + player.w > p.x && player.x < p.x + p.w) {
+          const top = p.y + p.h;
+          if (player.y <= top && player.y >= top - 16 - Math.abs(player.vy)) {
+            player.y = top; player.vy = 0;
+            player.grounded = true; player.jumping = false;
+            onPlatform = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // 地面・落とし穴判定
+    if (!onPlatform) {
+      const cx = player.x + player.w / 2;
+      const inPit = stage.pits.some(p => cx > p.x && cx < p.x + p.w);
+      if (!inPit && player.y <= 0) {
+        player.y = 0; player.vy = 0;
+        player.grounded = true; player.jumping = false;
+      } else {
+        player.grounded = false;
+      }
+    }
+
+    // 落下死亡
+    if (player.y < -120) { fx.onDeath(); return; }
+
+    // 敵の更新と衝突
+    for (const e of stage.enemies) {
+      if (!e.alive) continue;
+      e.anim += dt;
+      e.x    += e.vx;
+      // 飛行敵のY座標更新(サイン波)
+      if (e.kind === 'bat' || e.kind === 'bird') {
+        e.y = e.baseY + Math.sin(e.anim * e.waveSpd) * e.amp;
+      }
+
+      if (!this._hitEnemy(player, e)) continue;
+
+      if (e.kind === 'bat' || e.kind === 'bird') {
+        // 飛行敵は踏めない・スライドも無効
+        fx.onDeath(); return;
+      } else if (player.vy < -3 && player.y + player.hitbox().h >= e.y + e.h - 10) {
+        // 踏みつけ撃破
+        e.alive = false; player.vy = pc.stomped;
+        fx.onEnemyDefeat(e);
+      } else if (player.sliding) {
+        // スライド撃破
+        e.alive = false;
+        fx.onEnemyDefeat(e);
+      } else {
+        fx.onDeath(); return;
+      }
+    }
+
+    // コイン取得
+    for (const c of stage.coins) {
+      if (c.collected) continue;
+      c.anim += dt * 4;
+      const dx = player.x + player.w / 2 - c.x;
+      const dy = player.y + player.h / 2 - c.y;
+      if (dx*dx + dy*dy < (c.r+18)*(c.r+18)) {
+        c.collected = true;
+        fx.onCoin(c);
+      }
+    }
+
+    // ゴール到達
+    if (stage.goal && !player.finishing && player.x + player.w / 2 >= stage.goal.x) {
+      player.finishing = true;
+      fx.onGoal();
+    }
+
+    player.animTime += dt;
+  },
+
+  _hitEnemy(player, e) {
+    const hb = player.hitbox();
+    return hb.x + hb.w > e.x && hb.x < e.x + e.w
+        && hb.y < e.y + e.h && hb.y + hb.h > e.y;
+  },
+};
+
+// ============================================================
+// BgRenderer: 背景・地形描画
+// 拡張方法: ステージのbgColorを変えるだけで背景色変更。
+//   新しい背景要素はここに関数追加し、drawBg()内で呼ぶ。
+// ============================================================
+const BgRenderer = {
+  draw(ctx, stage, camera, VW, VH, groundY) {
+    this._sky(ctx, stage, VW, VH);
+    this._sun(ctx, VW);
+    this._clouds(ctx, camera, VW);
+    ctx.save();
+    ctx.translate(-camera.x, 0);
+    this._hills(ctx, camera, groundY, VW);
+    this._ground(ctx, stage, camera, groundY, VH, VW);
+    this._platforms(ctx, stage, groundY);
+    ctx.restore();
+  },
+
+  _sky(ctx, stage, VW, VH) {
+    const g = ctx.createLinearGradient(0, 0, 0, VH);
+    if (stage) {
+      g.addColorStop(0, stage.data.bgColor[0]);
+      g.addColorStop(1, stage.data.bgColor[1]);
+    } else {
+      g.addColorStop(0, '#87CEEB'); g.addColorStop(1, '#E8D5A3');
+    }
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, VW, VH);
+  },
+
+  _sun(ctx, VW) {
+    ctx.save();
+    ctx.fillStyle = '#FFE066'; ctx.globalAlpha = 0.88;
+    ctx.beginPath(); ctx.arc(VW - 80, 80, 34, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#FFE066'; ctx.lineWidth = 3; ctx.globalAlpha = 0.35;
+    for (let i = 0; i < 8; i++) {
+      const a = (i/8)*Math.PI*2;
+      ctx.beginPath();
+      ctx.moveTo(VW-80+Math.cos(a)*42, 80+Math.sin(a)*42);
+      ctx.lineTo(VW-80+Math.cos(a)*58, 80+Math.sin(a)*58);
+      ctx.stroke();
+    }
+    ctx.restore();
+  },
+
+  _clouds(ctx, camera, VW) {
+    ctx.fillStyle = 'rgba(255,255,255,.82)';
+    const o = (camera.x * 0.15) % (VW + 200);
+    [[VW*.2-o,100],[VW*.6-o*.7,70],[VW-o*.4,130],[VW*1.4-o,90]].forEach(([x,y]) => {
+      ctx.beginPath();
+      ctx.arc(x,y,24,0,Math.PI*2); ctx.arc(x+20,y-6,22,0,Math.PI*2); ctx.arc(x+40,y,20,0,Math.PI*2);
+      ctx.fill();
+    });
+  },
+
+  _hills(ctx, camera, groundY, VW) {
+    ctx.fillStyle = 'rgba(100,180,80,.38)';
+    const off = camera.x * 0.25;
+    for (let i = -1; i < 8; i++) {
+      const x = camera.x + i*300 - (off%300);
+      ctx.beginPath();
+      ctx.moveTo(x, groundY);
+      ctx.bezierCurveTo(x+60, groundY-110, x+180, groundY-110, x+300, groundY);
+      ctx.closePath(); ctx.fill();
+    }
+  },
+
+  _ground(ctx, stage, camera, groundY, VH, VW) {
+    ctx.fillStyle = '#8B6914';
+    ctx.fillRect(camera.x, groundY, VW, VH - groundY);
+    ctx.fillStyle = '#7CBA3D';
+    ctx.fillRect(camera.x, groundY, VW, 11);
+    // 落とし穴
+    ctx.fillStyle = '#0B0F1E';
+    for (const pit of stage.pits) ctx.fillRect(pit.x, groundY, pit.w, VH-groundY);
+    // 草のディテール
+    ctx.fillStyle = '#5DAA2E';
+    for (let x = Math.floor(camera.x/30)*30; x < camera.x+VW; x += 30) {
+      if (!stage.pits.some(p => x > p.x-10 && x < p.x+p.w+10)) {
+        ctx.fillRect(x, groundY-4, 4, 8);
+        ctx.fillRect(x+8, groundY-3, 3, 6);
+      }
+    }
+  },
+
+  _platforms(ctx, stage, groundY) {
+    for (const p of stage.platforms) {
+      const y = groundY - p.y - p.h;
+      ctx.fillStyle = '#8B5A2B'; ctx.fillRect(p.x, y, p.w, p.h);
+      ctx.fillStyle = '#7CBA3D'; ctx.fillRect(p.x, y, p.w, 6);
+      ctx.fillStyle = 'rgba(0,0,0,.18)';
+      for (let i = 0; i < p.w; i += 20) ctx.fillRect(p.x+i, y+6, 1, p.h-6);
+    }
+  },
+};
+
+// ============================================================
+// CharRenderer: ここちゃん(プレイヤー)描画 - かわいいデザイン
+// ============================================================
+const CharRenderer = {
+  draw(ctx, player, groundY) {
+    const sy = groundY - player.y - player.h;
+    const cx = player.x + player.w / 2;
+    const cy = sy + player.h / 2;
+
+    // 影
+    ctx.fillStyle = 'rgba(0,0,0,.3)';
+    ctx.globalAlpha = Math.max(0.08, 0.38 - Math.abs(player.vy) * 0.02);
+    ctx.beginPath();
+    ctx.ellipse(cx, groundY - 2, player.sliding ? 28 : 20, 5, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    if (player.sliding) { this._sliding(ctx, cx, groundY - 18); return; }
+
+    const frame = Math.floor(player.animTime * 12) % 4;
+    const bob = player.grounded ? Math.sin(player.animTime * 10) * 2 : 0;
+
+    ctx.save();
+    ctx.translate(cx, cy + bob);
+    this._tail(ctx, player);
+    this._backLegs(ctx, player, frame);
+    this._body(ctx);
+    this._frontLegs(ctx, player, frame);
+    this._head(ctx);
+    ctx.restore();
+  },
+
+  _body(ctx) {
+    // 体（グレー）
+    ctx.fillStyle = '#9AABB8';
+    ctx.beginPath(); ctx.ellipse(0, 7, 16, 13, 0, 0, Math.PI*2); ctx.fill();
+    // お腹（淡いグレー）
+    ctx.fillStyle = '#C8D5DC';
+    ctx.beginPath(); ctx.ellipse(0, 11, 10, 8, 0, 0, Math.PI*2); ctx.fill();
+  },
+
+  _head(ctx) {
+    const hy = -14;
+    // 耳（グレー）
+    ctx.fillStyle = '#7A8B98';
+    ctx.beginPath(); ctx.moveTo(-18,hy-2); ctx.lineTo(-23,hy-22); ctx.lineTo(-7,hy-10); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo( 18,hy-2); ctx.lineTo( 23,hy-22); ctx.lineTo( 7,hy-10); ctx.closePath(); ctx.fill();
+    // 耳の内側（ピンク）
+    ctx.fillStyle = '#FFB0C0';
+    ctx.beginPath(); ctx.moveTo(-16,hy-4); ctx.lineTo(-19,hy-17); ctx.lineTo(-9,hy-10); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo( 16,hy-4); ctx.lineTo( 19,hy-17); ctx.lineTo( 9,hy-10); ctx.closePath(); ctx.fill();
+    // 顔（大きくて丸い）
+    ctx.fillStyle = '#9AABB8';
+    ctx.beginPath(); ctx.ellipse(0, hy, 21, 20, 0, 0, Math.PI*2); ctx.fill();
+    // ほっぺ（白みがかり）
+    ctx.fillStyle = 'rgba(255,255,255,.18)';
+    ctx.beginPath(); ctx.ellipse(-9, hy+4, 7, 6, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 9, hy+4, 7, 6, 0, 0, Math.PI*2); ctx.fill();
+    // 白目（大きなアニメ目）
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.ellipse(-8, hy-2, 7, 8, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 8, hy-2, 7, 8, 0, 0, Math.PI*2); ctx.fill();
+    // 虹彩（金色）
+    ctx.fillStyle = '#D4A200';
+    ctx.beginPath(); ctx.ellipse(-8, hy-1, 5.5, 6.5, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 8, hy-1, 5.5, 6.5, 0, 0, Math.PI*2); ctx.fill();
+    // 瞳孔（縦長スリット）
+    ctx.fillStyle = '#0A0F1E';
+    ctx.beginPath(); ctx.ellipse(-8, hy-1, 2, 5.5, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 8, hy-1, 2, 5.5, 0, 0, Math.PI*2); ctx.fill();
+    // ハイライト（2段）
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(-9.5, hy-4.5, 2,   0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(  6.5, hy-4.5, 2,   0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc( -6.5, hy+1.5, 1,   0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(  9.5, hy+1.5, 1,   0, Math.PI*2); ctx.fill();
+    // 鼻（ピンク三角）
+    ctx.fillStyle = '#FFB0C0';
+    ctx.beginPath(); ctx.moveTo(-3,hy+5); ctx.lineTo(3,hy+5); ctx.lineTo(0,hy+9); ctx.closePath(); ctx.fill();
+    // 口（にっこり）
+    ctx.strokeStyle = '#4A5566'; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(0,hy+9); ctx.quadraticCurveTo(-4,hy+13,-6.5,hy+11); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,hy+9); ctx.quadraticCurveTo( 4,hy+13, 6.5,hy+11); ctx.stroke();
+    // ヒゲ（3本ずつ）
+    ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.moveTo(-9,hy+7);  ctx.lineTo(-22,hy+5);
+    ctx.moveTo(-9,hy+9);  ctx.lineTo(-22,hy+9);
+    ctx.moveTo(-9,hy+11); ctx.lineTo(-20,hy+13);
+    ctx.moveTo( 9,hy+7);  ctx.lineTo( 22,hy+5);
+    ctx.moveTo( 9,hy+9);  ctx.lineTo( 22,hy+9);
+    ctx.moveTo( 9,hy+11); ctx.lineTo( 20,hy+13);
+    ctx.stroke();
+  },
+
+  _tail(ctx, player) {
+    const wag = Math.sin(player.animTime * 9) * 11;
+    // 尻尾本体
+    ctx.strokeStyle = '#7A8B98'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-14, 5);
+    ctx.quadraticCurveTo(-30, -4+wag, -28, -20+wag);
+    ctx.stroke();
+    // 白い先っぽ
+    ctx.strokeStyle = '#D0DCE4'; ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(-27, -18+wag);
+    ctx.quadraticCurveTo(-30, -25+wag, -27, -28+wag);
+    ctx.stroke();
+  },
+
+  _frontLegs(ctx, player, frame) {
+    ctx.fillStyle = '#8A9BAA';
+    if (player.grounded && !player.jumping) {
+      const offs = [[-9,0],[-7,-2],[-11,0],[-9,-2]];
+      const o = offs[frame];
+      ctx.beginPath(); ctx.ellipse(o[0],   21+o[1], 5, 8, 0, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(o[0]+5, 21-o[1], 5, 8, 0, 0, Math.PI*2); ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.ellipse(-7, 16, 5, 8, -0.3, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-1, 16, 5, 8, -0.3, 0, Math.PI*2); ctx.fill();
+    }
+  },
+
+  _backLegs(ctx, player, frame) {
+    ctx.fillStyle = '#7A8B98';
+    if (player.grounded && !player.jumping) {
+      const offs = [[10,-2],[12,0],[8,-2],[10,0]];
+      const o = offs[frame];
+      ctx.beginPath(); ctx.ellipse(o[0], 21+o[1], 6, 9, 0, 0, Math.PI*2); ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.ellipse(12, 15, 6, 9, 0.3, 0, Math.PI*2); ctx.fill();
+    }
+  },
+
+  _sliding(ctx, cx, y) {
+    ctx.save(); ctx.translate(cx, y);
+    // 影
+    ctx.fillStyle = 'rgba(0,0,0,.28)';
+    ctx.beginPath(); ctx.ellipse(0, 20, 30, 5, 0, 0, Math.PI*2); ctx.fill();
+    // 尻尾
+    ctx.strokeStyle = '#7A8B98'; ctx.lineWidth = 7; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-22, 3); ctx.lineTo(-33, -2); ctx.stroke();
+    ctx.strokeStyle = '#D0DCE4'; ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.moveTo(-32, -1); ctx.lineTo(-38, -5); ctx.stroke();
+    // 体（横長）
+    ctx.fillStyle = '#9AABB8';
+    ctx.beginPath(); ctx.ellipse(0, 5, 28, 12, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#C8D5DC';
+    ctx.beginPath(); ctx.ellipse(0, 8, 18, 8, 0, 0, Math.PI*2); ctx.fill();
+    // 頭（横向き）
+    ctx.fillStyle = '#9AABB8';
+    ctx.beginPath(); ctx.ellipse(22, -1, 17, 15, 0, 0, Math.PI*2); ctx.fill();
+    // 耳
+    ctx.fillStyle = '#7A8B98';
+    ctx.beginPath(); ctx.moveTo(14,-10); ctx.lineTo(10,-22); ctx.lineTo(20,-12); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(24,-12); ctx.lineTo(28,-23); ctx.lineTo(32,-10); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#FFB0C0';
+    ctx.beginPath(); ctx.moveTo(15,-11); ctx.lineTo(13,-18); ctx.lineTo(19,-12); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(25,-13); ctx.lineTo(27,-19); ctx.lineTo(30,-11); ctx.closePath(); ctx.fill();
+    // 目（細め・スピード顔）
+    ctx.strokeStyle = '#0A0F1E'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(15,-3); ctx.quadraticCurveTo(18,-6,21,-3);
+    ctx.moveTo(24,-3); ctx.quadraticCurveTo(27,-6,30,-3);
+    ctx.stroke();
+    // 速度線
+    ctx.strokeStyle = '#3DDCFF'; ctx.lineWidth = 2; ctx.globalAlpha = 0.75;
+    for (let i = 0; i < 4; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-40-i*8, -4+i*5); ctx.lineTo(-24-i*8, -4+i*5);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  },
+};
+
+// ============================================================
+// EnemyRenderer: 敵3種の描画
+// 拡張方法: 新しい敵種類はswitch/caseを追加し専用関数を書く。
+// ============================================================
+const EnemyRenderer = {
+  draw(ctx, e, groundY) {
+    if (!e.alive) return;
+    switch (e.kind) {
+      case 'bat':   this._bat(ctx, e, groundY);   break;
+      case 'bird':  this._bird(ctx, e, groundY);  break;
+      default:      this._slime(ctx, e, groundY); break;
+    }
+  },
+
+  _slime(ctx, e, groundY) {
+    const y = groundY - e.h;
+    const sq = Math.sin(e.anim*5)*0.1;
+    ctx.save(); ctx.translate(e.x+e.w/2, y+e.h);
+    ctx.fillStyle='rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(0,4,18,4,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#9c27b0'; ctx.beginPath(); ctx.ellipse(0,-e.h/2,e.w/2,e.h/2+sq*5,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.28)'; ctx.beginPath(); ctx.ellipse(-6,-e.h/2-4,4,6,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-6,-e.h/2-2,4,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(6,-e.h/2-2,4,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(-6,-e.h/2-2,2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(6,-e.h/2-2,2,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  },
+
+  _bat(ctx, e, groundY) {
+    const sy = groundY - e.y - e.h;
+    const flap = Math.sin(e.anim*12)*0.4;
+    ctx.save(); ctx.translate(e.x+e.w/2, sy+e.h/2);
+    // 翼
+    ctx.fillStyle='#5c2a8a';
+    const _wing = (dir) => {
+      ctx.beginPath(); ctx.moveTo(0,0);
+      ctx.quadraticCurveTo(dir*22,-8+flap*18,dir*30,4+flap*10);
+      ctx.quadraticCurveTo(dir*18,8,0,4); ctx.closePath(); ctx.fill();
+    };
+    _wing(-1); _wing(1);
+    // 体
+    ctx.fillStyle='#7b3fad'; ctx.beginPath(); ctx.ellipse(0,2,10,10,0,0,Math.PI*2); ctx.fill();
+    // 耳
+    ctx.fillStyle='#5c2a8a';
+    ctx.beginPath(); ctx.moveTo(-5,-6); ctx.lineTo(-8,-14); ctx.lineTo(-2,-8); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(5,-6); ctx.lineTo(8,-14); ctx.lineTo(2,-8); ctx.closePath(); ctx.fill();
+    // 目(赤く光る)
+    ctx.fillStyle='#FF4D6D'; ctx.beginPath(); ctx.arc(-4,-1,2.5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(4,-1,2.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-3,-2,.8,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(5,-2,.8,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  },
+
+  _bird(ctx, e, groundY) {
+    const sy = groundY - e.y - e.h;
+    const flap = Math.sin(e.anim*16)*0.5;
+    ctx.save(); ctx.translate(e.x+e.w/2, sy+e.h/2);
+    // 翼
+    ctx.fillStyle='#FF8C00';
+    const _wing = (dir) => {
+      ctx.beginPath(); ctx.moveTo(0,0);
+      ctx.quadraticCurveTo(dir*15,-10+flap*14,dir*26,-2+flap*8);
+      ctx.quadraticCurveTo(dir*12,6,0,2); ctx.closePath(); ctx.fill();
+    };
+    _wing(-1); _wing(1);
+    // 体
+    ctx.fillStyle='#FFD23F'; ctx.beginPath(); ctx.ellipse(0,1,11,9,0,0,Math.PI*2); ctx.fill();
+    // くちばし
+    ctx.fillStyle='#FF6B00'; ctx.beginPath(); ctx.moveTo(-10,0); ctx.lineTo(-18,-2); ctx.lineTo(-10,4); ctx.closePath(); ctx.fill();
+    // 目
+    ctx.fillStyle='#0B0F2A'; ctx.beginPath(); ctx.arc(-4,-2,3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-3,-3,1,0,Math.PI*2); ctx.fill();
+    // 速度線
+    ctx.strokeStyle='#FFD23F'; ctx.lineWidth=1.5; ctx.globalAlpha=0.5;
+    for (let i=1;i<=3;i++) { ctx.beginPath(); ctx.moveTo(8+i*7,-3+i*2); ctx.lineTo(16+i*7,-3+i*2); ctx.stroke(); }
+    ctx.globalAlpha=1;
+    ctx.restore();
+  },
+};
+
+// ============================================================
+// NaruRenderer: なるちゃん(ゴール)描画 - かわいいデザイン
+// ============================================================
+const NaruRenderer = {
+  draw(ctx, goal, groundY) {
+    const t   = performance.now() * 0.001;
+    const bell = Math.sin(t * 3.2) * 3;
+    const wag  = Math.sin(t * 4.1) * 12;
+    ctx.save();
+    ctx.translate(goal.x + 32, groundY - 8);
+
+    // 影
+    ctx.fillStyle = 'rgba(0,0,0,.18)';
+    ctx.beginPath(); ctx.ellipse(0, 0, 32, 7, 0, 0, Math.PI*2); ctx.fill();
+
+    // しっぽ（太くてふわふわ）
+    ctx.strokeStyle = '#D4894A'; ctx.lineWidth = 11; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(26,-30); ctx.quadraticCurveTo(52,-48+wag, 48,-70+wag); ctx.stroke();
+    ctx.strokeStyle = '#F5C890'; ctx.lineWidth = 7;
+    ctx.beginPath();
+    ctx.moveTo(47,-68+wag); ctx.quadraticCurveTo(52,-78+wag, 48,-82+wag); ctx.stroke();
+
+    // 後ろ足
+    ctx.fillStyle = '#D4894A';
+    ctx.beginPath(); ctx.ellipse(-15,-6, 10, 7,  0.2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 15,-6, 10, 7, -0.2, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#F0EAE0';
+    ctx.beginPath(); ctx.ellipse(17,-5, 8, 5, -0.2, 0, Math.PI*2); ctx.fill();
+
+    // 体（オレンジ）
+    ctx.fillStyle = '#E8975A';
+    ctx.beginPath(); ctx.ellipse(0,-40, 26, 24, 0, 0, Math.PI*2); ctx.fill();
+    // お腹（クリーム）
+    ctx.fillStyle = '#F5EEE4';
+    ctx.beginPath(); ctx.ellipse(-2,-36, 17, 15, 0, 0, Math.PI*2); ctx.fill();
+    // 縞模様
+    ctx.strokeStyle = 'rgba(170,90,20,.3)'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-14,-52); ctx.lineTo(-16,-46);
+    ctx.moveTo( -7,-54); ctx.lineTo( -9,-48);
+    ctx.moveTo( 14,-52); ctx.lineTo( 16,-46);
+    ctx.stroke();
+
+    // 前足
+    ctx.fillStyle = '#E8975A';
+    ctx.beginPath(); ctx.ellipse(-11,-17, 7,11, -0.1, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 11,-17, 7,11,  0.1, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#F5EEE4';
+    ctx.beginPath(); ctx.ellipse(12,-15, 5, 8, 0.1, 0, Math.PI*2); ctx.fill();
+
+    // 首輪（赤）
+    ctx.fillStyle = '#DC3535';
+    ctx.fillRect(-17,-62, 34, 9);
+    ctx.fillStyle = 'rgba(255,200,200,.55)';
+    [-8,0,8].forEach(x => { ctx.beginPath(); ctx.arc(x,-58, 1.8, 0, Math.PI*2); ctx.fill(); });
+
+    // 鈴（ゆれる）
+    const by = -52 + bell * 0.4;
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath(); ctx.arc(0, by, 6, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#B8860B'; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.fillStyle = '#B8860B';
+    ctx.fillRect(-1, by+3, 2, 4);
+
+    // 頭
+    const hy = -84;
+    // 耳（オレンジ）
+    ctx.fillStyle = '#D4894A';
+    ctx.beginPath(); ctx.moveTo(-16,hy); ctx.lineTo(-21,hy-22); ctx.lineTo(-5,hy-12); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo( 16,hy); ctx.lineTo( 21,hy-22); ctx.lineTo( 5,hy-12); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#FFB0C0';
+    ctx.beginPath(); ctx.moveTo(-14,hy-2); ctx.lineTo(-17,hy-16); ctx.lineTo(-7,hy-11); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo( 14,hy-2); ctx.lineTo( 17,hy-16); ctx.lineTo( 7,hy-11); ctx.closePath(); ctx.fill();
+    // 顔（クリームオレンジ）
+    ctx.fillStyle = '#F0D0A0';
+    ctx.beginPath(); ctx.ellipse(0, hy, 22, 21, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#F5EEE4';
+    ctx.beginPath(); ctx.ellipse(-8, hy+2, 11, 9, 0, 0, Math.PI*2); ctx.fill();
+    // 額の縞
+    ctx.strokeStyle = 'rgba(170,90,20,.28)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(-6,hy-14); ctx.lineTo(-5,hy-8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo( 0,hy-15); ctx.lineTo( 0,hy-9); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo( 6,hy-14); ctx.lineTo( 5,hy-8); ctx.stroke();
+    // 目（うれしくて細め・弧）
+    ctx.strokeStyle = '#5A3010'; ctx.lineWidth = 2.8; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-13,hy-2); ctx.quadraticCurveTo(-8,hy-8,-4,hy-2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(  4,hy-2); ctx.quadraticCurveTo( 8,hy-8,12,hy-2); ctx.stroke();
+    // まつ毛
+    ctx.strokeStyle = '#3A2010'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-14,hy-3); ctx.lineTo(-15,hy-7);
+    ctx.moveTo( -4,hy-4); ctx.lineTo( -3,hy-8);
+    ctx.moveTo(  4,hy-4); ctx.lineTo(  3,hy-8);
+    ctx.moveTo( 14,hy-3); ctx.lineTo( 15,hy-7);
+    ctx.stroke();
+    // ほっぺ（赤らめ）
+    ctx.fillStyle = 'rgba(255,150,100,.35)';
+    ctx.beginPath(); ctx.ellipse(-11,hy+5, 7, 4.5, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( 11,hy+5, 7, 4.5, 0, 0, Math.PI*2); ctx.fill();
+    // 鼻
+    ctx.fillStyle = '#FF9EB0';
+    ctx.beginPath(); ctx.moveTo(-3,hy+5); ctx.lineTo(3,hy+5); ctx.lineTo(0,hy+9); ctx.closePath(); ctx.fill();
+    // 口（にこにこ）
+    ctx.strokeStyle = '#7A4020'; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(0,hy+9); ctx.quadraticCurveTo(-5,hy+14,-7,hy+12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,hy+9); ctx.quadraticCurveTo( 5,hy+14, 7,hy+12); ctx.stroke();
+    // ヒゲ
+    ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.moveTo(-8,hy+7); ctx.lineTo(-21,hy+5);
+    ctx.moveTo(-8,hy+9); ctx.lineTo(-21,hy+9);
+    ctx.moveTo( 8,hy+7); ctx.lineTo( 21,hy+5);
+    ctx.moveTo( 8,hy+9); ctx.lineTo( 21,hy+9);
+    ctx.stroke();
+
+    // 吹き出し（角丸）
+    const bx=8, bsy=hy-46, bw=60, bsh=28, br=8;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.moveTo(bx+br,bsy); ctx.lineTo(bx+bw-br,bsy); ctx.arcTo(bx+bw,bsy,bx+bw,bsy+br,br);
+    ctx.lineTo(bx+bw,bsy+bsh-br); ctx.arcTo(bx+bw,bsy+bsh,bx+bw-br,bsy+bsh,br);
+    ctx.lineTo(bx+br,bsy+bsh); ctx.arcTo(bx,bsy+bsh,bx,bsy+bsh-br,br);
+    ctx.lineTo(bx,bsy+br); ctx.arcTo(bx,bsy,bx+br,bsy,br);
+    ctx.closePath(); ctx.fill();
+    // 吹き出しの三角
+    ctx.fillStyle = '#DC3535';
+    ctx.beginPath(); ctx.moveTo(bx+10,bsy+bsh); ctx.lineTo(bx+6,bsy+bsh+12); ctx.lineTo(bx+20,bsy+bsh); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('にゃ〜！', bx+bw/2, bsy+18);
+
+    ctx.restore();
+  },
+};
+
+// ============================================================
+// Renderer: 統合描画コーディネーター
+// 各サブRendererを呼び出す。カメラ制御・パーティクルもここ。
+// ============================================================
+const Renderer = (() => {
+  let canvas, ctx;
+
+  function _resize() {
+    const dpr = window.devicePixelRatio||1;
+    const w = window.innerWidth, h = window.innerHeight;
+    const aspect = Config.VW / Config.VH;
+    let cw, ch;
+    if (w/h > aspect) { ch=h; cw=h*aspect; } else { cw=w; ch=w/aspect; }
+    canvas.style.width = cw+'px'; canvas.style.height = ch+'px';
+    canvas.width = cw*dpr; canvas.height = ch*dpr;
+    ctx.setTransform((cw/Config.VW)*dpr, 0, 0, (cw/Config.VW)*dpr, 0, 0);
+  }
+
+  return {
+    init(canvasEl) {
+      canvas = canvasEl; ctx = canvas.getContext('2d');
+      _resize();
+      window.addEventListener('resize', _resize);
+    },
+
+    draw(state) {
+      const { stage, camera, player, particles } = state;
+      const { VW, VH, GROUND_Y } = Config;
+
+      BgRenderer.draw(ctx, stage, camera, VW, VH, GROUND_Y);
+      if (!stage) return;
+
+      ctx.save();
+      ctx.translate(-camera.x, 0);
+
+      // コイン
+      for (const c of stage.coins) {
+        if (c.collected) continue;
+        const y = GROUND_Y - c.y;
+        const wob = Math.sin(c.anim)*3;
+        ctx.save(); ctx.translate(c.x, y+wob);
+        ctx.fillStyle='rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(0,13,9,3,0,0,Math.PI*2); ctx.fill();
+        const g=ctx.createRadialGradient(-2,-2,1,0,0,11);
+        g.addColorStop(0,'#FFE57F'); g.addColorStop(1,'#FFB300');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,11,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='#8B6914'; ctx.lineWidth=1.4; ctx.stroke();
+        ctx.fillStyle='#FFF'; ctx.fillRect(-1,-5,2,10);
+        ctx.restore();
+      }
+
+      // 敵
+      for (const e of stage.enemies) EnemyRenderer.draw(ctx, e, GROUND_Y);
+
+      // ゴール(なるちゃん)
+      if (stage.goal) NaruRenderer.draw(ctx, stage.goal, GROUND_Y);
+
+      // プレイヤー(ここちゃん)
+      if (player) CharRenderer.draw(ctx, player, GROUND_Y);
+
+      // パーティクル
+      for (const p of particles) {
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.min(1, p.life*2);
+        ctx.fillRect(p.x-p.size/2, GROUND_Y-p.y-p.size/2, p.size, p.size);
+      }
+      ctx.globalAlpha = 1;
+
+      ctx.restore();
+    },
+  };
+})();
+
+// ============================================================
+// UI: DOM操作・ストーリー表示
+// 拡張方法: 新しいモーダルはHTMLに追加し、
+//   UIのon()/showModal()/hideModal()で操作する。
+// ============================================================
+const UI = (() => {
+  const $ = id => document.getElementById(id);
+  const ids = [
+    'titleScreen','hud','tutorial','storyModal','resultModal','gameOverModal','pauseModal',
+    'stageLabel','coinCount','timer','resultStars','resultScore','resultTime','resultCoins',
+    'nextBtn','soundBtn','storyIcon','storyTitle','storyText','storyNext',
+  ];
+  const el = {};
+
+  return {
+    init() { ids.forEach(id => el[id] = $(id)); },
+    show:      id => { el[id].style.display = 'flex'; },
+    hide:      id => { el[id].style.display = 'none'; },
+    showModal: id => el[id].classList.add('show'),
+    hideModal: id => el[id].classList.remove('show'),
+    on:        (id, fn) => $(id).addEventListener('click', fn),
+
+    setStage:  id   => { el.stageLabel.textContent = `STAGE ${id}`; },
+    setCoins:  n    => { el.coinCount.textContent = `🔔 ${n}`; },
+    setTimer:  secs => {
+      const m = Math.floor(secs/60).toString().padStart(2,'0');
+      const s = Math.floor(secs%60).toString().padStart(2,'0');
+      el.timer.textContent = `${m}:${s}`;
+    },
+    setSoundIcon: on => {
+      el.soundBtn.textContent = on ? '🔊' : '🔇';
+      el.soundBtn.classList.toggle('off', !on);
+    },
+
+    // ストーリーモーダルを表示し、閉じたらcb()を呼ぶ
+    showStory(story, cb) {
+      el.storyIcon.textContent  = story.icon;
+      el.storyTitle.textContent = story.title;
+      el.storyText.textContent  = story.text;
+      el.storyNext.onclick = () => { this.hideModal('storyModal'); cb(); };
+      this.showModal('storyModal');
+    },
+
+    showResult(stars, score, secs, coins, hasNext) {
+      el.resultStars.textContent = '★'.repeat(stars) + '☆'.repeat(3-stars);
+      el.resultScore.textContent = score;
+      const m = Math.floor(secs/60).toString().padStart(2,'0');
+      const s = Math.floor(secs%60).toString().padStart(2,'0');
+      el.resultTime.textContent = `${m}:${s}`;
+      el.resultCoins.textContent = coins;
+      el.nextBtn.style.display = hasNext ? 'block' : 'none';
+      this.showModal('resultModal');
+    },
+  };
+})();
+
+// ============================================================
+// Game: ゲーム状態と進行管理
+// 拡張方法:
+//   新ステージ → Config.stagesに追加するだけ
+//   新ゲーム状態 → STATEに追加し、updateでハンドル
+// ============================================================
+const STATE = { TITLE:'title', PLAYING:'playing', PAUSED:'paused', RESULT:'result', GAMEOVER:'gameover' };
+
+const Game = (() => {
+  // --- ゲームの状態オブジェクト ---
+  // Rendererがこれを参照して描画する
+  const state = {
+    mode:      STATE.TITLE,
+    stageIdx:  0,
+    stage:     null,
+    player:    null,
+    camera:    { x:0 },
+    coins:     0,
+    timer:     0,
+    particles: [],
+    shownTutorial: false,
+  };
+
+  function _addParticles(x, y, n, color) {
+    for (let i = 0; i < n; i++) {
+      state.particles.push({
+        x, y,
+        vx: (Math.random()-.5)*6,
+        vy: Math.random()*5+2,
+        life: 0.5+Math.random()*0.3,
+        color, size: 3+Math.random()*2,
+      });
+    }
+  }
+
+  function _loadStage(idx) {
+    state.stageIdx  = idx;
+    state.stage     = new Stage(Config.stages[idx]);
+    state.player    = new Player();
+    state.camera.x  = 0;
+    state.coins     = 0;
+    state.timer     = 0;
+    state.particles = [];
+    UI.setStage(state.stage.data.id);
+    UI.show('hud');
+    AudioEngine.startBgm(state.stage.data.bgmKey);
+  }
+
+  // Physics に渡すエフェクトコールバック群
+  const _fx = {
+    onCoin(c) {
+      state.coins++;
+      _addParticles(c.x, c.y, 6, '#FFD23F');
+      AudioEngine.sfx.coin();
+    },
+    onEnemyDefeat(e) {
+      _addParticles(e.x+e.w/2, e.y+e.h/2, 8, '#FF4D6D');
+      AudioEngine.sfx.enemy();
+    },
+    onGoal()  { _stageClear(); },
+    onDeath() { _gameOver(); },
+  };
+
+  // Input に渡すコールバック群
+  const _inputCb = {
+    onJump() {
+      if (state.mode !== STATE.PLAYING) return;
+      if (state.player.tryJump()) {
+        _addParticles(state.player.x+state.player.w/2, state.player.y, 6, '#FFD23F');
+        AudioEngine.sfx.jump();
+      }
+    },
+    onJumpRelease() { if (state.player) state.player.releaseJump(); },
+    onSlide() {
+      if (state.mode !== STATE.PLAYING) return;
+      if (state.player.trySlide()) {
+        _addParticles(state.player.x+state.player.w/2, state.player.y+4, 4, '#3DDCFF');
+        AudioEngine.sfx.slide();
+      }
+    },
+  };
+
+  function _stageClear() {
+    state.mode = STATE.RESULT;
+    AudioEngine.stopBgm();
+    AudioEngine.sfx.goal();
+
+    const sc = Config.score;
+    const timeBonus = Math.max(0, Math.floor((sc.timeBonusCap - state.timer) * sc.timeBonus));
+    const score = state.coins * sc.coinVal + timeBonus + sc.clearBonus;
+    const stars = score >= sc.star3 ? 3 : score >= sc.star2 ? 2 : 1;
+    const hasNext = state.stageIdx < Config.stages.length - 1;
+
+    setTimeout(() => {
+      // 次ステージのストーリーがあれば表示してからリザルトへ
+      const nextData = Config.stages[state.stageIdx + 1];
+      if (hasNext && nextData && nextData.story) {
+        UI.showStory(nextData.story, () => UI.showResult(stars, score, state.timer, state.coins, hasNext));
+      } else {
+        UI.showResult(stars, score, state.timer, state.coins, hasNext);
+      }
+    }, 800);
+  }
+
+  function _gameOver() {
+    state.mode = STATE.GAMEOVER;
+    AudioEngine.stopBgm();
+    AudioEngine.sfx.gameOver();
+    UI.showModal('gameOverModal');
+  }
+
+  // --- public API ---
+  return {
+    state,       // Rendererから参照
+    inputCb: _inputCb,
+
+    start() {
+      _loadStage(0);
+      if (!state.shownTutorial) {
+        UI.show('tutorial');
+        state.mode = STATE.TITLE;
+      } else {
+        state.mode = STATE.PLAYING;
+      }
+    },
+
+    dismissTutorial() {
+      if (state.mode === STATE.PLAYING) return;
+      UI.hide('tutorial');
+      state.shownTutorial = true;
+      state.mode = STATE.PLAYING;
+    },
+
+    pause() {
+      if (state.mode !== STATE.PLAYING) return;
+      state.mode = STATE.PAUSED;
+      AudioEngine.stopBgm();
+      UI.showModal('pauseModal');
+    },
+
+    resume() {
+      if (state.mode !== STATE.PAUSED) return;
+      UI.hideModal('pauseModal');
+      state.mode = STATE.PLAYING;
+      AudioEngine.startBgm(state.stage.data.bgmKey);
+    },
+
+    retry() {
+      ['pauseModal','gameOverModal','resultModal'].forEach(id => UI.hideModal(id));
+      _loadStage(state.stageIdx);
+      state.mode = STATE.PLAYING;
+    },
+
+    nextStage() {
+      UI.hideModal('resultModal');
+      if (state.stageIdx < Config.stages.length - 1) {
+        _loadStage(state.stageIdx + 1);
+        state.mode = STATE.PLAYING;
+      } else {
+        this.backToTitle();
+      }
+    },
+
+    backToTitle() {
+      ['resultModal','gameOverModal','pauseModal'].forEach(id => UI.hideModal(id));
+      UI.hide('hud');
+      UI.show('titleScreen');
+      state.mode = STATE.TITLE;
+      AudioEngine.startBgm('title');
+    },
+
+    update(dt) {
+      if (state.mode !== STATE.PLAYING) return;
+
+      state.timer += dt;
+      Physics.update(state.player, state.stage, dt, _fx);
+
+      // カメラ追従(プレイヤーを画面30%の位置に保つ)
+      const tx = state.player.x - Config.VW * 0.30;
+      state.camera.x += (tx - state.camera.x) * 0.15;
+      const stageLen = state.stage.data.objects.reduce((max, o) => Math.max(max, o.x || 0), 0) + 400;
+      state.camera.x = Math.max(0, Math.min(state.camera.x, stageLen - Config.VW));
+
+      // パーティクル更新
+      for (let i = state.particles.length-1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.x += p.vx; p.y += p.vy; p.vy -= 0.3; p.life -= dt;
+        if (p.life <= 0) state.particles.splice(i, 1);
+      }
+
+      UI.setCoins(state.coins);
+      UI.setTimer(state.timer);
+    },
+  };
+})();
+
+// ============================================================
+// Main: エントリーポイント
+// UI イベントの登録・起動・メインループの管理のみ。
+// 新しいUI要素のイベントはここに追加する。
+// ============================================================
+(function main() {
+  UI.init();
+  Renderer.init(document.getElementById('game'));
+  AudioEngine.setDebugEl(document.getElementById('dbg'));
+  Input.setup(document.getElementById('game'), Game.inputCb);
+
+  // タイトルタップ: AudioContextアンロック → オープニング → ゲーム開始
+  UI.on('titleScreen', () => {
+    AudioEngine.unlock();
+    AudioEngine.sfx.coin();
+    UI.hide('titleScreen');
+    const opening = Config.stages[0].story;
+    UI.showStory(opening, () => Game.start());
+  });
+
+  // チュートリアル（iOS Safari のclick遅延対策でtouchstartも登録）
+  UI.on('tutorial', () => Game.dismissTutorial());
+  document.getElementById('tutorial').addEventListener('touchstart', e => {
+    e.preventDefault();
+    Game.dismissTutorial();
+  }, { passive: false });
+
+  // HUD
+  UI.on('pauseBtn', () => Game.pause());
+  UI.on('soundBtn', () => {
+    AudioEngine.unlock();
+    const next = !AudioEngine.isEnabled();
+    AudioEngine.setEnabled(next);
+    UI.setSoundIcon(next);
+    if (next) AudioEngine.sfx.coin();
+  });
+
+  // ポーズ
+  UI.on('resumeBtn',    () => Game.resume());
+  UI.on('pauseRetryBtn',() => Game.retry());
+  UI.on('pauseTitleBtn',() => Game.backToTitle());
+
+  // リザルト
+  UI.on('nextBtn',  () => Game.nextStage());
+  UI.on('retryBtn', () => Game.retry());
+
+  // ゲームオーバー
+  UI.on('overRetryBtn', () => Game.retry());
+  UI.on('overTitleBtn', () => Game.backToTitle());
+
+  // メインループ(60fps固定、最大フレーム時間は33ms)
+  let lastTime = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.033, (now - lastTime) / 1000);
+    lastTime = now;
+    Game.update(dt);
+    Renderer.draw(Game.state);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
