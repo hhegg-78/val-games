@@ -589,6 +589,9 @@ const Input = (() => {
   let cb = {};
   let startY = null;
   let swipeFired = false;
+  // 現在のタッチジェスチャーがUI要素上で開始されたか
+  // trueの間は preventDefault を一切呼ばない（クリックイベントを潰さないため）
+  let gestureOnUI = false;
 
   function _start(y) {
     startY = y; swipeFired = false;
@@ -606,38 +609,68 @@ const Input = (() => {
     cb.onJumpRelease && cb.onJumpRelease();
   }
 
+  // タッチ/クリックがUI要素（ボタン・モーダル・タイトル等）かを判定
   function _isUITarget(e) {
     let el = e.target;
     while (el && el !== document.body) {
       const cls = el.classList;
       if (el.tagName === 'BUTTON' ||
           (cls && (cls.contains('btn') || cls.contains('icon-btn') ||
-                   cls.contains('title') || cls.contains('modal') || cls.contains('tutorial')))) return true;
+                   cls.contains('title') || cls.contains('modal') || cls.contains('tutorial') ||
+                   cls.contains('card') || cls.contains('tut-card')))) return true;
       el = el.parentElement;
     }
     return false;
   }
 
   return {
-    setup(canvas, callbacks) {
+    setup(_canvasIgnored, callbacks) {
       cb = callbacks;
-      // canvasではなくdocument全体でリッスン（レターボックスやiframe問題を回避）
+      // documentレベルでリッスン（レターボックスやiframe環境でも動作）
+
+      // ---- Touch（iOS Safari / Android Chrome）----
       document.addEventListener('touchstart', e => {
-        if (_isUITarget(e)) return;
-        e.preventDefault(); _start(e.touches[0].clientY);
+        gestureOnUI = _isUITarget(e);
+        if (gestureOnUI) return;                       // UI上ならpreventDefault禁止（click を残す）
+        e.preventDefault();
+        _start(e.touches[0].clientY);
       }, { passive: false });
-      document.addEventListener('touchmove',  e => { e.preventDefault(); _move(e.touches[0].clientY); }, { passive: false });
-      document.addEventListener('touchend',   e => { e.preventDefault(); _end(); }, { passive: false });
-      document.addEventListener('touchcancel',e => { e.preventDefault(); _end(); }, { passive: false });
-      document.addEventListener('mousedown',  e => { if (_isUITarget(e)) return; _start(e.clientY); });
-      document.addEventListener('mousemove',  e => { if (e.buttons === 1) _move(e.clientY); });
-      document.addEventListener('mouseup',    _end);
+
+      document.addEventListener('touchmove', e => {
+        if (gestureOnUI) return;
+        e.preventDefault();
+        _move(e.touches[0].clientY);
+      }, { passive: false });
+
+      document.addEventListener('touchend', e => {
+        if (gestureOnUI) { gestureOnUI = false; return; }
+        e.preventDefault();
+        _end();
+      }, { passive: false });
+
+      document.addEventListener('touchcancel', e => {
+        if (gestureOnUI) { gestureOnUI = false; return; }
+        e.preventDefault();
+        _end();
+      }, { passive: false });
+
+      // ---- Mouse（デスクトップ）----
+      document.addEventListener('mousedown', e => {
+        if (_isUITarget(e)) return;
+        _start(e.clientY);
+      });
+      document.addEventListener('mousemove', e => {
+        if (e.buttons === 1) _move(e.clientY);
+      });
+      document.addEventListener('mouseup', () => _end());
+
+      // ---- Keyboard ----
       document.addEventListener('keydown', e => {
-        if (e.code==='Space'||e.code==='ArrowUp')   cb.onJump  && cb.onJump();
-        else if (e.code==='ArrowDown')               cb.onSlide && cb.onSlide();
+        if (e.code === 'Space' || e.code === 'ArrowUp')   { cb.onJump  && cb.onJump();  e.preventDefault(); }
+        else if (e.code === 'ArrowDown')                  { cb.onSlide && cb.onSlide(); e.preventDefault(); }
       });
       document.addEventListener('keyup', e => {
-        if (e.code==='Space'||e.code==='ArrowUp') cb.onJumpRelease && cb.onJumpRelease();
+        if (e.code === 'Space' || e.code === 'ArrowUp') cb.onJumpRelease && cb.onJumpRelease();
       });
     },
   };
