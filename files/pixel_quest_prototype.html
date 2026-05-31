@@ -231,121 +231,106 @@ html,body{
     <div class="dots r"><span class="d3"></span><span class="d2"></span><span class="d1"></span></div>
     <h1>ここちゃんとなるちゃん<br>の冒険</h1>
     <div class="sub">なるちゃんのおうちを目指せ！</div>
-    <!-- 2匹のキャラクター：横向き走り姿勢（ゲーム中と同じ見た目） -->
-    <svg width="280" height="140" viewBox="0 0 280 140" style="margin:14px 0" xmlns="http://www.w3.org/2000/svg">
-      <!-- ===== ここちゃん（グレー、左側） ===== -->
-      <g transform="translate(72, 75)">
+    <!-- 絵本イラスト風：強い輪郭線・平面塗り・最小限の要素 -->
+    <svg width="280" height="180" viewBox="0 0 280 180" style="margin:10px 0" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <style>
+          .out-koko { stroke:#39434F; stroke-width:2.2; stroke-linejoin:round; }
+          .out-naru { stroke:#5A3818; stroke-width:2.2; stroke-linejoin:round; }
+        </style>
+      </defs>
+
+      <!-- ===== ここちゃん（グレー） ===== -->
+      <g transform="translate(82, 95)">
         <!-- 影 -->
-        <ellipse cx="0" cy="42" rx="44" ry="6" fill="rgba(0,0,0,.18)"/>
-        <!-- 尻尾 -->
-        <path d="M-30 -4 Q-50 -18 -52 -40" stroke="#5A6770" stroke-width="14" stroke-linecap="round" fill="none"/>
-        <path d="M-32 -7 Q-50 -22 -50 -38" stroke="#87959E" stroke-width="6" stroke-linecap="round" fill="none"/>
-        <!-- 後ろ脚（奥） -->
-        <ellipse cx="-14" cy="22" rx="7" ry="14" fill="#5A6770"/>
-        <ellipse cx="-14" cy="37" rx="9" ry="5" fill="#5A6770"/>
-        <!-- 後ろ脚（手前） -->
-        <ellipse cx="-4" cy="26" rx="7" ry="13" fill="#6E7C85"/>
-        <ellipse cx="-4" cy="39" rx="9" ry="5" fill="#6E7C85"/>
-        <!-- 胴体 -->
-        <ellipse cx="0" cy="0" rx="38" ry="22" fill="#6E7C85"/>
-        <!-- 背中ハイライト -->
-        <ellipse cx="-2" cy="-10" rx="31" ry="10" fill="#87959E"/>
-        <!-- お腹 -->
-        <ellipse cx="2" cy="12" rx="26" ry="8" fill="#A0AEB8"/>
-        <!-- 前脚（奥） -->
-        <ellipse cx="14" cy="20" rx="6" ry="15" fill="#5A6770"/>
-        <ellipse cx="14" cy="36" rx="9" ry="5" fill="#5A6770"/>
-        <!-- 前脚（手前） -->
-        <ellipse cx="24" cy="22" rx="6" ry="14" fill="#6E7C85"/>
-        <ellipse cx="24" cy="37" rx="9" ry="5" fill="#6E7C85"/>
+        <ellipse cx="0" cy="62" rx="36" ry="5" fill="rgba(0,0,0,.18)"/>
+
+        <!-- しっぽ（後ろから） -->
+        <path d="M-22 30 Q-46 32 -48 6 Q-48 -10 -38 -14"
+              fill="none" stroke="#39434F" stroke-width="13.5" stroke-linecap="round"/>
+        <path d="M-22 30 Q-46 32 -48 6 Q-48 -10 -38 -14"
+              fill="none" stroke="#9CABB8" stroke-width="10" stroke-linecap="round"/>
+
+        <!-- 体 -->
+        <ellipse cx="0" cy="34" rx="24" ry="22" fill="#9CABB8" class="out-koko"/>
+        <!-- 前足 -->
+        <ellipse cx="-11" cy="52" rx="6.5" ry="8" fill="#9CABB8" class="out-koko"/>
+        <ellipse cx=" 11" cy="52" rx="6.5" ry="8" fill="#9CABB8" class="out-koko"/>
+
         <!-- 頭 -->
-        <ellipse cx="34" cy="-20" rx="22" ry="20" fill="#6E7C85"/>
-        <ellipse cx="36" cy="-27" rx="16" ry="9" fill="#87959E"/>
-        <!-- 奥の耳 -->
-        <path d="M22 -36 L18 -50 L29 -42 Z" fill="#5A6770"/>
-        <path d="M23 -38 L21 -47 L27 -41 Z" fill="#8B6975"/>
-        <!-- 手前の耳 -->
-        <path d="M42 -36 L46 -52 L50 -30 Z" fill="#6E7C85"/>
-        <path d="M43 -38 L45 -48 L48 -33 Z" fill="#8B6975"/>
-        <!-- 目 -->
-        <ellipse cx="46" cy="-19" rx="4" ry="5" fill="#fff"/>
-        <ellipse cx="46" cy="-18" rx="3" ry="4" fill="#D4A200"/>
-        <ellipse cx="46" cy="-18" rx="1" ry="3" fill="#0E0E0E"/>
-        <circle cx="47" cy="-20" r="0.9" fill="#fff"/>
-        <!-- 鼻 -->
-        <path d="M52 -10 L57 -8 L52 -5 Z" fill="#B07A85"/>
-        <!-- 口 -->
-        <path d="M52 -5 Q53 -2 51 -1" stroke="#3A4048" stroke-width="1" fill="none" stroke-linecap="round"/>
-        <!-- ヒゲ -->
-        <line x1="49" y1="-7" x2="62" y2="-9" stroke="#fff" stroke-width=".8" opacity=".9"/>
-        <line x1="49" y1="-5" x2="62" y2="-5" stroke="#fff" stroke-width=".8" opacity=".9"/>
-        <line x1="49" y1="-3" x2="61" y2="-1" stroke="#fff" stroke-width=".8" opacity=".9"/>
+        <ellipse cx="0" cy="-14" rx="30" ry="27" fill="#9CABB8" class="out-koko"/>
+
+        <!-- 耳（輪郭付き） -->
+        <path d="M-22 -28 L-28 -48 L-10 -38 Z" fill="#9CABB8" class="out-koko"/>
+        <path d="M 22 -28 L 28 -48 L 10 -38 Z" fill="#9CABB8" class="out-koko"/>
+        <!-- 耳の内側 -->
+        <path d="M-20 -32 L-25 -44 L-13 -38 Z" fill="#FFB4C0"/>
+        <path d="M 20 -32 L 25 -44 L 13 -38 Z" fill="#FFB4C0"/>
+
+        <!-- 目（大きな黒目1個 + 白いハイライト1個） -->
+        <circle cx="-10" cy="-13" r="5" fill="#1A1A1A"/>
+        <circle cx=" 10" cy="-13" r="5" fill="#1A1A1A"/>
+        <circle cx="-8.3" cy="-15" r="1.8" fill="#FFFFFF"/>
+        <circle cx="11.7" cy="-15" r="1.8" fill="#FFFFFF"/>
+
+        <!-- 鼻（小さなピンクハート） -->
+        <path d="M0 1.5 C 4.5 -3, 1 -6, 0 -2.5 C -1 -6, -4.5 -3, 0 1.5 Z" fill="#FF99A8"/>
+
+        <!-- 口（やさしい笑顔） -->
+        <path d="M-5 5 Q0 10 5 5" fill="none" stroke="#39434F" stroke-width="2" stroke-linecap="round"/>
       </g>
 
-      <!-- ===== なるちゃん（オレンジ＆白、右側）===== -->
-      <g transform="translate(206, 75)">
+      <!-- ===== なるちゃん（オレンジ＆白） ===== -->
+      <g transform="translate(198, 95)">
         <!-- 影 -->
-        <ellipse cx="0" cy="42" rx="46" ry="6" fill="rgba(0,0,0,.18)"/>
-        <!-- 尻尾（オレンジ・縞・白先） -->
-        <path d="M-30 -5 Q-52 -20 -56 -44" stroke="#E8975A" stroke-width="16" stroke-linecap="round" fill="none"/>
-        <path d="M-34 -12 Q-50 -26 -52 -42" stroke="rgba(150,80,30,.3)" stroke-width="12" stroke-linecap="round" fill="none"/>
-        <path d="M-54 -40 Q-60 -52 -52 -58" stroke="#F5EFE0" stroke-width="12" stroke-linecap="round" fill="none"/>
-        <!-- 後ろ脚（白） -->
-        <ellipse cx="-14" cy="22" rx="7" ry="14" fill="#E8975A"/>
-        <ellipse cx="-14" cy="37" rx="9" ry="5" fill="#F5EFE0"/>
-        <ellipse cx="-4" cy="26" rx="7" ry="13" fill="#F5EFE0"/>
-        <ellipse cx="-4" cy="39" rx="9" ry="5" fill="#F5EFE0"/>
-        <!-- 胴体（オレンジ） -->
-        <ellipse cx="0" cy="0" rx="40" ry="23" fill="#E8975A"/>
-        <!-- 背中ハイライト -->
-        <ellipse cx="-2" cy="-10" rx="32" ry="10" fill="#F0AC75"/>
-        <!-- ストライプ -->
-        <path d="M-16 -16 Q-14 -10 -16 -6" stroke="rgba(150,80,30,.35)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M -6 -18 Q-4 -12 -6 -8"  stroke="rgba(150,80,30,.35)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M  6 -18 Q 8 -12  6 -8"  stroke="rgba(150,80,30,.35)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M 16 -16 Q18 -10 16 -6"  stroke="rgba(150,80,30,.35)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <!-- 胸〜お腹（白） -->
-        <ellipse cx="4" cy="6" rx="28" ry="13" fill="#F5EFE0"/>
-        <!-- 前脚（白） -->
-        <ellipse cx="14" cy="20" rx="6" ry="15" fill="#F5EFE0"/>
-        <ellipse cx="14" cy="36" rx="9" ry="5" fill="#F5EFE0"/>
-        <ellipse cx="24" cy="22" rx="6" ry="14" fill="#F5EFE0"/>
-        <ellipse cx="24" cy="37" rx="9" ry="5" fill="#F5EFE0"/>
-        <!-- 頭 -->
-        <ellipse cx="34" cy="-20" rx="22" ry="20" fill="#E8975A"/>
-        <!-- 白い顔マスク -->
-        <ellipse cx="38" cy="-14" rx="16" ry="14" fill="#F5EFE0"/>
-        <!-- 額の縞 -->
-        <path d="M28 -34 L27 -28" stroke="rgba(180,100,40,.55)" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M34 -36 L34 -30" stroke="rgba(180,100,40,.55)" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M40 -34 L39 -28" stroke="rgba(180,100,40,.55)" stroke-width="1.5" stroke-linecap="round"/>
-        <!-- 奥の耳 -->
-        <path d="M22 -36 L18 -50 L29 -42 Z" fill="#E8975A"/>
-        <path d="M23 -38 L21 -47 L27 -41 Z" fill="#FFB0B5"/>
-        <!-- 手前の耳 -->
-        <path d="M42 -36 L46 -52 L50 -30 Z" fill="#E8975A"/>
-        <path d="M43 -38 L45 -48 L48 -33 Z" fill="#FFB0B5"/>
-        <!-- 目 -->
-        <ellipse cx="46" cy="-18" rx="4" ry="5" fill="#fff"/>
-        <ellipse cx="46" cy="-17" rx="3" ry="4" fill="#C8941E"/>
-        <ellipse cx="46" cy="-17" rx="1" ry="3" fill="#0E0E0E"/>
-        <circle cx="47" cy="-19" r="0.9" fill="#fff"/>
-        <!-- ほっぺ -->
-        <ellipse cx="38" cy="-4" rx="3" ry="2" fill="rgba(255,150,100,.4)"/>
-        <ellipse cx="50" cy="-3" rx="3" ry="2" fill="rgba(255,150,100,.4)"/>
-        <!-- 鼻 -->
-        <path d="M52 -8 L57 -6 L52 -3 Z" fill="#FF9DA5"/>
-        <!-- 口 -->
-        <path d="M52 -3 Q53 0 51 1" stroke="#8B4A20" stroke-width="1" fill="none" stroke-linecap="round"/>
-        <!-- ヒゲ -->
-        <line x1="49" y1="-5" x2="62" y2="-7" stroke="#fff" stroke-width=".8" opacity=".9"/>
-        <line x1="49" y1="-3" x2="62" y2="-3" stroke="#fff" stroke-width=".8" opacity=".9"/>
-        <line x1="49" y1="-1" x2="61" y2="1" stroke="#fff" stroke-width=".8" opacity=".9"/>
+        <ellipse cx="0" cy="62" rx="38" ry="5" fill="rgba(0,0,0,.18)"/>
+
+        <!-- しっぽ -->
+        <path d="M-22 30 Q-48 32 -50 4 Q-50 -14 -40 -18"
+              fill="none" stroke="#5A3818" stroke-width="14" stroke-linecap="round"/>
+        <path d="M-22 30 Q-48 32 -50 4 Q-50 -14 -40 -18"
+              fill="none" stroke="#E89868" stroke-width="10.5" stroke-linecap="round"/>
+        <!-- 白い先端 -->
+        <path d="M-40 -18 Q-46 -22 -38 -22"
+              fill="none" stroke="#FBF6EC" stroke-width="10" stroke-linecap="round"/>
+
+        <!-- 体 -->
+        <ellipse cx="0" cy="34" rx="25" ry="22" fill="#E89868" class="out-naru"/>
+        <!-- 白いお腹 -->
+        <ellipse cx="0" cy="38" rx="17" ry="14" fill="#FBF6EC"/>
+
+        <!-- 前足（白） -->
+        <ellipse cx="-11" cy="52" rx="6.5" ry="8" fill="#FBF6EC" class="out-naru"/>
+        <ellipse cx=" 11" cy="52" rx="6.5" ry="8" fill="#FBF6EC" class="out-naru"/>
+
         <!-- 首輪 -->
-        <ellipse cx="36" cy="-4" rx="16" ry="3" fill="#DC3535"/>
+        <ellipse cx="0" cy="18" rx="16" ry="3.5" fill="#DC3535" stroke="#5A3818" stroke-width="1"/>
         <!-- 鈴 -->
-        <circle cx="36" cy="0" r="3.5" fill="#FFD700" stroke="#B8860B" stroke-width=".7"/>
-        <circle cx="35" cy="-1" r="1" fill="#fff" opacity=".7"/>
+        <circle cx="0" cy="22" r="4.5" fill="#FFD700" stroke="#5A3818" stroke-width="1.4"/>
+        <circle cx="-1.5" cy="20" r="1.2" fill="#FFFFFF" opacity=".75"/>
+
+        <!-- 頭 -->
+        <ellipse cx="0" cy="-14" rx="30" ry="27" fill="#E89868" class="out-naru"/>
+        <!-- 白い顔マスク -->
+        <ellipse cx="0" cy="-9" rx="22" ry="19" fill="#FBF6EC"/>
+
+        <!-- 耳 -->
+        <path d="M-22 -28 L-28 -48 L-10 -38 Z" fill="#E89868" class="out-naru"/>
+        <path d="M 22 -28 L 28 -48 L 10 -38 Z" fill="#E89868" class="out-naru"/>
+        <path d="M-20 -32 L-25 -44 L-13 -38 Z" fill="#FFB4C0"/>
+        <path d="M 20 -32 L 25 -44 L 13 -38 Z" fill="#FFB4C0"/>
+
+        <!-- 目 -->
+        <circle cx="-10" cy="-13" r="5" fill="#1A1A1A"/>
+        <circle cx=" 10" cy="-13" r="5" fill="#1A1A1A"/>
+        <circle cx="-8.3" cy="-15" r="1.8" fill="#FFFFFF"/>
+        <circle cx="11.7" cy="-15" r="1.8" fill="#FFFFFF"/>
+
+        <!-- 鼻（ピンクハート） -->
+        <path d="M0 1.5 C 4.5 -3, 1 -6, 0 -2.5 C -1 -6, -4.5 -3, 0 1.5 Z" fill="#FF99A8"/>
+
+        <!-- 口 -->
+        <path d="M-5 5 Q0 10 5 5" fill="none" stroke="#5A3818" stroke-width="2" stroke-linecap="round"/>
       </g>
     </svg>
     <div class="tap">タップしてスタート</div>
@@ -769,7 +754,34 @@ const Physics = {
  *    - 背景・敵・キャラ・パーティクルを描画
  *    - キャンバスのバッキングストアサイズは初期化時に1度だけ設定
  *    - 表示サイズは CSS（aspect-ratio）が担当するので resize 監視不要
+ *
+ * 4-0. Palette / Sprites: 複数Renderer・ゲームロジック横断で使う色と図形ヘルパー
+ *     色を1箇所に集めることで、キャラの目・鼻・耳のピンクなど共通要素を
+ *     1箇所変えれば両キャラに反映できる。
  * ========================================================= */
+const Palette = {
+  // キャラ共通アクセント
+  earIn: '#FFB4C0',  // 耳の内側ピンク
+  eye:   '#1A1A1A',  // 黒目
+  nose:  '#FF99A8',  // ピンクハート鼻
+  // 演出系（パーティクル・コイン・速度線）
+  coin:  '#FFD23F',  // すず（コイン）の取得エフェクト
+  hit:   '#FF4D6D',  // 敵撃破エフェクト
+  speed: '#3DDCFF',  // スライド速度線
+};
+
+const Sprites = {
+  // 小さなハート（鼻などに使用）
+  heart(ctx, cx, cy, s, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + s);
+    ctx.bezierCurveTo(cx + s*1.8, cy - s*0.3, cx + s*0.5, cy - s*1.3, cx, cy - s*0.3);
+    ctx.bezierCurveTo(cx - s*0.5, cy - s*1.3, cx - s*1.8, cy - s*0.3, cx, cy + s);
+    ctx.fill();
+  },
+};
+
 const BgRenderer = {
   draw(ctx, stage, camera, VW, VH, groundY) {
     // 1. 空（カメラに無関係）
@@ -913,198 +925,236 @@ const EnemyRenderer = {
  *   ベース #6E7C85, 影 #5A6770, ハイライト #87959E, お腹 #A0AEB8
  *   耳内 #8B6975, 目 #D4A200, 鼻 #B07A85
  */
+/* ここちゃん（プレイヤー）描画 — 絵本イラスト風・横向き走り
+ *
+ * 描画方針:
+ *   - 強い輪郭線 (stroke 1.8px, color #39434F)
+ *   - 平面塗り（グラデーション禁止・ハイライト最小）
+ *   - 要素は { 体, 頭, 耳, 目1, 鼻, 口, しっぽ, 4本の足 } のみ
+ *   - ヒゲ・縞・チーク・複数ハイライトは描かない（雑音回避）
+ *
+ * 配色:
+ *   BODY = #9CABB8 (グレー本体・固有色)
+ *   OUT  = #39434F (輪郭・固有色)
+ *   その他（耳ピンク・黒目・ピンク鼻）は Palette から共通参照
+ */
 const CharRenderer = {
-  COLORS: {
-    base: '#6E7C85', dark: '#5A6770', light: '#87959E', belly: '#A0AEB8',
-    earIn: '#8B6975', eye: '#D4A200', nose: '#B07A85',
-  },
+  C: { BODY:'#9CABB8', OUT:'#39434F', EARIN:Palette.earIn, EYE:Palette.eye, NOSE:Palette.nose },
+  // 走り4フレーム×4本足の x オフセット。毎フレーム生成しないよう静的に保持。
+  LEG_POSES: [
+    [ 6, 14, -12, -4],
+    [ 9, 12, -10, -6],
+    [14,  6,  -4,-12],
+    [12,  9,  -6,-10],
+  ],
+  JUMP_POSE: [-10, -4, 8, 14],
 
   draw(ctx, player, groundY) {
     const cx = player.x + player.w / 2;
     const cy = (groundY - player.y - player.h) + player.h / 2;
 
     // 影
-    ctx.fillStyle = 'rgba(0,0,0,.3)';
-    ctx.globalAlpha = Math.max(0.08, 0.38 - Math.abs(player.vy) * 0.02);
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
+    ctx.globalAlpha = Math.max(0.1, 0.4 - Math.abs(player.vy) * 0.02);
     ctx.beginPath();
-    ctx.ellipse(cx, groundY - 2, player.sliding ? 30 : 22, 5, 0, 0, Math.PI*2);
+    ctx.ellipse(cx, groundY - 2, player.sliding ? 28 : 20, 5, 0, 0, Math.PI*2);
     ctx.fill();
     ctx.globalAlpha = 1;
 
-    if (player.sliding) { this._sliding(ctx, cx, groundY - 18); return; }
+    if (player.sliding) { this._sliding(ctx, cx, groundY - 14); return; }
 
     const frame = Math.floor(player.animTime * 12) % 4;
-    const bob = player.grounded ? Math.sin(player.animTime * 10) * 1.5 : 0;
+    const bob = player.grounded ? Math.sin(player.animTime * 10) * 1.3 : 0;
 
     ctx.save();
     ctx.translate(cx, cy + bob);
     this._tail(ctx, player);
-    this._backLegs(ctx, player, frame);
+    this._legs(ctx, player, frame);
     this._body(ctx);
-    this._frontLegs(ctx, player, frame);
     this._head(ctx);
     ctx.restore();
   },
 
+  // 体（楕円1枚＋輪郭線）
   _body(ctx) {
-    const c = this.COLORS;
-    // 胴体（横長楕円）
-    ctx.fillStyle = c.base;
-    ctx.beginPath(); ctx.ellipse(0, 4, 20, 12, 0, 0, Math.PI*2); ctx.fill();
-    // 背中ハイライト
-    ctx.fillStyle = c.light;
-    ctx.beginPath(); ctx.ellipse(-2, -2, 16, 6, 0, 0, Math.PI*2); ctx.fill();
-    // お腹
-    ctx.fillStyle = c.belly;
-    ctx.beginPath(); ctx.ellipse(1, 11, 14, 5, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle   = this.C.BODY;
+    ctx.strokeStyle = this.C.OUT;
+    ctx.lineWidth   = 1.8;
+    ctx.beginPath();
+    ctx.ellipse(0, 6, 16, 11, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
   },
 
+  // 頭は体の前方（右側）に配置。横顔だが片目とハート鼻を見せて表情を出す
   _head(ctx) {
-    const c = this.COLORS;
-    const hx = 12, hy = -12;
-    // 奥の耳
-    ctx.fillStyle = c.dark;
-    ctx.beginPath(); ctx.moveTo(hx-3, hy-8); ctx.lineTo(hx-7, hy-19); ctx.lineTo(hx+1, hy-14); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = c.earIn;
-    ctx.beginPath(); ctx.moveTo(hx-2, hy-9); ctx.lineTo(hx-5, hy-17); ctx.lineTo(hx, hy-13); ctx.closePath(); ctx.fill();
-    // 頭ベース
-    ctx.fillStyle = c.base;
-    ctx.beginPath(); ctx.ellipse(hx, hy, 13, 12, 0, 0, Math.PI*2); ctx.fill();
-    // ハイライト
-    ctx.fillStyle = c.light;
-    ctx.beginPath(); ctx.ellipse(hx+1, hy-4, 10, 6, 0, 0, Math.PI*2); ctx.fill();
+    const C = this.C;
+    const hx = 11, hy = -10;
+
+    // 奥の耳（先に描く＝奥に見える）
+    ctx.fillStyle   = C.BODY;
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 1.6;
+    ctx.lineJoin    = 'round';
+    ctx.beginPath();
+    ctx.moveTo(hx-6, hy-10);
+    ctx.lineTo(hx-9, hy-20);
+    ctx.lineTo(hx, hy-14);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // 頭の丸
+    ctx.beginPath();
+    ctx.ellipse(hx, hy, 13, 12, 0, 0, Math.PI*2);
+    ctx.lineWidth = 1.8;
+    ctx.fill(); ctx.stroke();
+
     // 手前の耳
-    ctx.fillStyle = c.base;
-    ctx.beginPath(); ctx.moveTo(hx+6, hy-8); ctx.lineTo(hx+9, hy-19); ctx.lineTo(hx+13, hy-5); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = c.earIn;
-    ctx.beginPath(); ctx.moveTo(hx+7, hy-9); ctx.lineTo(hx+9, hy-16); ctx.lineTo(hx+12, hy-7); ctx.closePath(); ctx.fill();
-    // 目（白＋金虹彩＋縦スリット瞳）
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.ellipse(hx+5, hy-2, 3, 3.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = c.eye;
-    ctx.beginPath(); ctx.ellipse(hx+5, hy-1, 2.5, 3, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#0E0E0E';
-    ctx.beginPath(); ctx.ellipse(hx+5, hy-1, 0.9, 2.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(hx+5.8, hy-2.5, 0.7, 0, Math.PI*2); ctx.fill();
-    // 鼻
-    ctx.fillStyle = c.nose;
-    ctx.beginPath(); ctx.moveTo(hx+11, hy+3); ctx.lineTo(hx+14, hy+4); ctx.lineTo(hx+11, hy+6); ctx.closePath(); ctx.fill();
-    // 口
-    ctx.strokeStyle = '#3A4048'; ctx.lineWidth = 0.9; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(hx+11, hy+6); ctx.quadraticCurveTo(hx+12, hy+8, hx+10, hy+9); ctx.stroke();
-    // ヒゲ
-    ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 0.6;
+    ctx.lineWidth = 1.6;
     ctx.beginPath();
-    ctx.moveTo(hx+10, hy+4); ctx.lineTo(hx+20, hy+3);
-    ctx.moveTo(hx+10, hy+5); ctx.lineTo(hx+20, hy+5);
-    ctx.moveTo(hx+10, hy+7); ctx.lineTo(hx+19, hy+8);
+    ctx.moveTo(hx+7, hy-10);
+    ctx.lineTo(hx+10, hy-21);
+    ctx.lineTo(hx+13, hy-8);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // 耳の内側ピンク
+    ctx.fillStyle = C.EARIN;
+    ctx.beginPath();
+    ctx.moveTo(hx+8.5, hy-11);
+    ctx.lineTo(hx+10.5, hy-19);
+    ctx.lineTo(hx+12, hy-10);
+    ctx.closePath();
+    ctx.fill();
+
+    // 目（黒丸1つ＋ハイライト1つ）
+    ctx.fillStyle = C.EYE;
+    ctx.beginPath();
+    ctx.arc(hx+4, hy-1, 2.6, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(hx+5, hy-2.3, 0.9, 0, Math.PI*2);
+    ctx.fill();
+
+    // 鼻（ピンクハート）
+    Sprites.heart(ctx, hx+12, hy+4, 1.6, C.NOSE);
+
+    // 口（短いやさしい笑顔）
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 1.2;
+    ctx.lineCap     = 'round';
+    ctx.beginPath();
+    ctx.moveTo(hx+10, hy+7);
+    ctx.quadraticCurveTo(hx+12, hy+10, hx+9, hy+9);
     ctx.stroke();
   },
 
+  // しっぽ（後ろにくるりとカーブ・線2本で輪郭表現）
+  // パスは1度だけ構築し、線幅と色を変えて2回 stroke する
   _tail(ctx, player) {
-    const c = this.COLORS;
-    const wag = Math.sin(player.animTime * 9) * 6;
-    // 尻尾（後方・上向き）
-    ctx.strokeStyle = c.dark; ctx.lineWidth = 8; ctx.lineCap = 'round';
+    const C = this.C;
+    const wag = Math.sin(player.animTime * 9) * 5;
+    ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(-16, 0);
-    ctx.quadraticCurveTo(-28, -8+wag*0.4, -30, -22+wag);
-    ctx.stroke();
-    // ハイライト
-    ctx.strokeStyle = c.light; ctx.lineWidth = 4;
+    ctx.moveTo(-14, 2);
+    ctx.quadraticCurveTo(-28, -6 + wag*0.4, -28, -20 + wag);
+    // 1回目: 輪郭線（太い・濃い）
+    ctx.strokeStyle = C.OUT;  ctx.lineWidth = 10; ctx.stroke();
+    // 2回目: 中身（細い・薄い）— beginPath せず同じパスを再 stroke
+    ctx.strokeStyle = C.BODY; ctx.lineWidth = 7;  ctx.stroke();
+  },
+
+  // 4本の足。走り中は4フレームで前後に振る
+  // POSE 配列は CharRenderer.LEG_POSES / JUMP_POSE を静的に参照（毎フレーム生成を回避）
+  _legs(ctx, player, frame) {
+    const pose = (player.grounded && !player.jumping)
+      ? this.LEG_POSES[frame]
+      : this.JUMP_POSE;
+    for (let i = 0; i < 4; i++) this._leg(ctx, pose[i]);
+  },
+
+  _leg(ctx, x) {
+    ctx.fillStyle   = this.C.BODY;
+    ctx.strokeStyle = this.C.OUT;
+    ctx.lineWidth   = 1.5;
     ctx.beginPath();
-    ctx.moveTo(-17, -2);
-    ctx.quadraticCurveTo(-28, -10+wag*0.4, -29, -20+wag);
+    ctx.ellipse(x, 17, 3.5, 6, 0, 0, Math.PI*2);
+    ctx.fill();
     ctx.stroke();
   },
 
-  // 走り：4フレーム。奥の脚（暗色）と手前の脚（明色）を別位置に描く
-  _frontLegs(ctx, player, frame) {
-    const c = this.COLORS;
-    if (player.grounded && !player.jumping) {
-      const FRAMES = [
-        { back:  8, front: 16 },
-        { back: 11, front: 14 },
-        { back: 16, front:  8 },
-        { back: 13, front: 11 },
-      ];
-      const o = FRAMES[frame];
-      // 奥
-      ctx.fillStyle = c.dark;
-      ctx.beginPath(); ctx.ellipse(o.back, 16, 3.5, 7, 0, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(o.back, 21, 4.5, 2.5, 0, 0, Math.PI*2); ctx.fill();
-      // 手前
-      ctx.fillStyle = c.base;
-      ctx.beginPath(); ctx.ellipse(o.front, 16, 4, 8, 0, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(o.front, 22, 5, 3, 0, 0, Math.PI*2); ctx.fill();
-    } else {
-      // ジャンプ：前へ伸ばす
-      ctx.fillStyle = c.base;
-      ctx.beginPath(); ctx.ellipse(14, 12, 3.5, 7, -0.4, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(17, 14, 3.5, 7, -0.4, 0, Math.PI*2); ctx.fill();
-    }
-  },
-
-  _backLegs(ctx, player, frame) {
-    const c = this.COLORS;
-    if (player.grounded && !player.jumping) {
-      const FRAMES = [
-        { back: -12, front: -5 },
-        { back:  -9, front: -7 },
-        { back:  -5, front: -12 },
-        { back:  -8, front: -10 },
-      ];
-      const o = FRAMES[frame];
-      ctx.fillStyle = c.dark;
-      ctx.beginPath(); ctx.ellipse(o.back, 16, 4, 8, 0, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(o.back, 22, 5, 3, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = c.base;
-      ctx.beginPath(); ctx.ellipse(o.front, 16, 4, 8, 0, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(o.front, 22, 5, 3, 0, 0, Math.PI*2); ctx.fill();
-    } else {
-      ctx.fillStyle = c.dark;
-      ctx.beginPath(); ctx.ellipse(-10, 13, 4, 8, 0.4, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse( -7, 11, 4, 8, 0.4, 0, Math.PI*2); ctx.fill();
-    }
-  },
-
+  // スライディング姿勢（横に伸びる）
   _sliding(ctx, cx, y) {
-    const c = this.COLORS;
-    ctx.save(); ctx.translate(cx, y);
-    // 影
-    ctx.fillStyle = 'rgba(0,0,0,.28)';
-    ctx.beginPath(); ctx.ellipse(0, 22, 32, 4, 0, 0, Math.PI*2); ctx.fill();
-    // 尻尾
-    ctx.strokeStyle = c.dark; ctx.lineWidth = 6; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(-24, 5); ctx.lineTo(-36, 2); ctx.stroke();
-    // 体（横長）
-    ctx.fillStyle = c.base;
-    ctx.beginPath(); ctx.ellipse(0, 8, 30, 10, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = c.light;
-    ctx.beginPath(); ctx.ellipse(0, 3, 26, 6, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = c.belly;
-    ctx.beginPath(); ctx.ellipse(0, 13, 22, 4, 0, 0, Math.PI*2); ctx.fill();
-    // 頭
-    ctx.fillStyle = c.base;
-    ctx.beginPath(); ctx.ellipse(23, 0, 14, 11, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = c.light;
-    ctx.beginPath(); ctx.ellipse(24, -3, 11, 6, 0, 0, Math.PI*2); ctx.fill();
+    const C = this.C;
+    ctx.save();
+    ctx.translate(cx, y);
+
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
+    ctx.beginPath();
+    ctx.ellipse(0, 18, 28, 4, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    // しっぽ（後ろに流れる）
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 9;
+    ctx.lineCap     = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-20, 4);
+    ctx.lineTo(-32, 0);
+    ctx.stroke();
+    ctx.strokeStyle = C.BODY;
+    ctx.lineWidth   = 6;
+    ctx.beginPath();
+    ctx.moveTo(-20, 4);
+    ctx.lineTo(-32, 0);
+    ctx.stroke();
+
+    // 横長の体
+    ctx.fillStyle   = C.BODY;
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 1.8;
+    ctx.beginPath();
+    ctx.ellipse(0, 6, 22, 9, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+
+    // 頭（右側）
+    ctx.beginPath();
+    ctx.ellipse(18, -1, 12, 10, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+
     // 耳（伏せ気味）
-    ctx.fillStyle = c.dark;
-    ctx.beginPath(); ctx.moveTo(16, -7); ctx.lineTo(12, -14); ctx.lineTo(20, -10); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(28, -8); ctx.lineTo(33, -14); ctx.lineTo(32, -5); ctx.closePath(); ctx.fill();
-    // 目（細目スピード顔）
-    ctx.strokeStyle = '#0E0E0E'; ctx.lineWidth = 1.5; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(28, 1); ctx.quadraticCurveTo(31, -2, 34, 1); ctx.stroke();
-    // 鼻
-    ctx.fillStyle = c.nose;
-    ctx.beginPath(); ctx.moveTo(34, 3); ctx.lineTo(37, 4); ctx.lineTo(34, 6); ctx.closePath(); ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(12, -8); ctx.lineTo(7, -14); ctx.lineTo(15, -10);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(22, -8); ctx.lineTo(28, -14); ctx.lineTo(26, -5);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // 目を線で（スピード時の細目）
+    ctx.strokeStyle = C.EYE;
+    ctx.lineWidth   = 1.6;
+    ctx.lineCap     = 'round';
+    ctx.beginPath();
+    ctx.moveTo(20, 0);
+    ctx.quadraticCurveTo(22, -3, 24, 0);
+    ctx.stroke();
+
+    // 鼻（ハート）
+    Sprites.heart(ctx, 26, 3, 1.4, C.NOSE);
+
     // 速度線
-    ctx.strokeStyle = '#3DDCFF'; ctx.lineWidth = 1.8; ctx.globalAlpha = 0.7;
+    ctx.strokeStyle = Palette.speed;
+    ctx.lineWidth   = 1.8;
+    ctx.globalAlpha = 0.7;
     for (let i = 0; i < 4; i++) {
       ctx.beginPath();
-      ctx.moveTo(-40-i*8, -2+i*4); ctx.lineTo(-22-i*8, -2+i*4);
+      ctx.moveTo(-32 - i*7, -2 + i*3);
+      ctx.lineTo(-16 - i*7, -2 + i*3);
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
@@ -1118,186 +1168,226 @@ const CharRenderer = {
  *   白 #F5EFE0, クリーム #FAF6EC
  *   耳内 #FFB0B5, 目 #C8941E, 鼻 #FF9DA5
  */
+/* なるちゃん（ゴール）描画 — 絵本イラスト風・座って正面向き
+ *
+ * 描画方針:
+ *   - 強い輪郭線 (stroke 2px, color #5A3818)
+ *   - 平面塗り（縞・ふわふわ表現は廃止）
+ *   - 構成は { 体, 白お腹, 前足×2, 首輪, 鈴, 頭, 耳×2, 目×2, 鼻, 口, しっぽ }
+ *   - ヒゲ・額の縞・ふわふわ頬・縞模様は描かない
+ *
+ * 配色:
+ *   ORANGE = #E89868
+ *   WHITE  = #FBF6EC
+ *   OUT    = #5A3818
+ *   EARIN  = #FFB4C0
+ *   EYE    = #1A1A1A
+ *   NOSE   = #FF99A8
+ */
 const NaruRenderer = {
-  COLORS: {
-    orange: '#E8975A', oLight: '#F0AC75', stripe: 'rgba(150,80,30,.3)',
-    white: '#F5EFE0', wLight: '#FAF6EC',
-    earIn: '#FFB0B5', eye: '#C8941E', nose: '#FF9DA5',
-  },
+  C: { ORANGE:'#E89868', WHITE:'#FBF6EC', OUT:'#5A3818', EARIN:Palette.earIn, EYE:Palette.eye, NOSE:Palette.nose },
 
   draw(ctx, goal, groundY) {
-    const c = this.COLORS;
+    const C = this.C;
     const t = performance.now() * 0.001;
-    const wag  = Math.sin(t * 3.2) * 14;
-    const bell = Math.sin(t * 3.2) * 2;
+    // wag と bell は同じ sin(t*3.2) から導出（同一周期を二度計算しないため共有）
+    const wagBase = Math.sin(t * 3.2);
+    const wag  = wagBase * 10;
+    const bell = wagBase * 2;
+    const bob  = Math.sin(t * 2.5) * 1;
 
     ctx.save();
-    ctx.translate(goal.x + 30, groundY - 4);
+    ctx.translate(goal.x + 30, groundY - 4 + bob);
 
     // 影
     ctx.fillStyle = 'rgba(0,0,0,.2)';
-    ctx.beginPath(); ctx.ellipse(0, 0, 36, 7, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 32, 6, 0, 0, Math.PI*2);
+    ctx.fill();
 
-    // === しっぽ（オレンジ＋縞＋白い先端、ふわふわ）===
+    // しっぽ（後ろから「？」状にカーブ）
+    // 同一パスを1度だけ構築し、太い暗色 → 細いオレンジの順に2回 stroke
     ctx.lineCap = 'round';
-    ctx.strokeStyle = c.orange; ctx.lineWidth = 15;
     ctx.beginPath();
-    ctx.moveTo(22, -28);
-    ctx.quadraticCurveTo(46, -50 + wag*0.4, 52, -78 + wag);
-    ctx.stroke();
-    ctx.strokeStyle = c.stripe; ctx.lineWidth = 12;
+    ctx.moveTo(20, -22);
+    ctx.bezierCurveTo(44, -32 + wag*0.4, 48, -58 + wag*0.6, 38, -68 + wag);
+    ctx.strokeStyle = C.OUT;    ctx.lineWidth = 14;   ctx.stroke();
+    ctx.strokeStyle = C.ORANGE; ctx.lineWidth = 10.5; ctx.stroke();
+    // 白い先端
+    ctx.strokeStyle = C.WHITE;
+    ctx.lineWidth   = 10.5;
     ctx.beginPath();
-    ctx.moveTo(28, -34);
-    ctx.quadraticCurveTo(44, -52 + wag*0.4, 49, -72 + wag);
-    ctx.stroke();
-    ctx.strokeStyle = c.white; ctx.lineWidth = 12;
-    ctx.beginPath();
-    ctx.moveTo(50, -74 + wag);
-    ctx.quadraticCurveTo(58, -85 + wag, 51, -92 + wag);
+    ctx.moveTo(38, -68 + wag);
+    ctx.bezierCurveTo(42, -76 + wag, 32, -78 + wag, 34, -70 + wag);
     ctx.stroke();
 
-    // === 後ろ足 ===
-    ctx.fillStyle = c.orange;
-    ctx.beginPath(); ctx.ellipse(-16, -6, 12, 8,  0.15, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse( 16, -6, 12, 8, -0.15, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = c.white;
-    ctx.beginPath(); ctx.ellipse(-16, -2, 9, 4,  0.15, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse( 16, -2, 9, 4, -0.15, 0, Math.PI*2); ctx.fill();
-
-    // === 胴体（オレンジ）===
-    ctx.fillStyle = c.orange;
-    ctx.beginPath(); ctx.ellipse(0, -30, 28, 26, 0, 0, Math.PI*2); ctx.fill();
-    // 背中ハイライト
-    ctx.fillStyle = c.oLight;
-    ctx.beginPath(); ctx.ellipse(-2, -42, 22, 12, 0, 0, Math.PI*2); ctx.fill();
-    // ストライプ
-    ctx.strokeStyle = c.stripe; ctx.lineWidth = 2.5;
-    [-18, -10, 0, 10, 18].forEach(x => {
-      ctx.beginPath();
-      ctx.moveTo(x, -50); ctx.lineTo(x*0.85, -42);
-      ctx.stroke();
-    });
-    // 白いお腹・胸
-    ctx.fillStyle = c.white;
-    ctx.beginPath(); ctx.ellipse(0, -22, 20, 18, 0, 0, Math.PI*2); ctx.fill();
-    // ふわふわ胸毛
-    ctx.fillStyle = c.wLight;
-    ctx.beginPath(); ctx.ellipse(0, -34, 16, 12, 0, 0, Math.PI*2); ctx.fill();
-
-    // === 前足（白）===
-    ctx.fillStyle = c.white;
-    ctx.beginPath(); ctx.ellipse(-10, -14, 7, 13, -0.05, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse( 10, -14, 7, 13,  0.05, 0, Math.PI*2); ctx.fill();
-    // 肉球
-    ctx.fillStyle = '#FFC0C5';
-    ctx.beginPath(); ctx.arc(-10, -2, 2.5, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc( 10, -2, 2.5, 0, Math.PI*2); ctx.fill();
-
-    // === 首輪 ===
-    ctx.fillStyle = '#DC3535';
-    ctx.fillRect(-18, -52, 36, 8);
-    ctx.fillStyle = 'rgba(255,200,200,.55)';
-    [-10, 0, 10].forEach(x => { ctx.beginPath(); ctx.arc(x, -48, 1.5, 0, Math.PI*2); ctx.fill(); });
-
-    // === 鈴 ===
-    const by = -44 + bell * 0.4;
-    ctx.fillStyle = '#FFD700';
-    ctx.beginPath(); ctx.arc(0, by, 6, 0, Math.PI*2); ctx.fill();
-    ctx.strokeStyle = '#B8860B'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,.6)';
-    ctx.beginPath(); ctx.arc(-1.5, by-1.5, 1.5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#B8860B';
-    ctx.fillRect(-1, by+3, 2, 4);
-
-    // === 頭（正面向き）===
-    const hy = -78;
-
-    // 耳（オレンジ＋ピンク内側）
-    ctx.fillStyle = c.orange;
-    ctx.beginPath(); ctx.moveTo(-18, hy); ctx.lineTo(-23, hy-22); ctx.lineTo(-7, hy-14); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo( 18, hy); ctx.lineTo( 23, hy-22); ctx.lineTo( 7, hy-14); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = c.earIn;
-    ctx.beginPath(); ctx.moveTo(-15, hy-3); ctx.lineTo(-20, hy-18); ctx.lineTo(-9, hy-12); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo( 15, hy-3); ctx.lineTo( 20, hy-18); ctx.lineTo( 9, hy-12); ctx.closePath(); ctx.fill();
-
-    // 頭ベース（オレンジ）
-    ctx.fillStyle = c.orange;
-    ctx.beginPath(); ctx.ellipse(0, hy, 22, 21, 0, 0, Math.PI*2); ctx.fill();
-    // 白い顔マスク
-    ctx.fillStyle = c.white;
-    ctx.beginPath(); ctx.ellipse(0, hy+3, 17, 14, 0, 0, Math.PI*2); ctx.fill();
-    // ふわふわ頬
-    ctx.fillStyle = c.wLight;
-    ctx.beginPath(); ctx.ellipse(-11, hy+5, 7, 5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse( 11, hy+5, 7, 5, 0, 0, Math.PI*2); ctx.fill();
-    // 額の縞
-    ctx.strokeStyle = 'rgba(180,100,40,.55)'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    // 体（オレンジ・輪郭付き）
+    ctx.fillStyle   = C.ORANGE;
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 2;
     ctx.beginPath();
-    ctx.moveTo(-9, hy-14); ctx.lineTo(-7, hy-7);
-    ctx.moveTo( 0, hy-15); ctx.lineTo( 0, hy-8);
-    ctx.moveTo( 9, hy-14); ctx.lineTo( 7, hy-7);
+    ctx.ellipse(0, -22, 22, 22, 0, 0, Math.PI*2);
+    ctx.fill();
     ctx.stroke();
-
-    // 目（金色・両目）
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.ellipse(-8, hy-2, 5, 5.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse( 8, hy-2, 5, 5.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = c.eye;
-    ctx.beginPath(); ctx.ellipse(-8, hy-1, 4, 4.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse( 8, hy-1, 4, 4.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#0E0E0E';
-    ctx.beginPath(); ctx.ellipse(-8, hy-1, 1.2, 3.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse( 8, hy-1, 1.2, 3.5, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(-6.5, hy-3.5, 1.3, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc( 9.5, hy-3.5, 1.3, 0, Math.PI*2); ctx.fill();
-
-    // 鼻
-    ctx.fillStyle = c.nose;
+    // 白いお腹（輪郭線なし、体に重ねる）
+    ctx.fillStyle = C.WHITE;
     ctx.beginPath();
-    ctx.moveTo(-3, hy+5); ctx.lineTo(3, hy+5); ctx.lineTo(0, hy+8);
-    ctx.closePath(); ctx.fill();
+    ctx.ellipse(0, -16, 16, 14, 0, 0, Math.PI*2);
+    ctx.fill();
 
-    // 口（にこにこ）
-    ctx.strokeStyle = '#8B4A20'; ctx.lineWidth = 1.4; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(0, hy+8); ctx.quadraticCurveTo(-4, hy+13, -7, hy+11); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, hy+8); ctx.quadraticCurveTo( 4, hy+13,  7, hy+11); ctx.stroke();
-
-    // ヒゲ
-    ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 0.8;
+    // 前足（白・輪郭付き）
+    ctx.fillStyle   = C.WHITE;
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 1.6;
     ctx.beginPath();
-    ctx.moveTo(-7, hy+6); ctx.lineTo(-22, hy+4);
-    ctx.moveTo(-7, hy+8); ctx.lineTo(-22, hy+8);
-    ctx.moveTo( 7, hy+6); ctx.lineTo( 22, hy+4);
-    ctx.moveTo( 7, hy+8); ctx.lineTo( 22, hy+8);
+    ctx.ellipse(-9, -4, 6, 9, -0.05, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse( 9, -4, 6, 9,  0.05, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+
+    // 首輪
+    ctx.fillStyle   = '#DC3535';
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.rect(-15, -42, 30, 7);
+    ctx.fill(); ctx.stroke();
+
+    // 鈴
+    const by = -36 + bell * 0.4;
+    ctx.fillStyle   = '#FFD700';
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 1.3;
+    ctx.beginPath();
+    ctx.arc(0, by, 4.5, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+    // 鈴のハイライト
+    ctx.fillStyle = 'rgba(255,255,255,.75)';
+    ctx.beginPath();
+    ctx.arc(-1.5, by-1.5, 1.2, 0, Math.PI*2);
+    ctx.fill();
+
+    // === 頭 ===
+    const hy = -64;
+
+    // 頭ベース（オレンジ・輪郭付き）
+    ctx.fillStyle   = C.ORANGE;
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 2;
+    ctx.beginPath();
+    ctx.ellipse(0, hy, 22, 21, 0, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+    // 白い顔マスク（輪郭線なし）
+    ctx.fillStyle = C.WHITE;
+    ctx.beginPath();
+    ctx.ellipse(0, hy+3, 16, 13, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    // 耳（左右、輪郭付き）
+    ctx.fillStyle   = C.ORANGE;
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 1.6;
+    ctx.lineJoin    = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-16, hy-2);
+    ctx.lineTo(-22, hy-20);
+    ctx.lineTo(-8, hy-14);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(16, hy-2);
+    ctx.lineTo(22, hy-20);
+    ctx.lineTo(8, hy-14);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // 耳の内側ピンク（輪郭なし）
+    ctx.fillStyle = C.EARIN;
+    ctx.beginPath();
+    ctx.moveTo(-14, hy-4);
+    ctx.lineTo(-19, hy-17);
+    ctx.lineTo(-10, hy-13);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(14, hy-4);
+    ctx.lineTo(19, hy-17);
+    ctx.lineTo(10, hy-13);
+    ctx.closePath();
+    ctx.fill();
+
+    // 目（黒丸＋ハイライト）
+    ctx.fillStyle = C.EYE;
+    ctx.beginPath(); ctx.arc(-7, hy-2, 3.8, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc( 7, hy-2, 3.8, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath(); ctx.arc(-5.7, hy-3.5, 1.4, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc( 8.3, hy-3.5, 1.4, 0, Math.PI*2); ctx.fill();
+
+    // 鼻（ピンクハート）
+    Sprites.heart(ctx, 0, hy+5, 2, C.NOSE);
+
+    // 口（やさしい笑顔）
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 1.5;
+    ctx.lineCap     = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-5, hy+9);
+    ctx.quadraticCurveTo(0, hy+13, 5, hy+9);
     ctx.stroke();
 
     // === 吹き出し「にゃ〜♪」===
-    const bx = 10, bsy = hy - 46, bw = 58, bsh = 26, br = 7;
-    ctx.fillStyle = '#fff';
+    const bx = 12, bsy = hy - 42, bw = 52, bsh = 22, br = 6;
+    ctx.fillStyle   = '#FFFFFF';
+    ctx.strokeStyle = C.OUT;
+    ctx.lineWidth   = 1.5;
     ctx.beginPath();
     ctx.moveTo(bx+br, bsy);
     ctx.lineTo(bx+bw-br, bsy);
     ctx.arcTo(bx+bw, bsy, bx+bw, bsy+br, br);
     ctx.lineTo(bx+bw, bsy+bsh-br);
     ctx.arcTo(bx+bw, bsy+bsh, bx+bw-br, bsy+bsh, br);
+    ctx.lineTo(bx+15, bsy+bsh);
+    ctx.lineTo(bx+5, bsy+bsh+9);
+    ctx.lineTo(bx+8, bsy+bsh);
     ctx.lineTo(bx+br, bsy+bsh);
     ctx.arcTo(bx, bsy+bsh, bx, bsy+bsh-br, br);
     ctx.lineTo(bx, bsy+br);
     ctx.arcTo(bx, bsy, bx+br, bsy, br);
-    ctx.closePath(); ctx.fill();
-    // 吹き出しの三角
-    ctx.beginPath();
-    ctx.moveTo(bx+8, bsy+bsh);
-    ctx.lineTo(bx+5, bsy+bsh+10);
-    ctx.lineTo(bx+18, bsy+bsh);
-    ctx.closePath(); ctx.fill();
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
     // 文字
-    ctx.fillStyle = '#DC3535';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('にゃ〜♪', bx + bw/2, bsy + 17);
+    ctx.fillStyle  = '#DC3535';
+    ctx.font       = 'bold 11px sans-serif';
+    ctx.textAlign  = 'center';
+    ctx.fillText('にゃ〜♪', bx + bw/2, bsy + 15);
 
+    ctx.restore();
+  },
+};
+
+/* コイン（すず）描画。
+ * Renderer.draw からインラインで剥がして他の *Renderer と同じ altitude に揃えた。
+ * HUDの🔔 アイコンを Canvas に置く場合もこれを呼び出せる。
+ */
+const CoinRenderer = {
+  draw(ctx, coin, groundY) {
+    if (coin.collected) return;
+    const y = groundY - coin.y;
+    const wob = Math.sin(coin.anim) * 3;
+    ctx.save();
+    ctx.translate(coin.x, y + wob);
+    // 影
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
+    ctx.beginPath(); ctx.ellipse(0, 13, 9, 3, 0, 0, Math.PI*2); ctx.fill();
+    // 金色グラデーション本体
+    const g = ctx.createRadialGradient(-2, -2, 1, 0, 0, 11);
+    g.addColorStop(0, '#FFE57F'); g.addColorStop(1, '#FFB300');
+    ctx.fillStyle = g; ctx.strokeStyle = '#8B6914'; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(0, 0, 11, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+    // 中央のハイライト線
+    ctx.fillStyle = '#FFF'; ctx.fillRect(-1, -5, 2, 10);
     ctx.restore();
   },
 };
@@ -1326,33 +1416,22 @@ const Renderer = {
     ctx.save();
     ctx.translate(-camera.x, 0);
 
-    // コイン
-    for (const c of stage.coins) {
-      if (c.collected) continue;
-      const y = GROUND_Y - c.y, wob = Math.sin(c.anim)*3;
-      ctx.save(); ctx.translate(c.x, y+wob);
-      ctx.fillStyle='rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(0,13,9,3,0,0,Math.PI*2); ctx.fill();
-      const g = ctx.createRadialGradient(-2,-2,1,0,0,11);
-      g.addColorStop(0,'#FFE57F'); g.addColorStop(1,'#FFB300');
-      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,11,0,Math.PI*2); ctx.fill();
-      ctx.strokeStyle='#8B6914'; ctx.lineWidth=1.4; ctx.stroke();
-      ctx.fillStyle='#FFF'; ctx.fillRect(-1,-5,2,10);
-      ctx.restore();
-    }
-
-    for (const e of stage.enemies)  EnemyRenderer.draw(ctx, e, GROUND_Y);
-    if (stage.goal)                  NaruRenderer.draw(ctx, stage.goal, GROUND_Y);
-    if (player)                      CharRenderer.draw(ctx, player, GROUND_Y);
-
-    // パーティクル
-    for (const p of particles) {
-      ctx.fillStyle = p.color;
-      ctx.globalAlpha = Math.min(1, p.life*2);
-      ctx.fillRect(p.x-p.size/2, GROUND_Y-p.y-p.size/2, p.size, p.size);
-    }
-    ctx.globalAlpha = 1;
+    for (const c of stage.coins)   CoinRenderer.draw(ctx, c, GROUND_Y);
+    for (const e of stage.enemies) EnemyRenderer.draw(ctx, e, GROUND_Y);
+    if (stage.goal)                NaruRenderer.draw(ctx, stage.goal, GROUND_Y);
+    if (player)                    CharRenderer.draw(ctx, player, GROUND_Y);
+    this._drawParticles(ctx, particles, GROUND_Y);
 
     ctx.restore();
+  },
+
+  _drawParticles(ctx, particles, groundY) {
+    for (const p of particles) {
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.min(1, p.life * 2);
+      ctx.fillRect(p.x - p.size/2, groundY - p.y - p.size/2, p.size, p.size);
+    }
+    ctx.globalAlpha = 1;
   },
 };
 
@@ -1475,11 +1554,11 @@ const Game = {
   fx: {
     onCoin(c) {
       Game.state.coins++;
-      Game._addParticles(c.x, c.y, 6, '#FFD23F');
+      Game._addParticles(c.x, c.y, 6, Palette.coin);
       Audio.sfx.coin();
     },
     onEnemyDefeat(e) {
-      Game._addParticles(e.x+e.w/2, e.y+e.h/2, 8, '#FF4D6D');
+      Game._addParticles(e.x+e.w/2, e.y+e.h/2, 8, Palette.hit);
       Audio.sfx.enemy();
     },
     onGoal()  { Game._stageClear(); },
@@ -1517,7 +1596,7 @@ const Game = {
   onJumpStart() {
     if (this.state.mode !== MODE.PLAYING) return;
     if (this.state.player.tryJump()) {
-      this._addParticles(this.state.player.x+this.state.player.w/2, this.state.player.y, 6, '#FFD23F');
+      this._addParticles(this.state.player.x+this.state.player.w/2, this.state.player.y, 6, Palette.coin);
       Audio.sfx.jump();
     }
   },
@@ -1525,7 +1604,7 @@ const Game = {
   onSlide() {
     if (this.state.mode !== MODE.PLAYING) return;
     if (this.state.player.trySlide()) {
-      this._addParticles(this.state.player.x+this.state.player.w/2, this.state.player.y+4, 4, '#3DDCFF');
+      this._addParticles(this.state.player.x+this.state.player.w/2, this.state.player.y+4, 4, Palette.speed);
       Audio.sfx.slide();
     }
   },
