@@ -673,6 +673,11 @@ class Stage {
 }
 
 const Physics = {
+  // 着地トレランス（接地面の厚み相当）。落下速度に加算して接地猶予を決める。
+  LAND_TOLERANCE: 16,
+  // 画面下（穴の底）に到達したとみなす落下 y。これを下回ると死亡。
+  FALL_DEATH_Y: -120,
+
   update(player, stage, dt, fx) {
     const pc = Config.player;
 
@@ -692,34 +697,27 @@ const Physics = {
     player.vy -= pc.gravity;
     player.y  += player.vy;
 
-    // プラットフォーム着地
-    let onPlatform = false;
+    const cx = player.x + player.w / 2;
+
+    // 着地処理: プラットフォーム → 地面 の順に試す。
+    // 地面は「穴の上を除く高さ0のプラットフォーム」とみなし、同じ _tryLand を使う。
+    // 両者を同一ロジックに統一することで、片方だけ落下判定が緩く
+    // “狭い穴を歩いて渡れてしまう”不整合を防ぐ。
+    let landed = false;
     if (player.vy <= 0) {
       for (const p of stage.platforms) {
-        if (player.x + player.w > p.x && player.x < p.x + p.w) {
-          const top = p.y + p.h;
-          if (player.y <= top && player.y >= top - 16 - Math.abs(player.vy)) {
-            player.y = top; player.vy = 0;
-            player.grounded = true; player.jumping = false;
-            onPlatform = true; break;
-          }
+        if (player.x + player.w > p.x && player.x < p.x + p.w && this._tryLand(player, p.y + p.h)) {
+          landed = true; break;
         }
       }
-    }
-
-    // 地面 or 穴
-    if (!onPlatform) {
-      const cx = player.x + player.w / 2;
-      const inPit = stage.pits.some(p => cx > p.x && cx < p.x + p.w);
-      if (!inPit && player.y <= 0) {
-        player.y = 0; player.vy = 0;
-        player.grounded = true; player.jumping = false;
-      } else {
-        player.grounded = false;
+      if (!landed && !this._overPit(stage, cx)) {
+        landed = this._tryLand(player, 0);
       }
     }
+    if (!landed) player.grounded = false;
 
-    if (player.y < -120) { fx.onDeath(); return; }
+    // 画面下（穴の底）まで落ちたら死亡
+    if (player.y < this.FALL_DEATH_Y) { fx.onDeath(); return; }
 
     // 敵
     for (const e of stage.enemies) {
@@ -744,17 +742,33 @@ const Physics = {
     for (const c of stage.coins) {
       if (c.collected) continue;
       c.anim += dt * 4;
-      const dx = player.x + player.w/2 - c.x;
+      const dx = cx - c.x;
       const dy = player.y + player.h/2 - c.y;
       if (dx*dx + dy*dy < (c.r+18)*(c.r+18)) { c.collected = true; fx.onCoin(c); }
     }
 
     // ゴール
-    if (stage.goal && !player.finishing && player.x + player.w/2 >= stage.goal.x) {
+    if (stage.goal && !player.finishing && cx >= stage.goal.x) {
       player.finishing = true; fx.onGoal();
     }
 
     player.animTime += dt;
+  },
+
+  // プレイヤー中心が穴の上にあるか
+  _overPit(stage, cx) {
+    return stage.pits.some(p => cx > p.x && cx < p.x + p.w);
+  },
+
+  // 上端 top の面に着地を試みる。落下中（vy<=0 は呼び出し側で保証）に
+  // top をトレランス内で上から通過していれば着地して true を返す。
+  _tryLand(player, top) {
+    if (player.y <= top && player.y >= top - this.LAND_TOLERANCE - Math.abs(player.vy)) {
+      player.y = top; player.vy = 0;
+      player.grounded = true; player.jumping = false;
+      return true;
+    }
+    return false;
   },
 
   _hitEnemy(player, e) {
