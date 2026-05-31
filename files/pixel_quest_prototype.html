@@ -628,6 +628,14 @@ class Player {
     this.sliding = false; this.slideTimer = 0;
     this.holdingJump = false; this.holdTimer = 0;
     this.animTime = 0; this.finishing = false;
+
+    // --- アニメーション専用の状態（物理には一切影響しない・描画用）---
+    this.prevVy  = 0;   // 前フレームの vy（着地インパクト検出用）
+    this.land    = 0;   // 着地スカッシュ量(0..1)。着地時に立ち上がり減衰
+    this.tailAng = 0;   // しっぽの角度（バネで遅延追従＝二次運動）
+    this.tailVel = 0;
+    this.earOff  = 0;   // 耳の上下バウンド（バネ）
+    this.earVel  = 0;
   }
   tryJump() {
     if (!this.grounded || this.sliding) return false;
@@ -643,6 +651,32 @@ class Player {
     return true;
   }
   hitbox() { return { x:this.x, y:this.y, w:this.w, h:this.sliding ? 24 : this.h }; }
+
+  // 描画用のバネ／スカッシュ状態を進める。物理 update の最後に dt 付きで呼ぶ。
+  // 半陰的オイラー（vel→pos の順）で、わずかに減衰不足にしてフォロースルー感を出す。
+  updateAnim(dt) {
+    // 着地インパクト: 大きな下向き速度から接地した瞬間に潰れ量を立ち上げる
+    if (this.grounded && this.prevVy < -6) {
+      this.land = Math.min(1, -this.prevVy / 14);
+    }
+    this.land *= 0.80; // 毎フレーム減衰
+
+    // しっぽ: 走行中は左右に振り、空中は落下速度で後方へ流れる。遅延追従で尾を引く
+    const tailTarget = (this.grounded && !this.sliding)
+      ? Math.sin(this.animTime * 16) * 0.5
+      : this.vy * 0.018;
+    this.tailVel += ((tailTarget - this.tailAng) * 50 - this.tailVel * 8) * dt;
+    this.tailAng += this.tailVel * dt;
+
+    // 耳: 走行中の上下バウンド／空中は速度に応じて上下。しっぽより速いバネ
+    const earTarget = (this.grounded && !this.sliding)
+      ? Math.sin(this.animTime * 20) * 0.8
+      : -this.vy * 0.03;
+    this.earVel += ((earTarget - this.earOff) * 90 - this.earVel * 10) * dt;
+    this.earOff += this.earVel * dt;
+
+    this.prevVy = this.vy;
+  }
 }
 
 class Stage {
@@ -753,6 +787,7 @@ const Physics = {
     }
 
     player.animTime += dt;
+    player.updateAnim(dt);   // 描画用のバネ／スカッシュを進める
   },
 
   // プレイヤー中心が穴の上にあるか
@@ -978,11 +1013,14 @@ const CharRenderer = {
   ],
   JUMP_POSE: [-10, -4, 8, 14],
 
+  // 体の中心から足裏までの距離（ローカル座標）。スカッシュの軸＝足裏にするのに使う
+  FEET: 22,
+
   draw(ctx, player, groundY) {
     const cx = player.x + player.w / 2;
     const cy = (groundY - player.y - player.h) + player.h / 2;
 
-    // 影
+    // 影（落下/上昇で薄く小さく）
     ctx.fillStyle = 'rgba(0,0,0,.25)';
     ctx.globalAlpha = Math.max(0.1, 0.4 - Math.abs(player.vy) * 0.02);
     ctx.beginPath();
@@ -993,14 +1031,32 @@ const CharRenderer = {
     if (player.sliding) { this._sliding(ctx, cx, groundY - 14); return; }
 
     const frame = Math.floor(player.animTime * 12) % 4;
-    const bob = player.grounded ? Math.sin(player.animTime * 10) * 1.3 : 0;
+    const grounded = player.grounded && !player.jumping;
+    const bob = grounded ? Math.sin(player.animTime * 10) * 1.3 : 0;
+
+    // --- スカッシュ&ストレッチ ---
+    // 空中: 上下速度で縦に伸びる / 着地: land で潰れる / 走行: 軽く伸縮
+    let sy = 1;
+    if (!player.grounded) sy += Math.min(0.28, Math.abs(player.vy) * 0.011);
+    if (grounded)         sy += Math.sin(player.animTime * 10) * 0.04;
+    sy -= player.land * 0.45;
+    sy = Math.max(0.72, Math.min(1.3, sy));
+    const sx = 1 / sy;                              // 体積保存（縦に伸びたら横は縮む）
+
+    // リーン: 上昇は前のめり、落下はやや反る（接地中はほぼ0）
+    const lean = Math.max(-0.16, Math.min(0.16, -player.vy * 0.011));
 
     ctx.save();
-    ctx.translate(cx, cy + bob);
+    // 足裏を軸に変形する: 足裏を画面上の接地点へ置き、回転→スケール→中心座標系へ戻す
+    ctx.translate(cx, cy + this.FEET + bob);
+    ctx.rotate(lean);
+    ctx.scale(sx, sy);
+    ctx.translate(0, -this.FEET);
+
     this._tail(ctx, player);
     this._legs(ctx, player, frame);
     this._body(ctx);
-    this._head(ctx);
+    this._head(ctx, player);
     ctx.restore();
   },
 
@@ -1015,10 +1071,12 @@ const CharRenderer = {
     ctx.stroke();
   },
 
-  // 頭は体の前方（右側）に配置。横顔だが片目とハート鼻を見せて表情を出す
-  _head(ctx) {
+  // 頭は体の前方（右側）に配置。横顔だが片目とハート鼻を見せて表情を出す。
+  // 耳の先端は player.earOff（バネ）で上下に弾み、走り・着地でぴょこっと動く。
+  _head(ctx, player) {
     const C = this.C;
     const hx = 11, hy = -10;
+    const ear = (player.earOff || 0) * 3;   // 耳先の弾み(px)
 
     // 奥の耳（先に描く＝奥に見える）
     ctx.fillStyle   = C.BODY;
@@ -1027,7 +1085,7 @@ const CharRenderer = {
     ctx.lineJoin    = 'round';
     ctx.beginPath();
     ctx.moveTo(hx-6, hy-10);
-    ctx.lineTo(hx-9, hy-20);
+    ctx.lineTo(hx-9, hy-20 - ear);
     ctx.lineTo(hx, hy-14);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
@@ -1042,7 +1100,7 @@ const CharRenderer = {
     ctx.lineWidth = 1.6;
     ctx.beginPath();
     ctx.moveTo(hx+7, hy-10);
-    ctx.lineTo(hx+10, hy-21);
+    ctx.lineTo(hx+10, hy-21 - ear);
     ctx.lineTo(hx+13, hy-8);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
@@ -1050,7 +1108,7 @@ const CharRenderer = {
     ctx.fillStyle = C.EARIN;
     ctx.beginPath();
     ctx.moveTo(hx+8.5, hy-11);
-    ctx.lineTo(hx+10.5, hy-19);
+    ctx.lineTo(hx+10.5, hy-19 - ear);
     ctx.lineTo(hx+12, hy-10);
     ctx.closePath();
     ctx.fill();
@@ -1079,10 +1137,12 @@ const CharRenderer = {
   },
 
   // しっぽ（後ろにくるりとカーブ・線2本で輪郭表現）
-  // パスは1度だけ構築し、線幅と色を変えて2回 stroke する
+  // 揺れ量は player.tailAng（バネで遅延追従＝二次運動）から得る。
+  // バネのオーバーシュートで、止まった後もしっぽが流れて尾を引く。
+  // パスは1度だけ構築し、線幅と色を変えて2回 stroke する。
   _tail(ctx, player) {
     const C = this.C;
-    const wag = Math.sin(player.animTime * 9) * 5;
+    const wag = player.tailAng * 20;   // 角度→先端の振れ幅(px)
     ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(-14, 2);
