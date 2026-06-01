@@ -135,7 +135,10 @@ html,body{
 #title.show{display:flex}
 #title h1{font-size:clamp(20px,6.5vw,36px);font-weight:900;letter-spacing:2px;text-align:center;padding:0 14px;color:#F4F6FF;text-shadow:0 3px 16px rgba(255,77,109,.5)}
 #title .sub{color:#3DDCFF;font-size:12px;letter-spacing:3px;font-weight:700;margin-top:6px}
-#title .tap{margin-top:36px;font-size:15px;color:#FFD23F;animation:blink 1.2s infinite}
+#title .cats{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin:16px 0;min-height:140px}
+#title .cat-img{width:130px;height:130px;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+#title .cat-img:not([src]){visibility:hidden}
+#title .tap{margin-top:20px;font-size:15px;color:#FFD23F;animation:blink 1.2s infinite}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:.25}}
 .dots{position:absolute;top:22px;display:flex;gap:7px}
 .dots.l{left:20px}.dots.r{right:20px}
@@ -231,108 +234,11 @@ html,body{
     <div class="dots r"><span class="d3"></span><span class="d2"></span><span class="d1"></span></div>
     <h1>ここちゃんとなるちゃん<br>の冒険</h1>
     <div class="sub">なるちゃんのおうちを目指せ！</div>
-    <!-- 絵本イラスト風：強い輪郭線・平面塗り・最小限の要素 -->
-    <svg width="280" height="180" viewBox="0 0 280 180" style="margin:10px 0" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <style>
-          .out-koko { stroke:#39434F; stroke-width:2.2; stroke-linejoin:round; }
-          .out-naru { stroke:#5A3818; stroke-width:2.2; stroke-linejoin:round; }
-        </style>
-      </defs>
-
-      <!-- ===== ここちゃん（グレー） ===== -->
-      <g transform="translate(82, 95)">
-        <!-- 影 -->
-        <ellipse cx="0" cy="62" rx="36" ry="5" fill="rgba(0,0,0,.18)"/>
-
-        <!-- しっぽ（後ろから） -->
-        <path d="M-22 30 Q-46 32 -48 6 Q-48 -10 -38 -14"
-              fill="none" stroke="#39434F" stroke-width="13.5" stroke-linecap="round"/>
-        <path d="M-22 30 Q-46 32 -48 6 Q-48 -10 -38 -14"
-              fill="none" stroke="#9CABB8" stroke-width="10" stroke-linecap="round"/>
-
-        <!-- 体 -->
-        <ellipse cx="0" cy="34" rx="24" ry="22" fill="#9CABB8" class="out-koko"/>
-        <!-- 前足 -->
-        <ellipse cx="-11" cy="52" rx="6.5" ry="8" fill="#9CABB8" class="out-koko"/>
-        <ellipse cx=" 11" cy="52" rx="6.5" ry="8" fill="#9CABB8" class="out-koko"/>
-
-        <!-- 頭 -->
-        <ellipse cx="0" cy="-14" rx="30" ry="27" fill="#9CABB8" class="out-koko"/>
-
-        <!-- 耳（輪郭付き） -->
-        <path d="M-22 -28 L-28 -48 L-10 -38 Z" fill="#9CABB8" class="out-koko"/>
-        <path d="M 22 -28 L 28 -48 L 10 -38 Z" fill="#9CABB8" class="out-koko"/>
-        <!-- 耳の内側 -->
-        <path d="M-20 -32 L-25 -44 L-13 -38 Z" fill="#FFB4C0"/>
-        <path d="M 20 -32 L 25 -44 L 13 -38 Z" fill="#FFB4C0"/>
-
-        <!-- 目（大きな黒目1個 + 白いハイライト1個） -->
-        <circle cx="-10" cy="-13" r="5" fill="#1A1A1A"/>
-        <circle cx=" 10" cy="-13" r="5" fill="#1A1A1A"/>
-        <circle cx="-8.3" cy="-15" r="1.8" fill="#FFFFFF"/>
-        <circle cx="11.7" cy="-15" r="1.8" fill="#FFFFFF"/>
-
-        <!-- 鼻（小さなピンクハート） -->
-        <path d="M0 1.5 C 4.5 -3, 1 -6, 0 -2.5 C -1 -6, -4.5 -3, 0 1.5 Z" fill="#FF99A8"/>
-
-        <!-- 口（やさしい笑顔） -->
-        <path d="M-5 5 Q0 10 5 5" fill="none" stroke="#39434F" stroke-width="2" stroke-linecap="round"/>
-      </g>
-
-      <!-- ===== なるちゃん（オレンジ＆白） ===== -->
-      <g transform="translate(198, 95)">
-        <!-- 影 -->
-        <ellipse cx="0" cy="62" rx="38" ry="5" fill="rgba(0,0,0,.18)"/>
-
-        <!-- しっぽ -->
-        <path d="M-22 30 Q-48 32 -50 4 Q-50 -14 -40 -18"
-              fill="none" stroke="#5A3818" stroke-width="14" stroke-linecap="round"/>
-        <path d="M-22 30 Q-48 32 -50 4 Q-50 -14 -40 -18"
-              fill="none" stroke="#E89868" stroke-width="10.5" stroke-linecap="round"/>
-        <!-- 白い先端 -->
-        <path d="M-40 -18 Q-46 -22 -38 -22"
-              fill="none" stroke="#FBF6EC" stroke-width="10" stroke-linecap="round"/>
-
-        <!-- 体 -->
-        <ellipse cx="0" cy="34" rx="25" ry="22" fill="#E89868" class="out-naru"/>
-        <!-- 白いお腹 -->
-        <ellipse cx="0" cy="38" rx="17" ry="14" fill="#FBF6EC"/>
-
-        <!-- 前足（白） -->
-        <ellipse cx="-11" cy="52" rx="6.5" ry="8" fill="#FBF6EC" class="out-naru"/>
-        <ellipse cx=" 11" cy="52" rx="6.5" ry="8" fill="#FBF6EC" class="out-naru"/>
-
-        <!-- 首輪 -->
-        <ellipse cx="0" cy="18" rx="16" ry="3.5" fill="#DC3535" stroke="#5A3818" stroke-width="1"/>
-        <!-- 鈴 -->
-        <circle cx="0" cy="22" r="4.5" fill="#FFD700" stroke="#5A3818" stroke-width="1.4"/>
-        <circle cx="-1.5" cy="20" r="1.2" fill="#FFFFFF" opacity=".75"/>
-
-        <!-- 頭 -->
-        <ellipse cx="0" cy="-14" rx="30" ry="27" fill="#E89868" class="out-naru"/>
-        <!-- 白い顔マスク -->
-        <ellipse cx="0" cy="-9" rx="22" ry="19" fill="#FBF6EC"/>
-
-        <!-- 耳 -->
-        <path d="M-22 -28 L-28 -48 L-10 -38 Z" fill="#E89868" class="out-naru"/>
-        <path d="M 22 -28 L 28 -48 L 10 -38 Z" fill="#E89868" class="out-naru"/>
-        <path d="M-20 -32 L-25 -44 L-13 -38 Z" fill="#FFB4C0"/>
-        <path d="M 20 -32 L 25 -44 L 13 -38 Z" fill="#FFB4C0"/>
-
-        <!-- 目 -->
-        <circle cx="-10" cy="-13" r="5" fill="#1A1A1A"/>
-        <circle cx=" 10" cy="-13" r="5" fill="#1A1A1A"/>
-        <circle cx="-8.3" cy="-15" r="1.8" fill="#FFFFFF"/>
-        <circle cx="11.7" cy="-15" r="1.8" fill="#FFFFFF"/>
-
-        <!-- 鼻（ピンクハート） -->
-        <path d="M0 1.5 C 4.5 -3, 1 -6, 0 -2.5 C -1 -6, -4.5 -3, 0 1.5 Z" fill="#FF99A8"/>
-
-        <!-- 口 -->
-        <path d="M-5 5 Q0 10 5 5" fill="none" stroke="#5A3818" stroke-width="2" stroke-linecap="round"/>
-      </g>
-    </svg>
+    <!-- キャラ立ち絵（AI生成イラストを実行時に背景透過してセット）-->
+    <div class="cats">
+      <img id="kokoImg" class="cat-img" alt="ここちゃん">
+      <img id="naruImg" class="cat-img" alt="なるちゃん">
+    </div>
     <div class="tap">タップしてスタート</div>
   </div>
 
@@ -846,6 +752,95 @@ const Sprites = {
   },
 };
 
+/* =========================================================
+ * Assets: AI生成イラスト(JPEG)を読み込み、白背景を実行時に透過する。
+ *
+ *   - 白背景は「画像の縁から連結した明るいピクセル」だけを消す
+ *     （フラッドフィル）。猫の内側の白い毛・お腹は囲まれているので残る。
+ *   - 透過後に不透明部分の外接矩形でトリミングし、足元基準で扱いやすくする。
+ *   - crossOrigin='anonymous' で raw.githubusercontent からの取得でも
+ *     canvas が汚染されず getImageData / toDataURL が使える。
+ *   - 読み込み前・失敗時は sprite が null のまま → 描画側は手描きにフォールバック。
+ * ========================================================= */
+const Assets = {
+  koko: null,  // { canvas, w, h } 透過済みスプライト
+  naru: null,
+
+  load(onSprite) {
+    this._loadCutout('koko.jpg', s => { this.koko = s; onSprite && onSprite('koko', s); });
+    this._loadCutout('naru.jpg', s => { this.naru = s; onSprite && onSprite('naru', s); });
+  },
+
+  _loadCutout(url, cb) {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try { cb(this._cutout(img)); }
+      catch (e) { /* canvas汚染など。スプライト無しで手描きにフォールバック */ }
+    };
+    img.onerror = () => {};
+    img.src = url;
+  },
+
+  // 白背景フラッドフィル除去 → トリミングした透過 canvas を返す
+  _cutout(img) {
+    const W = img.width, H = img.height;
+    const cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const im = ctx.getImageData(0, 0, W, H);
+    const d = im.data;
+
+    const isLight = i => d[i] > 234 && d[i+1] > 234 && d[i+2] > 234; // ほぼ白
+    const visited = new Uint8Array(W * H);
+    const stack = [];
+    // 画像の縁を起点に積む
+    for (let x = 0; x < W; x++) { stack.push(x); stack.push((H-1)*W + x); }
+    for (let y = 0; y < H; y++) { stack.push(y*W); stack.push(y*W + W-1); }
+
+    while (stack.length) {
+      const p = stack.pop();
+      if (visited[p]) continue;
+      visited[p] = 1;
+      const i = p * 4;
+      if (!isLight(i)) continue;       // 明るくない＝背景でない。境界で止める
+      d[i+3] = 0;                      // 透過
+      const x = p % W, y = (p / W) | 0;
+      if (x > 0)     stack.push(p - 1);
+      if (x < W-1)   stack.push(p + 1);
+      if (y > 0)     stack.push(p - W);
+      if (y < H-1)   stack.push(p + W);
+    }
+
+    // 縁のアンチエイリアス残り（半透明の白フリンジ）を軽く間引く
+    for (let p = 0; p < W*H; p++) {
+      const i = p*4;
+      if (d[i+3] === 0) continue;
+      if (d[i] > 224 && d[i+1] > 224 && d[i+2] > 224 && visited[p]) d[i+3] = 0;
+    }
+    ctx.putImageData(im, 0, 0);
+
+    // 不透明部分の外接矩形でトリミング
+    let minX=W, minY=H, maxX=0, maxY=0, found=false;
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        if (d[(y*W+x)*4 + 3] > 16) {
+          found = true;
+          if (x<minX)minX=x; if (x>maxX)maxX=x;
+          if (y<minY)minY=y; if (y>maxY)maxY=y;
+        }
+      }
+    }
+    if (!found) return { canvas: cv, w: W, h: H };
+    const tw = maxX-minX+1, th = maxY-minY+1;
+    const out = document.createElement('canvas');
+    out.width = tw; out.height = th;
+    out.getContext('2d').drawImage(cv, minX, minY, tw, th, 0, 0, tw, th);
+    return { canvas: out, w: tw, h: th };
+  },
+};
+
 const BgRenderer = {
   draw(ctx, stage, camera, VW, VH, groundY) {
     // 1. 空（カメラに無関係）
@@ -1015,6 +1010,8 @@ const CharRenderer = {
 
   // 体の中心から足裏までの距離（ローカル座標）。スカッシュの軸＝足裏にするのに使う
   FEET: 22,
+  // スプライト表示の高さ(px)。当たり判定(h=50)より少し大きめで存在感を出す
+  DISP_H: 62,
 
   draw(ctx, player, groundY) {
     const cx = player.x + player.w / 2;
@@ -1047,16 +1044,26 @@ const CharRenderer = {
     const lean = Math.max(-0.16, Math.min(0.16, -player.vy * 0.011));
 
     ctx.save();
-    // 足裏を軸に変形する: 足裏を画面上の接地点へ置き、回転→スケール→中心座標系へ戻す
+    // 足裏を軸に変形する: 足裏を画面上の接地点へ置き、回転→スケール
     ctx.translate(cx, cy + this.FEET + bob);
     ctx.rotate(lean);
     ctx.scale(sx, sy);
-    ctx.translate(0, -this.FEET);
 
-    this._tail(ctx, player);
-    this._legs(ctx, player, frame);
-    this._body(ctx);
-    this._head(ctx, player);
+    if (Assets.koko) {
+      // AI生成スプライト：足元(y=0)を基準に、表示高さ DISP_H で描く。
+      // スカッシュ/リーン/バウンドが上に乗るので静止画でも生き生き動く。
+      const spr = Assets.koko;
+      const dh = this.DISP_H;
+      const dw = dh * spr.w / spr.h;
+      ctx.drawImage(spr.canvas, -dw/2, -dh + 2, dw, dh);
+    } else {
+      // フォールバック：手描き（中心座標系へ戻してから各パーツ）
+      ctx.translate(0, -this.FEET);
+      this._tail(ctx, player);
+      this._legs(ctx, player, frame);
+      this._body(ctx);
+      this._head(ctx, player);
+    }
     ctx.restore();
   },
 
@@ -1450,9 +1457,15 @@ const UI = {
     const ids = [
       'title','hud','tutorial','storyModal','resultModal','gameOverModal','pauseModal',
       'stageLabel','coinCount','timer','resultStars','resultScore','resultTime','resultCoins',
-      'nextBtn','storyIcon','storyTitle','storyText','dbg',
+      'nextBtn','storyIcon','storyTitle','storyText','dbg','kokoImg','naruImg',
     ];
     ids.forEach(id => this.el[id] = document.getElementById(id));
+  },
+
+  // 透過済みスプライト canvas をタイトルの <img> にセット
+  setTitleSprite(which, sprite) {
+    const el = which === 'koko' ? this.el.kokoImg : this.el.naruImg;
+    if (el && sprite) el.src = sprite.canvas.toDataURL();
   },
   show(id) { this.el[id].classList.add('show'); },
   hide(id) { this.el[id].classList.remove('show'); },
@@ -1788,6 +1801,9 @@ const Input = {
   Renderer.init(document.getElementById('game'));
   Input.init();
   Game.init();
+
+  // キャラのAI生成イラストを読み込み、背景透過してタイトル＆プレイヤーに反映
+  Assets.load((which, sprite) => UI.setTitleSprite(which, sprite));
 
   // 致命的なエラーが起きたらデバッグ表示に出す（ループは継続）
   window.addEventListener('error', e => UI.reportError((e.error && e.error.message) || e.message));
