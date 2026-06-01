@@ -1025,46 +1025,62 @@ const CharRenderer = {
     ctx.fill();
     ctx.globalAlpha = 1;
 
-    if (player.sliding) { this._sliding(ctx, cx, groundY - 14); return; }
-
-    const frame = Math.floor(player.animTime * 12) % 4;
     const grounded = player.grounded && !player.jumping;
-    const bob = grounded ? Math.sin(player.animTime * 10) * 1.3 : 0;
 
-    // --- スカッシュ&ストレッチ ---
-    // 空中: 上下速度で縦に伸びる / 着地: land で潰れる / 走行: 軽く伸縮
-    let sy = 1;
-    if (!player.grounded) sy += Math.min(0.28, Math.abs(player.vy) * 0.011);
-    if (grounded)         sy += Math.sin(player.animTime * 10) * 0.04;
-    sy -= player.land * 0.45;
-    sy = Math.max(0.72, Math.min(1.3, sy));
-    const sx = 1 / sy;                              // 体積保存（縦に伸びたら横は縮む）
-
-    // リーン: 上昇は前のめり、落下はやや反る（接地中はほぼ0）
-    const lean = Math.max(-0.16, Math.min(0.16, -player.vy * 0.011));
+    // --- 状態別モーション（1枚のスプライトを変形して走り/ジャンプ/着地を表現）---
+    // bob: 上下移動(px, 負=上)  rot: 前後の回転(rad)  st: 縦の伸縮(>1=伸び)
+    const M = this._motion(player, grounded);
 
     ctx.save();
-    // 足裏を軸に変形する: 足裏を画面上の接地点へ置き、回転→スケール
-    ctx.translate(cx, cy + this.FEET + bob);
-    ctx.rotate(lean);
-    ctx.scale(sx, sy);
+    // 足裏を軸に: 足裏を接地点へ→回転→スケール
+    ctx.translate(cx, cy + this.FEET + M.bob);
+    ctx.rotate(M.rot);
+    ctx.scale(1 / M.st, M.st);   // 体積保存（縦に伸びたら横は縮む）
 
     if (Assets.koko) {
-      // AI生成スプライト：足元(y=0)を基準に、表示高さ DISP_H で描く。
-      // スカッシュ/リーン/バウンドが上に乗るので静止画でも生き生き動く。
       const spr = Assets.koko;
-      const dh = this.DISP_H;
+      const dh = this.DISP_H * (player.sliding ? 0.9 : 1);
       const dw = dh * spr.w / spr.h;
       ctx.drawImage(spr.canvas, -dw/2, -dh + 2, dw, dh);
-    } else {
-      // フォールバック：手描き（中心座標系へ戻してから各パーツ）
-      ctx.translate(0, -this.FEET);
-      this._tail(ctx, player);
-      this._legs(ctx, player, frame);
-      this._body(ctx);
-      this._head(ctx, player);
+      ctx.restore();
+      return;
     }
+
+    // フォールバック：手描き
+    if (player.sliding) { ctx.restore(); this._sliding(ctx, cx, groundY - 14); return; }
+    ctx.translate(0, -this.FEET);
+    const frame = Math.floor(player.animTime * 12) % 4;
+    this._tail(ctx, player);
+    this._legs(ctx, player, frame);
+    this._body(ctx);
+    this._head(ctx, player);
     ctx.restore();
+  },
+
+  // 状態に応じた {bob, rot, st} を返す。
+  //   走行: 跳ねる(bob)＋前後ロック(rot)＋上で伸び接地で縮む(st)＝ギャロップ感
+  //   空中: 落下速度で前傾/後傾(rot)＋縦伸び(st)。上昇=前のめり、落下=反る
+  //   スライド: 前傾して低く潰れる
+  //   着地(land): 一瞬ぺちゃっと潰れる（全状態に重畳）
+  _motion(player, grounded) {
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    let bob = 0, rot = 0, st = 1;
+
+    if (player.sliding) {
+      rot = 0.5; st = 0.72; bob = 6;
+    } else if (grounded) {
+      const c = player.animTime * 14;          // 走りの周期
+      const hop = Math.abs(Math.sin(c));        // 0..1 の跳ね（1周期に2歩）
+      bob = -hop * 5;                           // 体が浮く
+      rot = Math.sin(c) * 0.12;                 // 前後に揺れる
+      st  = 1 + (hop - 0.4) * 0.14;             // 浮きで伸び・着地点で縮む
+    } else {
+      rot = clamp(-player.vy * 0.013, -0.26, 0.22);
+      st  = 1 + Math.min(0.24, Math.abs(player.vy) * 0.012);
+    }
+    st -= player.land * 0.5;                    // 着地インパクトで潰す
+    st  = clamp(st, 0.66, 1.32);
+    return { bob, rot, st };
   },
 
   // 体（楕円1枚＋輪郭線）
