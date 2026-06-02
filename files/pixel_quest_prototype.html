@@ -382,6 +382,214 @@ const Config = {
         { type:'goal',     x:3680 },
       ],
     },
+
+    // ===============================================================
+    // ワールド2「自然のなかへ」— 単純な「会いに行く」物語に違和感が
+    // 忍び込み始める。鏡像／影／無意識のモチーフ。
+    // ===============================================================
+    {
+      id: '2-1', name: '川にうつるじぶん', bgmKey: 'world1',
+      // 水色 → 銀。川面に映る自分を見つめる
+      bgColor: ['#7AB8E0','#D0E8F0'],
+      story: {
+        icon: '🪞', title: '川にうつるじぶん',
+        text: 'きらきら光る川に たどりついた ここちゃん。\n水面をのぞきこむと、こっちを見つめる ねこがいる。\n\n「……あなたは、だれ？」\n\n水のなかの ねこは、おなじことを ききかえしてきたにゃ。',
+      },
+      // 飛び石風レイアウト：プラットフォーム多め＝水面を渡る感
+      objects: [
+        { type:'enemy',    x:450,  kind:'slime' },
+        { type:'coin',     x:620,  y:60 },
+        { type:'pit',      x:780,  w:100 },
+        { type:'platform', x:1000, y:80,  w:80,  h:16 },
+        { type:'coin',     x:1030, y:120 },
+        { type:'pit',      x:1180, w:120 },
+        { type:'platform', x:1400, y:100, w:80,  h:16 },
+        { type:'coin',     x:1430, y:140 },
+        { type:'pit',      x:1580, w:120 },
+        { type:'platform', x:1800, y:90,  w:80,  h:16 },
+        { type:'coin',     x:1830, y:130 },
+        { type:'pit',      x:1980, w:110 },
+        { type:'enemy',    x:2200, kind:'bat',   floatY:100 },
+        { type:'platform', x:2400, y:110, w:100, h:16 },
+        { type:'coin',     x:2440, y:150 },
+        { type:'pit',      x:2620, w:100 },
+        { type:'enemy',    x:2850, kind:'slime' },
+        { type:'platform', x:3050, y:90,  w:100, h:16 },
+        { type:'coin',     x:3090, y:130 },
+        { type:'enemy',    x:3300, kind:'bird',  floatY:80 },
+        { type:'goal',     x:3500 },
+      ],
+    },
+    {
+      id: '2-2', name: 'かげのもり', bgmKey: 'world2',
+      // 深緑 → 薄緑。森のなかの影
+      bgColor: ['#3A6840','#9CC880'],
+      story: {
+        icon: '🌑', title: 'かげのもり',
+        text: 'もりのなか、ここちゃんの うしろを ながい かげが ついてくる。\nかげは ときどき、ここちゃんと ちがう うごきを する。\n\n「ねえ、あなたも　なるちゃんに 会いたいの？」\n\nかげは こたえない。でも、しっぽを ふった きが したにゃ。',
+      },
+      // 森＝飛行敵中心、視界が狭まる感
+      objects: [
+        { type:'enemy',    x:400,  kind:'bat',   floatY:120 },
+        { type:'enemy',    x:600,  kind:'slime' },
+        { type:'coin',     x:750,  y:60 },
+        { type:'pit',      x:900,  w:100 },
+        { type:'platform', x:1100, y:100, w:120, h:16 },
+        { type:'coin',     x:1150, y:140 },
+        { type:'enemy',    x:1380, kind:'bat',   floatY:110 },
+        { type:'enemy',    x:1500, kind:'slime' },
+        { type:'pit',      x:1700, w:110 },
+        { type:'platform', x:1900, y:130, w:100, h:16 },
+        { type:'coin',     x:1940, y:170 },
+        { type:'enemy',    x:2150, kind:'bird',  floatY:90 },
+        { type:'enemy',    x:2300, kind:'bat',   floatY:130 },
+        { type:'pit',      x:2500, w:100 },
+        { type:'enemy',    x:2700, kind:'slime' },
+        { type:'platform', x:2900, y:110, w:100, h:16 },
+        { type:'coin',     x:2940, y:150 },
+        { type:'enemy',    x:3150, kind:'bird',  floatY:70 },
+        { type:'enemy',    x:3300, kind:'slime' },
+        { type:'pit',      x:3450, w:110 },
+        { type:'enemy',    x:3650, kind:'bat',   floatY:100 },
+        { type:'goal',     x:3800 },
+      ],
+    },
+
+    // ===============================================================
+    // ワールド3「あらしを越えて」— 同一性の揺らぎと言葉のこだま。
+    // 自分の名前を忘れ、自分の声と他人の声の境界が溶ける。
+    // ===============================================================
+    {
+      id: '3-1', name: 'なまえをわすれたおか', bgmKey: 'world1',
+      // 霧。灰白 → クリーム。輪郭がぼやける
+      bgColor: ['#C8C0B8','#F0E8D0'],
+      story: {
+        icon: '🌫️', title: 'なまえを わすれた おか',
+        text: 'きりの こい おかで、ここちゃんは たちどまった。\n\n「わたし、なんで ここに いるんだっけ……？」\n「なるちゃんって……だれ……？」\n\nでも むねの おくの あったかい きもちだけは、たしかに のこっていたにゃ。',
+      },
+      // 長めの穴で「足場が見えにくい」感、コインで道しるべ
+      objects: [
+        { type:'coin',     x:400,  y:60 },
+        { type:'coin',     x:500,  y:60 },
+        { type:'coin',     x:600,  y:60 },
+        { type:'enemy',    x:800,  kind:'slime' },
+        { type:'pit',      x:1000, w:120 },
+        { type:'coin',     x:1060, y:120 },
+        { type:'platform', x:1280, y:90,  w:90,  h:16 },
+        { type:'pit',      x:1450, w:110 },
+        { type:'enemy',    x:1700, kind:'bat',   floatY:120 },
+        { type:'platform', x:1900, y:120, w:120, h:16 },
+        { type:'coin',     x:1960, y:160 },
+        { type:'pit',      x:2150, w:130 },
+        { type:'enemy',    x:2400, kind:'slime' },
+        { type:'platform', x:2600, y:100, w:100, h:16 },
+        { type:'coin',     x:2640, y:140 },
+        { type:'pit',      x:2820, w:110 },
+        { type:'enemy',    x:3050, kind:'bird',  floatY:80 },
+        { type:'enemy',    x:3200, kind:'slime' },
+        { type:'goal',     x:3400 },
+      ],
+    },
+    {
+      id: '3-2', name: 'こだまのたに', bgmKey: 'world2',
+      // 紫 → 紺。声がこだまする谷
+      bgColor: ['#705890','#3A3060'],
+      story: {
+        icon: '🌒', title: 'こだまの たに',
+        text: 'たにに「なるちゃーん！」と さけぶと、なんども こえが かえってくる。\n\n「なるちゃーん」「なるちゃーん」「……ちゃーん」\n\nどれが ほんものの よびごえ？　どれが わたしの こえ？\nもう、わからなく なっていたにゃ。',
+      },
+      // 飛行敵（鳥＝声の象徴）多め、リズミカル
+      objects: [
+        { type:'enemy',    x:400,  kind:'bird',  floatY:70 },
+        { type:'enemy',    x:550,  kind:'bat',   floatY:120 },
+        { type:'coin',     x:700,  y:60 },
+        { type:'pit',      x:850,  w:100 },
+        { type:'enemy',    x:1050, kind:'bird',  floatY:90 },
+        { type:'platform', x:1200, y:110, w:100, h:16 },
+        { type:'coin',     x:1240, y:150 },
+        { type:'enemy',    x:1450, kind:'bat',   floatY:100 },
+        { type:'enemy',    x:1600, kind:'bird',  floatY:60 },
+        { type:'pit',      x:1800, w:110 },
+        { type:'platform', x:2000, y:130, w:100, h:16 },
+        { type:'coin',     x:2040, y:170 },
+        { type:'enemy',    x:2250, kind:'bird',  floatY:80 },
+        { type:'enemy',    x:2400, kind:'bat',   floatY:140 },
+        { type:'pit',      x:2600, w:120 },
+        { type:'enemy',    x:2850, kind:'slime' },
+        { type:'platform', x:3050, y:100, w:100, h:16 },
+        { type:'coin',     x:3090, y:140 },
+        { type:'enemy',    x:3300, kind:'bird',  floatY:90 },
+        { type:'enemy',    x:3450, kind:'bat',   floatY:110 },
+        { type:'goal',     x:3650 },
+      ],
+    },
+
+    // ===============================================================
+    // ワールド4「再会」— 夢と現実の境界の問いと、合一の啓示。
+    // 別々で、ひとつ。会いに来たのは、たぶん、自分自身に。
+    // ===============================================================
+    {
+      id: '4-1', name: 'ふたつの月', bgmKey: 'world1',
+      // 紺 → 銀。夜の静謐
+      bgColor: ['#1A2840','#A0A0C0'],
+      story: {
+        icon: '🌕', title: 'ふたつの 月',
+        text: '雨あがりの そらに、月が ふたつ のぼっていた。\n\n「ねえ、もし　なるちゃんが　わたしの ゆめ だったら？」\n「もし　わたしが　なるちゃんの ゆめ だったら？」\n\nかぜが、こたえの かわりに、やさしく ふいたにゃ。',
+      },
+      // 静謐：敵少なめ、長い足場で穏やかなリズム
+      objects: [
+        { type:'coin',     x:400,  y:60 },
+        { type:'enemy',    x:600,  kind:'slime' },
+        { type:'pit',      x:800,  w:100 },
+        { type:'platform', x:1000, y:90,  w:130, h:16 },
+        { type:'coin',     x:1050, y:130 },
+        { type:'coin',     x:1090, y:130 },
+        { type:'enemy',    x:1300, kind:'bat',   floatY:130 },
+        { type:'pit',      x:1500, w:100 },
+        { type:'platform', x:1700, y:110, w:140, h:16 },
+        { type:'coin',     x:1760, y:150 },
+        { type:'enemy',    x:1980, kind:'slime' },
+        { type:'pit',      x:2200, w:100 },
+        { type:'platform', x:2400, y:100, w:120, h:16 },
+        { type:'coin',     x:2450, y:140 },
+        { type:'enemy',    x:2700, kind:'bird',  floatY:80 },
+        { type:'platform', x:2900, y:120, w:130, h:16 },
+        { type:'coin',     x:2960, y:160 },
+        { type:'enemy',    x:3200, kind:'slime' },
+        { type:'goal',     x:3400 },
+      ],
+    },
+    {
+      id: '4-2', name: 'はじまりのおか', bgmKey: 'world2',
+      // 桃 → 黄金。朝日の祝祭
+      bgColor: ['#FFC0CC','#FFE8A0'],
+      story: {
+        icon: '🎀', title: 'はじまりの おか',
+        text: '朝日の なか、おかの うえに ちいさな オレンジの かげ。\n\n「ここちゃん」「なるちゃん」\n\nふたりは みつめあって、わらった。\nべつべつで、ひとつ。会いに きたのは、たぶん、じぶん じしんに。\nでも きょうは、それで よかったにゃ♪',
+      },
+      // 祝祭：コインたくさん、敵ほぼなし、短めのお祝いコース
+      objects: [
+        { type:'coin',     x:300,  y:60 },
+        { type:'coin',     x:360,  y:80 },
+        { type:'coin',     x:420,  y:100 },
+        { type:'coin',     x:480,  y:80 },
+        { type:'coin',     x:540,  y:60 },
+        { type:'platform', x:700,  y:80,  w:130, h:16 },
+        { type:'coin',     x:730,  y:120 },
+        { type:'coin',     x:780,  y:120 },
+        { type:'enemy',    x:950,  kind:'slime' },
+        { type:'coin',     x:1150, y:60 },
+        { type:'coin',     x:1210, y:60 },
+        { type:'platform', x:1400, y:100, w:140, h:16 },
+        { type:'coin',     x:1430, y:140 },
+        { type:'coin',     x:1480, y:140 },
+        { type:'pit',      x:1650, w:80 },
+        { type:'coin',     x:1800, y:60 },
+        { type:'coin',     x:1860, y:60 },
+        { type:'coin',     x:1920, y:60 },
+        { type:'goal',     x:2100 },
+      ],
+    },
   ],
 };
 
