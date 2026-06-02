@@ -763,23 +763,13 @@ const Sprites = {
  *   - 読み込み前・失敗時は sprite が null のまま → 描画側は手描きにフォールバック。
  * ========================================================= */
 const Assets = {
-  koko: null,        // タイトル用の1枚絵 { canvas, w, h }
-  naru: null,        // タイトル用の1枚絵
-  kokoRun: [],       // ゲーム内・走りサイクル4コマ（脚の位相違い）
-  kokoJump: null,    // ゲーム内・跳躍ポーズ
+  koko: null,  // ここちゃん（プレイヤー＆タイトル）の1枚絵 { canvas, w, h }
+  naru: null,  // なるちゃん（タイトル）の1枚絵
 
   load(onSprite) {
     this._loadCutout('koko.jpg', s => { this.koko = s; onSprite && onSprite('koko', s); });
     this._loadCutout('naru.jpg', s => { this.naru = s; onSprite && onSprite('naru', s); });
-    // 走りサイクル（順番＝脚の位相。読み込み完了順に依らずindexへ格納）
-    ['koko_run0.jpg','koko_run1.jpg','koko_run2.jpg','koko_run3.jpg'].forEach((f, i) => {
-      this._loadCutout(f, s => { this.kokoRun[i] = s; });
-    });
-    this._loadCutout('koko_jump.jpg', s => { this.kokoJump = s; });
   },
-
-  // 走りサイクルが4コマ揃ったか
-  runReady() { return this.kokoRun.length === 4 && this.kokoRun.every(Boolean); },
 
   _loadCutout(url, cb) {
     const img = new Image();
@@ -1022,8 +1012,6 @@ const CharRenderer = {
   FEET: 22,
   // スプライト表示の高さ(px)。当たり判定(h=50)より少し大きめで存在感を出す
   DISP_H: 62,
-  // 走りサイクルのコマ切替速度（1秒あたりの切替回数）。/4 が1サイクル
-  RUN_FPS: 12,
 
   draw(ctx, player, groundY) {
     const cx = player.x + player.w / 2;
@@ -1049,7 +1037,7 @@ const CharRenderer = {
     ctx.rotate(M.rot);
     ctx.scale(1 / M.st, M.st);   // 体積保存（縦に伸びたら横は縮む）
 
-    const spr = this._sprite(player, grounded);
+    const spr = this._sprite();
     if (spr) {
       const dh = this.DISP_H * (player.sliding ? 0.9 : 1);
       const dw = dh * spr.w / spr.h;
@@ -1069,22 +1057,15 @@ const CharRenderer = {
     ctx.restore();
   },
 
-  // 描画するスプライトを状態から選ぶ。
-  //   空中（ジャンプ/落下）: 跳躍ポーズ kokoJump
-  //   接地して走行: 走りサイクル4コマを RUN_FPS で切替（脚が交互に動く）
-  //   それ以外（スライド・未ロード）: タイトル用1枚絵 koko にフォールバック
-  //   いずれも無ければ null（呼び出し側が手描きにフォールバック）
-  _sprite(player, grounded) {
-    if (!player.grounded && !player.sliding && Assets.kokoJump) return Assets.kokoJump;
-    if (grounded && !player.sliding && Assets.runReady()) {
-      const f = Math.floor(player.animTime * this.RUN_FPS) % 4;
-      return Assets.kokoRun[f];
-    }
+  // 描画するスプライトを返す。ここちゃんは「同一キャラに見せる」ことを優先し、
+  // 全状態で1枚の一貫した絵(Assets.koko)を使う。動きは _motion の変形で表現する。
+  // （AIの複数コマ生成はキャラがドリフトして別猫に見えるため不採用）
+  _sprite() {
     return Assets.koko;
   },
 
-  // 状態に応じた {bob, rot, st} を返す。走りサイクルのコマが脚の動きを担うので、
-  // 走行時の bob/rot/st は控えめ（コマ送りとの二重バウンドを避ける）。
+  // 状態に応じた {bob, rot, st} を返す。1枚絵を変形して躍動感を出す。
+  //   走行: 跳ねる(bob)＋前後ロック(rot)＋上で伸び接地で縮む(st)＝ギャロップ感
   //   空中: 落下速度で前傾/後傾(rot)＋縦伸び(st)。上昇=前のめり、落下=反る
   //   スライド: 前傾して低く潰れる
   //   着地(land): 一瞬ぺちゃっと潰れる（全状態に重畳）
@@ -1097,9 +1078,9 @@ const CharRenderer = {
     } else if (grounded) {
       const c = player.animTime * 14;
       const hop = Math.abs(Math.sin(c));
-      bob = -hop * 3;                           // コマ送りがあるので控えめ
-      rot = Math.sin(c) * 0.06;
-      st  = 1 + (hop - 0.4) * 0.08;
+      bob = -hop * 5;                           // 体が浮く
+      rot = Math.sin(c) * 0.12;                 // 前後に揺れる
+      st  = 1 + (hop - 0.4) * 0.14;             // 浮きで伸び・接地で縮む
     } else {
       rot = clamp(-player.vy * 0.013, -0.26, 0.22);
       st  = 1 + Math.min(0.24, Math.abs(player.vy) * 0.012);
