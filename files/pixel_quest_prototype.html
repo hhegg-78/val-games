@@ -782,7 +782,7 @@ const Assets = {
     img.src = url;
   },
 
-  // 白背景フラッドフィル除去 → トリミングした透過 canvas を返す
+  // 白背景フラッドフィル除去 → 白フチ侵食 → トリミングした透過 canvas を返す
   _cutout(img) {
     const W = img.width, H = img.height;
     const cv = document.createElement('canvas');
@@ -791,33 +791,44 @@ const Assets = {
     ctx.drawImage(img, 0, 0);
     const im = ctx.getImageData(0, 0, W, H);
     const d = im.data;
+    const lum = i => 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
+    const sat = i => Math.max(d[i],d[i+1],d[i+2]) - Math.min(d[i],d[i+1],d[i+2]);
 
-    const isLight = i => d[i] > 234 && d[i+1] > 234 && d[i+2] > 234; // ほぼ白
-    const visited = new Uint8Array(W * H);
+    // 背景判定: 明るく(輝度>205)かつ低彩度(<40)。白地＋薄いグレーの落ち影を拾い、
+    // 猫本体（グレー=暗い／オレンジ=高彩度）は拾わない。
+    const isBg = i => lum(i) > 205 && sat(i) < 40;
+
+    // 縁からフラッドフィルして、外側につながる背景だけ透過（内側の白い毛は囲まれて残る）
     const stack = [];
-    // 画像の縁を起点に積む
     for (let x = 0; x < W; x++) { stack.push(x); stack.push((H-1)*W + x); }
     for (let y = 0; y < H; y++) { stack.push(y*W); stack.push(y*W + W-1); }
-
     while (stack.length) {
       const p = stack.pop();
-      if (visited[p]) continue;
-      visited[p] = 1;
       const i = p * 4;
-      if (!isLight(i)) continue;       // 明るくない＝背景でない。境界で止める
-      d[i+3] = 0;                      // 透過
+      if (d[i+3] === 0) continue;       // 既に透過＝訪問済み
+      if (!isBg(i)) continue;           // 背景でない＝境界で止める
+      d[i+3] = 0;                       // 透過（訪問マーク兼用）
       const x = p % W, y = (p / W) | 0;
-      if (x > 0)     stack.push(p - 1);
-      if (x < W-1)   stack.push(p + 1);
-      if (y > 0)     stack.push(p - W);
-      if (y < H-1)   stack.push(p + W);
+      if (x > 0)   stack.push(p - 1);
+      if (x < W-1) stack.push(p + 1);
+      if (y > 0)   stack.push(p - W);
+      if (y < H-1) stack.push(p + W);
     }
 
-    // 縁のアンチエイリアス残り（半透明の白フリンジ）を軽く間引く
-    for (let p = 0; p < W*H; p++) {
-      const i = p*4;
-      if (d[i+3] === 0) continue;
-      if (d[i] > 224 && d[i+1] > 224 && d[i+2] > 224 && visited[p]) d[i+3] = 0;
+    // 白フチ侵食: 透過に隣接する「明るい」不透明ピクセルを消す。2回繰り返して
+    // アンチエイリアスの白い縁取りを除去。暗い輪郭線(輝度<175)は残すので形は保たれる。
+    const isClear = p => d[p*4+3] === 0;
+    for (let pass = 0; pass < 2; pass++) {
+      const kill = [];
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const p = y*W + x, i = p*4;
+          if (d[i+3] === 0 || lum(i) < 175) continue;   // 透過 or 暗い輪郭は対象外
+          if ((x>0   && isClear(p-1)) || (x<W-1 && isClear(p+1)) ||
+              (y>0   && isClear(p-W)) || (y<H-1 && isClear(p+W))) kill.push(p);
+        }
+      }
+      for (const p of kill) d[p*4+3] = 0;
     }
     ctx.putImageData(im, 0, 0);
 
