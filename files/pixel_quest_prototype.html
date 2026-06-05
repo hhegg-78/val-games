@@ -743,13 +743,9 @@ class Player {
     this.holdingJump = false; this.holdTimer = 0;
     this.animTime = 0; this.finishing = false;
 
-    // --- アニメーション専用の状態（物理には一切影響しない・描画用）---
-    this.prevVy  = 0;   // 前フレームの vy（着地インパクト検出用）
-    this.land    = 0;   // 着地スカッシュ量(0..1)。着地時に立ち上がり減衰
-    this.tailAng = 0;   // しっぽの角度（バネで遅延追従＝二次運動）
-    this.tailVel = 0;
-    this.earOff  = 0;   // 耳の上下バウンド（バネ）
-    this.earVel  = 0;
+    // --- 描画専用の状態（物理には影響しない）---
+    this.prevVy = 0;   // 前フレームの vy（着地インパクト検出用）
+    this.land   = 0;   // 着地スカッシュ量(0..1)。着地時に立ち上がり減衰
   }
   tryJump() {
     if (!this.grounded || this.sliding) return false;
@@ -766,29 +762,14 @@ class Player {
   }
   hitbox() { return { x:this.x, y:this.y, w:this.w, h:this.sliding ? 24 : this.h }; }
 
-  // 描画用のバネ／スカッシュ状態を進める。物理 update の最後に dt 付きで呼ぶ。
-  // 半陰的オイラー（vel→pos の順）で、わずかに減衰不足にしてフォロースルー感を出す。
-  updateAnim(dt) {
-    // 着地インパクト: 大きな下向き速度から接地した瞬間に潰れ量を立ち上げる
+  // 描画用の着地スカッシュ量を進める。物理 update の最後に呼ぶ。
+  // 大きな下向き速度から接地した瞬間に land を立ち上げ、毎フレーム減衰させる。
+  // CharRenderer._motion がこの land を読んで着地の「ぺちゃっ」を表現する。
+  updateAnim() {
     if (this.grounded && this.prevVy < -6) {
       this.land = Math.min(1, -this.prevVy / 14);
     }
-    this.land *= 0.80; // 毎フレーム減衰
-
-    // しっぽ: 走行中は左右に振り、空中は落下速度で後方へ流れる。遅延追従で尾を引く
-    const tailTarget = (this.grounded && !this.sliding)
-      ? Math.sin(this.animTime * 16) * 0.5
-      : this.vy * 0.018;
-    this.tailVel += ((tailTarget - this.tailAng) * 50 - this.tailVel * 8) * dt;
-    this.tailAng += this.tailVel * dt;
-
-    // 耳: 走行中の上下バウンド／空中は速度に応じて上下。しっぽより速いバネ
-    const earTarget = (this.grounded && !this.sliding)
-      ? Math.sin(this.animTime * 20) * 0.8
-      : -this.vy * 0.03;
-    this.earVel += ((earTarget - this.earOff) * 90 - this.earVel * 10) * dt;
-    this.earOff += this.earVel * dt;
-
+    this.land *= 0.80;
     this.prevVy = this.vy;
   }
 }
@@ -905,7 +886,7 @@ const Physics = {
     }
 
     player.animTime += dt;
-    player.updateAnim(dt);   // 描画用のバネ／スカッシュを進める
+    player.updateAnim();   // 描画用の着地スカッシュを進める
   },
 
   // プレイヤー中心が穴の上にあるか
@@ -935,36 +916,17 @@ const Physics = {
 };
 
 /* =========================================================
- * 4. Renderer
- *    - 背景・敵・キャラ・パーティクルを描画
+ * 4. Renderer 群
+ *    - 背景・敵・キャラ・ゴール・コイン・パーティクルを描画
  *    - キャンバスのバッキングストアサイズは初期化時に1度だけ設定
  *    - 表示サイズは CSS（aspect-ratio）が担当するので resize 監視不要
  *
- * 4-0. Palette / Sprites: 複数Renderer・ゲームロジック横断で使う色と図形ヘルパー
- *     色を1箇所に集めることで、キャラの目・鼻・耳のピンクなど共通要素を
- *     1箇所変えれば両キャラに反映できる。
+ * 4-0. Palette: 演出（パーティクル/コイン/速度線）で横断利用する色
  * ========================================================= */
 const Palette = {
-  // キャラ共通アクセント
-  earIn: '#FFB4C0',  // 耳の内側ピンク
-  eye:   '#1A1A1A',  // 黒目
-  nose:  '#FF99A8',  // ピンクハート鼻
-  // 演出系（パーティクル・コイン・速度線）
-  coin:  '#FFD23F',  // すず（コイン）の取得エフェクト
+  coin:  '#FFD23F',  // すず（コイン）取得エフェクト
   hit:   '#FF4D6D',  // 敵撃破エフェクト
   speed: '#3DDCFF',  // スライド速度線
-};
-
-const Sprites = {
-  // 小さなハート（鼻などに使用）
-  heart(ctx, cx, cy, s, color) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy + s);
-    ctx.bezierCurveTo(cx + s*1.8, cy - s*0.3, cx + s*0.5, cy - s*1.3, cx, cy - s*0.3);
-    ctx.bezierCurveTo(cx - s*0.5, cy - s*1.3, cx - s*1.8, cy - s*0.3, cx, cy + s);
-    ctx.fill();
-  },
 };
 
 /* =========================================================
@@ -975,7 +937,7 @@ const Sprites = {
  *   - 透過後に不透明部分の外接矩形でトリミングし、足元基準で扱いやすくする。
  *   - crossOrigin='anonymous' で raw.githubusercontent からの取得でも
  *     canvas が汚染されず getImageData / toDataURL が使える。
- *   - 読み込み前・失敗時は sprite が null のまま → 描画側は手描きにフォールバック。
+ *   - 読み込み前・失敗時は sprite が null のまま → CharRenderer が簡易シルエットを描く。
  * ========================================================= */
 const Assets = {
   koko: null,  // ここちゃん（プレイヤー＆タイトル）の1枚絵 { canvas, w, h }
@@ -1205,39 +1167,16 @@ const EnemyRenderer = {
   },
 };
 
-/* ここちゃん：ブリティッシュショートヘア風グレー子猫。横向き右走り。
- * 配色:
- *   ベース #6E7C85, 影 #5A6770, ハイライト #87959E, お腹 #A0AEB8
- *   耳内 #8B6975, 目 #D4A200, 鼻 #B07A85
- */
-/* ここちゃん（プレイヤー）描画 — 絵本イラスト風・横向き走り
+/* ここちゃん（プレイヤー）描画。
  *
- * 描画方針:
- *   - 強い輪郭線 (stroke 1.8px, color #39434F)
- *   - 平面塗り（グラデーション禁止・ハイライト最小）
- *   - 要素は { 体, 頭, 耳, 目1, 鼻, 口, しっぽ, 4本の足 } のみ
- *   - ヒゲ・縞・チーク・複数ハイライトは描かない（雑音回避）
- *
- * 配色:
- *   BODY = #9CABB8 (グレー本体・固有色)
- *   OUT  = #39434F (輪郭・固有色)
- *   その他（耳ピンク・黒目・ピンク鼻）は Palette から共通参照
+ *   - 通常は Assets.koko（AI生成イラストを背景透過した1枚絵）を全状態に使い、
+ *     走り/ジャンプ/着地/スライドは _motion の変形（跳ね・回転・伸縮）で表現する。
+ *     AIの複数コマ生成はキャラがドリフトして別猫に見えるため、コマ送りは不採用。
+ *   - 画像が未ロード/失敗のときだけ _fallback（簡易シルエット）を描く。
  */
 const CharRenderer = {
-  C: { BODY:'#9CABB8', OUT:'#39434F', EARIN:Palette.earIn, EYE:Palette.eye, NOSE:Palette.nose },
-  // 走り4フレーム×4本足の x オフセット。毎フレーム生成しないよう静的に保持。
-  LEG_POSES: [
-    [ 6, 14, -12, -4],
-    [ 9, 12, -10, -6],
-    [14,  6,  -4,-12],
-    [12,  9,  -6,-10],
-  ],
-  JUMP_POSE: [-10, -4, 8, 14],
-
-  // 体の中心から足裏までの距離（ローカル座標）。スカッシュの軸＝足裏にするのに使う
-  FEET: 22,
-  // スプライト表示の高さ(px)。当たり判定(h=50)より少し大きめで存在感を出す
-  DISP_H: 62,
+  FEET: 22,     // 体中心→足裏の距離(ローカル)。スカッシュの軸を足裏にするのに使う
+  DISP_H: 62,   // スプライト表示の高さ(px)。当たり判定(h=50)より少し大きめ
 
   draw(ctx, player, groundY) {
     const cx = player.x + player.w / 2;
@@ -1252,10 +1191,7 @@ const CharRenderer = {
     ctx.globalAlpha = 1;
 
     const grounded = player.grounded && !player.jumping;
-
-    // --- 状態別モーション（1枚のスプライトを変形して走り/ジャンプ/着地を表現）---
-    // bob: 上下移動(px, 負=上)  rot: 前後の回転(rad)  st: 縦の伸縮(>1=伸び)
-    const M = this._motion(player, grounded);
+    const M = this._motion(player, grounded);   // {bob, rot, st}
 
     ctx.save();
     // 足裏を軸に: 足裏を接地点へ→回転→スケール
@@ -1263,31 +1199,31 @@ const CharRenderer = {
     ctx.rotate(M.rot);
     ctx.scale(1 / M.st, M.st);   // 体積保存（縦に伸びたら横は縮む）
 
-    const spr = this._sprite();
+    const spr = Assets.koko;
     if (spr) {
       const dh = this.DISP_H * (player.sliding ? 0.9 : 1);
       const dw = dh * spr.w / spr.h;
       ctx.drawImage(spr.canvas, -dw/2, -dh + 2, dw, dh);
-      ctx.restore();
-      return;
+    } else {
+      this._fallback(ctx);   // 画像が無いときだけ
     }
-
-    // フォールバック：手描き
-    if (player.sliding) { ctx.restore(); this._sliding(ctx, cx, groundY - 14); return; }
-    ctx.translate(0, -this.FEET);
-    const frame = Math.floor(player.animTime * 12) % 4;
-    this._tail(ctx, player);
-    this._legs(ctx, player, frame);
-    this._body(ctx);
-    this._head(ctx, player);
     ctx.restore();
   },
 
-  // 描画するスプライトを返す。ここちゃんは「同一キャラに見せる」ことを優先し、
-  // 全状態で1枚の一貫した絵(Assets.koko)を使う。動きは _motion の変形で表現する。
-  // （AIの複数コマ生成はキャラがドリフトして別猫に見えるため不採用）
-  _sprite() {
-    return Assets.koko;
+  // 画像未ロード/失敗時の簡易シルエット（足裏が原点 y=0、上に積む）。
+  // 形だけ示すフォールバックなので最小限。本番は常に Assets.koko を使う。
+  _fallback(ctx) {
+    ctx.fillStyle = '#9CABB8';
+    ctx.strokeStyle = '#39434F';
+    ctx.lineWidth = 1.8;
+    ctx.lineJoin = 'round';
+    // 体
+    ctx.beginPath(); ctx.ellipse(0, -14, 17, 13, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    // 頭
+    ctx.beginPath(); ctx.ellipse(9, -32, 12, 11, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    // 耳
+    ctx.beginPath(); ctx.moveTo(3,-40); ctx.lineTo(1,-50); ctx.lineTo(9,-44); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(13,-42); ctx.lineTo(17,-52); ctx.lineTo(18,-40); ctx.closePath(); ctx.fill(); ctx.stroke();
   },
 
   // 状態に応じた {bob, rot, st} を返す。1枚絵を変形して躍動感を出す。
@@ -1314,196 +1250,6 @@ const CharRenderer = {
     st -= player.land * 0.5;                    // 着地インパクトで潰す
     st  = clamp(st, 0.66, 1.32);
     return { bob, rot, st };
-  },
-
-  // 体（楕円1枚＋輪郭線）
-  _body(ctx) {
-    ctx.fillStyle   = this.C.BODY;
-    ctx.strokeStyle = this.C.OUT;
-    ctx.lineWidth   = 1.8;
-    ctx.beginPath();
-    ctx.ellipse(0, 6, 16, 11, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.stroke();
-  },
-
-  // 頭は体の前方（右側）に配置。横顔だが片目とハート鼻を見せて表情を出す。
-  // 耳の先端は player.earOff（バネ）で上下に弾み、走り・着地でぴょこっと動く。
-  _head(ctx, player) {
-    const C = this.C;
-    const hx = 11, hy = -10;
-    const ear = (player.earOff || 0) * 3;   // 耳先の弾み(px)
-
-    // 奥の耳（先に描く＝奥に見える）
-    ctx.fillStyle   = C.BODY;
-    ctx.strokeStyle = C.OUT;
-    ctx.lineWidth   = 1.6;
-    ctx.lineJoin    = 'round';
-    ctx.beginPath();
-    ctx.moveTo(hx-6, hy-10);
-    ctx.lineTo(hx-9, hy-20 - ear);
-    ctx.lineTo(hx, hy-14);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-
-    // 頭の丸
-    ctx.beginPath();
-    ctx.ellipse(hx, hy, 13, 12, 0, 0, Math.PI*2);
-    ctx.lineWidth = 1.8;
-    ctx.fill(); ctx.stroke();
-
-    // 手前の耳
-    ctx.lineWidth = 1.6;
-    ctx.beginPath();
-    ctx.moveTo(hx+7, hy-10);
-    ctx.lineTo(hx+10, hy-21 - ear);
-    ctx.lineTo(hx+13, hy-8);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    // 耳の内側ピンク
-    ctx.fillStyle = C.EARIN;
-    ctx.beginPath();
-    ctx.moveTo(hx+8.5, hy-11);
-    ctx.lineTo(hx+10.5, hy-19 - ear);
-    ctx.lineTo(hx+12, hy-10);
-    ctx.closePath();
-    ctx.fill();
-
-    // 目（黒丸1つ＋ハイライト1つ）
-    ctx.fillStyle = C.EYE;
-    ctx.beginPath();
-    ctx.arc(hx+4, hy-1, 2.6, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.arc(hx+5, hy-2.3, 0.9, 0, Math.PI*2);
-    ctx.fill();
-
-    // 鼻（ピンクハート）
-    Sprites.heart(ctx, hx+12, hy+4, 1.6, C.NOSE);
-
-    // 口（短いやさしい笑顔）
-    ctx.strokeStyle = C.OUT;
-    ctx.lineWidth   = 1.2;
-    ctx.lineCap     = 'round';
-    ctx.beginPath();
-    ctx.moveTo(hx+10, hy+7);
-    ctx.quadraticCurveTo(hx+12, hy+10, hx+9, hy+9);
-    ctx.stroke();
-  },
-
-  // しっぽ（後ろにくるりとカーブ・線2本で輪郭表現）
-  // 揺れ量は player.tailAng（バネで遅延追従＝二次運動）から得る。
-  // バネのオーバーシュートで、止まった後もしっぽが流れて尾を引く。
-  // パスは1度だけ構築し、線幅と色を変えて2回 stroke する。
-  _tail(ctx, player) {
-    const C = this.C;
-    const wag = player.tailAng * 20;   // 角度→先端の振れ幅(px)
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(-14, 2);
-    ctx.quadraticCurveTo(-28, -6 + wag*0.4, -28, -20 + wag);
-    // 1回目: 輪郭線（太い・濃い）
-    ctx.strokeStyle = C.OUT;  ctx.lineWidth = 10; ctx.stroke();
-    // 2回目: 中身（細い・薄い）— beginPath せず同じパスを再 stroke
-    ctx.strokeStyle = C.BODY; ctx.lineWidth = 7;  ctx.stroke();
-  },
-
-  // 4本の足。走り中は4フレームで前後に振る
-  // POSE 配列は CharRenderer.LEG_POSES / JUMP_POSE を静的に参照（毎フレーム生成を回避）
-  _legs(ctx, player, frame) {
-    const pose = (player.grounded && !player.jumping)
-      ? this.LEG_POSES[frame]
-      : this.JUMP_POSE;
-    for (let i = 0; i < 4; i++) this._leg(ctx, pose[i]);
-  },
-
-  _leg(ctx, x) {
-    ctx.fillStyle   = this.C.BODY;
-    ctx.strokeStyle = this.C.OUT;
-    ctx.lineWidth   = 1.5;
-    ctx.beginPath();
-    ctx.ellipse(x, 17, 3.5, 6, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.stroke();
-  },
-
-  // スライディング姿勢（横に伸びる）
-  _sliding(ctx, cx, y) {
-    const C = this.C;
-    ctx.save();
-    ctx.translate(cx, y);
-
-    ctx.fillStyle = 'rgba(0,0,0,.25)';
-    ctx.beginPath();
-    ctx.ellipse(0, 18, 28, 4, 0, 0, Math.PI*2);
-    ctx.fill();
-
-    // しっぽ（後ろに流れる）
-    ctx.strokeStyle = C.OUT;
-    ctx.lineWidth   = 9;
-    ctx.lineCap     = 'round';
-    ctx.beginPath();
-    ctx.moveTo(-20, 4);
-    ctx.lineTo(-32, 0);
-    ctx.stroke();
-    ctx.strokeStyle = C.BODY;
-    ctx.lineWidth   = 6;
-    ctx.beginPath();
-    ctx.moveTo(-20, 4);
-    ctx.lineTo(-32, 0);
-    ctx.stroke();
-
-    // 横長の体
-    ctx.fillStyle   = C.BODY;
-    ctx.strokeStyle = C.OUT;
-    ctx.lineWidth   = 1.8;
-    ctx.beginPath();
-    ctx.ellipse(0, 6, 22, 9, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.stroke();
-
-    // 頭（右側）
-    ctx.beginPath();
-    ctx.ellipse(18, -1, 12, 10, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.stroke();
-
-    // 耳（伏せ気味）
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(12, -8); ctx.lineTo(7, -14); ctx.lineTo(15, -10);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(22, -8); ctx.lineTo(28, -14); ctx.lineTo(26, -5);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-
-    // 目を線で（スピード時の細目）
-    ctx.strokeStyle = C.EYE;
-    ctx.lineWidth   = 1.6;
-    ctx.lineCap     = 'round';
-    ctx.beginPath();
-    ctx.moveTo(20, 0);
-    ctx.quadraticCurveTo(22, -3, 24, 0);
-    ctx.stroke();
-
-    // 鼻（ハート）
-    Sprites.heart(ctx, 26, 3, 1.4, C.NOSE);
-
-    // 速度線
-    ctx.strokeStyle = Palette.speed;
-    ctx.lineWidth   = 1.8;
-    ctx.globalAlpha = 0.7;
-    for (let i = 0; i < 4; i++) {
-      ctx.beginPath();
-      ctx.moveTo(-32 - i*7, -2 + i*3);
-      ctx.lineTo(-16 - i*7, -2 + i*3);
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-    ctx.restore();
   },
 };
 
