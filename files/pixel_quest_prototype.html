@@ -239,7 +239,9 @@ html,body{
       <img id="kokoImg" class="cat-img" alt="ここちゃん">
       <img id="naruImg" class="cat-img" alt="なるちゃん">
     </div>
-    <div class="tap">タップしてスタート</div>
+    <!-- つづきから（セーブ進行あり時のみ表示。タップ伝播はclick委譲が最近接で解決） -->
+    <button class="btn primary" id="continueBtn" data-action="continueGame" style="display:none;max-width:300px;margin:6px auto 0"></button>
+    <div class="tap">タップして最初から</div>
   </div>
 
   <div id="dbg">audio: ready</div>
@@ -639,6 +641,27 @@ const Config = {
       ],
     },
   ],
+};
+
+/* =========================================================
+ * 1-b. Progress: クリア進行を localStorage に保存
+ *    unlocked = 開始可能な最大ステージ index（0 = 1-1 のみ）。
+ *    ステージクリア時に「次のステージ」を解放。localStorage が
+ *    使えない環境（プライベート/制限付き iframe 等）でも安全に no-op。
+ * ========================================================= */
+const Progress = {
+  KEY: 'pixelquest.unlocked',
+
+  get() {
+    try { return Math.max(0, parseInt(localStorage.getItem(this.KEY), 10) || 0); }
+    catch (_) { return 0; }
+  },
+  // idx 以上を解放（後退はしない）。最大は最終ステージ index にクランプ。
+  unlock(idx) {
+    const v = Math.min(idx, Config.stages.length - 1);
+    if (v <= this.get()) return;
+    try { localStorage.setItem(this.KEY, String(v)); } catch (_) {}
+  },
 };
 
 /* =========================================================
@@ -1685,9 +1708,16 @@ const UI = {
     const ids = [
       'title','hud','tutorial','storyModal','resultModal','gameOverModal','pauseModal',
       'stageLabel','coinCount','timer','resultStars','resultScore','resultTime','resultCoins',
-      'nextBtn','storyIcon','storyTitle','storyText','dbg','kokoImg','naruImg',
+      'nextBtn','storyIcon','storyTitle','storyText','dbg','kokoImg','naruImg','continueBtn',
     ];
     ids.forEach(id => this.el[id] = document.getElementById(id));
+  },
+
+  // 「つづきから STAGE x-y」ボタンの表示/非表示（label が null で非表示）
+  setContinue(label) {
+    const b = this.el.continueBtn;
+    if (label) { b.textContent = `つづきから ${label} ▶`; b.style.display = 'block'; }
+    else       { b.style.display = 'none'; }
   },
 
   // 透過済みスプライト canvas をタイトルの <img> にセット
@@ -1765,8 +1795,15 @@ const Game = {
 
   // ----- ライフサイクル -----
   init() {
+    this._refreshContinue();
     UI.show('title');
     Audio.startBgm('title');
+  },
+
+  // セーブ進行があれば「つづきから」ボタンを更新（タイトル表示時に呼ぶ）
+  _refreshContinue() {
+    const u = Progress.get();
+    UI.setContinue(u > 0 ? `STAGE ${Config.stages[u].id}` : null);
   },
 
   _loadStage(idx) {
@@ -1822,6 +1859,9 @@ const Game = {
     const stars = score >= sc.star3 ? 3 : score >= sc.star2 ? 2 : 1;
     const hasNext = s.stageIdx < Config.stages.length - 1;
 
+    // セーブ：クリアした次のステージを解放（最終面クリアでは現状維持）
+    if (hasNext) Progress.unlock(s.stageIdx + 1);
+
     setTimeout(() => {
       const next = Config.stages[s.stageIdx + 1];
       if (hasNext && next && next.story) {
@@ -1873,6 +1913,18 @@ const Game = {
         Game.state.mode = MODE.PLAYING;
       }
     },
+    // つづきから：解放済み最大ステージのストーリーを見せてから即プレイ
+    continueGame() {
+      Audio.unlock();
+      Audio.sfx.coin();
+      UI.hide('title');
+      Game.state.mode = MODE.STORY;
+      const idx = Progress.get();
+      UI.showStory(Config.stages[idx].story, () => {
+        Game._loadStage(idx);
+        Game.state.mode = MODE.PLAYING;
+      });
+    },
     storyNext() {
       // ストーリー閉じ。状態は UI.closeStory のコールバックが進める。
       UI.closeStory();
@@ -1912,6 +1964,7 @@ const Game = {
     backToTitle() {
       UI.hideAllOverlays();
       UI.el.hud.classList.remove('show');
+      Game._refreshContinue();
       UI.show('title');
       Game.state.mode = MODE.TITLE;
       Audio.startBgm('title');
