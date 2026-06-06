@@ -803,6 +803,7 @@ class Player {
     return true;
   }
   hitbox() { return { x:this.x, y:this.y, w:this.w, h:this.sliding ? 24 : this.h }; }
+  get centerX() { return this.x + this.w / 2; }  // 当たり/カメラ/描画で共有する体の中心x
 
   // 描画用の着地スカッシュ量を進める。物理 update の最後に呼ぶ。
   // 大きな下向き速度から接地した瞬間に land を立ち上げ、毎フレーム減衰させる。
@@ -874,7 +875,7 @@ const Physics = {
     player.vy -= pc.gravity * step;
     player.y  += player.vy * step;
 
-    const cx = player.x + player.w / 2;
+    const cx = player.centerX;
 
     // 着地処理: プラットフォーム → 地面 の順に試す。
     // 地面は「穴の上を除く高さ0のプラットフォーム」とみなし、同じ _tryLand を使う。
@@ -1411,7 +1412,7 @@ const CharRenderer = {
   DISP_H: 62,   // スプライト表示の高さ(px)。当たり判定(h=50)より少し大きめ
 
   draw(ctx, player, groundY) {
-    const cx = player.x + player.w / 2;
+    const cx = player.centerX;
     const cy = (groundY - player.y - player.h) + player.h / 2;
 
     // 影（落下/上昇で薄く小さく）
@@ -1841,7 +1842,7 @@ const Game = {
   onJumpStart() {
     if (this.state.mode !== MODE.PLAYING) return;
     if (this.state.player.tryJump()) {
-      this._addParticles(this.state.player.x+this.state.player.w/2, this.state.player.y, 6, Palette.coin);
+      this._addParticles(this.state.player.centerX, this.state.player.y, 6, Palette.coin);
       Audio.sfx.jump();
     }
   },
@@ -1849,7 +1850,7 @@ const Game = {
   onSlide() {
     if (this.state.mode !== MODE.PLAYING) return;
     if (this.state.player.trySlide()) {
-      this._addParticles(this.state.player.x+this.state.player.w/2, this.state.player.y+4, 4, Palette.speed);
+      this._addParticles(this.state.player.centerX, this.state.player.y+4, 4, Palette.speed);
       Audio.sfx.slide();
     }
   },
