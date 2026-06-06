@@ -834,11 +834,13 @@ class Stage {
     this.length = Math.max(...data.objects.map(o => o.x || 0)) + 400;
   }
   static _enemy(o) {
+    // flying=true の敵は空中をサイン波で漂い、踏めず接触で即死。
+    // flying=false（slime）は地上を這い、踏み付け／スライドで撃破できる。
     const base = { x:o.x, y:0, alive:true, anim:0, kind:o.kind };
     switch (o.kind) {
-      case 'bat':  return { ...base, w:34, h:24, vx:-2.5, baseY:o.floatY||120, amp:40, waveSpd:2.5 };
-      case 'bird': return { ...base, w:38, h:26, vx:-4.5, baseY:o.floatY||60,  amp:0,  waveSpd:0   };
-      default:     return { ...base, w:36, h:30, vx:-2.2, baseY:0,             amp:0,  waveSpd:0   };
+      case 'bat':  return { ...base, w:34, h:24, vx:-2.5, baseY:o.floatY||120, amp:40, waveSpd:2.5, flying:true  };
+      case 'bird': return { ...base, w:38, h:26, vx:-4.5, baseY:o.floatY||60,  amp:0,  waveSpd:0,   flying:true  };
+      default:     return { ...base, w:36, h:30, vx:-2.2, baseY:0,             amp:0,  waveSpd:0,   flying:false };
     }
   }
 }
@@ -898,12 +900,12 @@ const Physics = {
     for (const e of stage.enemies) {
       if (!e.alive) continue;
       e.anim += dt; e.x += e.vx * step;
-      if (e.kind === 'bat' || e.kind === 'bird') {
+      if (e.flying) {
         e.y = e.baseY + Math.sin(e.anim * e.waveSpd) * e.amp;
       }
       if (!this._hitEnemy(player, e)) continue;
-      if (e.kind === 'bat' || e.kind === 'bird') {
-        fx.onDeath(); return;
+      if (e.flying) {
+        fx.onDeath(); return;   // 飛行敵は踏めない＝接触で即死
       } else if (player.vy < -3 && player.y + player.hitbox().h >= e.y + e.h - 10) {
         e.alive = false; player.vy = pc.stomped; fx.onEnemyDefeat(e);
       } else if (player.sliding) {
