@@ -254,6 +254,9 @@ html,body{
 const Config = {
   // ゲーム空間の論理サイズ（ピクセル単位）
   VW: 480, VH: 800, GROUND_Y: 680,
+  // 物理・演出の基準フレームレート。各更新は dt*FPS で時間正規化し、
+  // 端末の実fpsに依らず一定速度にする（速度/重力等は1/FPS秒あたりの値）。
+  FPS: 60,
 
   player: {
     w: 44, h: 50,
@@ -848,9 +851,9 @@ const Physics = {
 
   update(player, stage, dt, fx) {
     const pc = Config.player;
-    // 60fps基準の時間ステップ。すべての加算をこれで時間正規化し、
-    // 端末のfpsに関係なく速度・ジャンプ高さを一定にする。
-    const step = dt * 60;
+    // 基準fps換算の時間ステップ。すべての加算をこれで時間正規化し、
+    // 端末の実fpsに関係なく速度・ジャンプ高さを一定にする。
+    const step = dt * Config.FPS;
 
     if (player.holdingJump && player.jumping) {
       player.holdTimer += dt;
@@ -935,7 +938,7 @@ const Physics = {
 
   // 上端 top の面に着地を試みる。落下中（vy<=0 は呼び出し側で保証）に
   // top をトレランス内で上から通過していれば着地して true を返す。
-  // step は dt*60 のフレーム正規化係数。低fps時にすり抜けないよう
+  // step は dt*Config.FPS のフレーム正規化係数。低fps時にすり抜けないよう
   // トレランスを「1フレームの落下量」と一致させる。
   _tryLand(player, top, step) {
     const fallPerFrame = Math.abs(player.vy * step);
@@ -1927,14 +1930,14 @@ const Game = {
     Physics.update(s.player, s.stage, dt, this.fx);
 
     // カメラ追従（プレイヤーを画面30%に保つ）
-    // fpsに依存しない指数追従：60fpsで15%詰めるのと等価な係数を dt から計算
+    // fpsに依存しない指数追従：基準fpsで15%詰めるのと等価な係数を dt から計算
     const tx = s.player.x - Config.VW * 0.30;
-    const camK = 1 - Math.pow(1 - 0.15, dt * 60);
+    const camK = 1 - Math.pow(1 - 0.15, dt * Config.FPS);
     s.camera.x += (tx - s.camera.x) * camK;
     s.camera.x = Math.max(0, Math.min(s.camera.x, s.stage.length - Config.VW));
 
     // パーティクル（dt正規化）
-    const pstep = dt * 60;
+    const pstep = dt * Config.FPS;
     for (let i = s.particles.length-1; i >= 0; i--) {
       const p = s.particles[i];
       p.x += p.vx * pstep; p.y += p.vy * pstep; p.vy -= 0.3 * pstep; p.life -= dt;
