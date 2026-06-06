@@ -681,6 +681,24 @@ const Audio = (() => {
     } catch (_) {}
   }
 
+  // 周波数スイープ音（fromHz→toHz）。ジャンプ/敵撃破などの効果音で共有。
+  function _sweep(fromHz, toHz, dur, vol, type='square') {
+    if (!unlocked || !enabled || !ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    try {
+      const osc = ctx.createOscillator(), g = ctx.createGain();
+      osc.type = type;
+      const t = ctx.currentTime;
+      osc.frequency.setValueAtTime(fromHz, t);
+      osc.frequency.exponentialRampToValueAtTime(toHz, t + dur);
+      g.gain.setValueAtTime(vol, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      osc.connect(g); g.connect(seGain);
+      osc.start(t); osc.stop(t + dur + 0.05);
+      tones++; log('running');
+    } catch (_) {}
+  }
+
   function _tickBgm() {
     if (!bgmPat || !enabled || !unlocked) return;
     const N = Config.notes, idx = bgmStep % bgmPat.len;
@@ -736,37 +754,13 @@ const Audio = (() => {
     isEnabled: () => enabled,
 
     sfx: {
-      jump() {
-        if (!unlocked || !enabled || !ctx) return;
-        try {
-          const osc = ctx.createOscillator(), g = ctx.createGain();
-          osc.type = 'square';
-          const t = ctx.currentTime;
-          osc.frequency.setValueAtTime(440, t);
-          osc.frequency.exponentialRampToValueAtTime(880, t + 0.1);
-          g.gain.setValueAtTime(0.3, t);
-          g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-          osc.connect(g); g.connect(seGain); osc.start(t); osc.stop(t + 0.15);
-        } catch (_) {}
-      },
+      jump()  { _sweep(440, 880, 0.1, 0.3); },          // 上昇スイープ
+      slide() { _noise(0.15, 0.15); },
+      enemy() { _sweep(220, 110, 0.2, 0.3); _noise(0.1, 0.2); }, // 下降スイープ＋ノイズ
       coin() {
         const N = Config.notes;
         _tone(N.E5, 0.08, 'square', 0.5);
         setTimeout(() => _tone(N.G5, 0.15, 'square', 0.5), 70);
-      },
-      slide() { _noise(0.15, 0.15); },
-      enemy() {
-        if (!unlocked || !enabled || !ctx) return;
-        try {
-          const osc = ctx.createOscillator(), g = ctx.createGain();
-          osc.type = 'square';
-          const t = ctx.currentTime;
-          osc.frequency.setValueAtTime(220, t);
-          osc.frequency.exponentialRampToValueAtTime(110, t + 0.2);
-          g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-          osc.connect(g); g.connect(seGain); osc.start(t); osc.stop(t + 0.25);
-        } catch (_) {}
-        _noise(0.1, 0.2);
       },
       goal()    { const N=Config.notes; ['C5','E5','G5','C6'].forEach((k,i)=>setTimeout(()=>_tone(N[k],0.25,'square',0.5), i*100)); },
       gameOver(){ const N=Config.notes; ['G4','F4','E4','D4','C4'].forEach((k,i)=>setTimeout(()=>_tone(N[k],0.2,'triangle',0.4), i*120)); },
