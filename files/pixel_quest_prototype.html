@@ -2101,6 +2101,10 @@ const Input = {
   },
 
   _down(e) {
+    // 最初のタッチで必ずオーディオをアンロック／resume（iOS対策）。
+    // 合成clickが gesture と認識されない端末や、背景化で AudioContext が
+    // suspended に戻るケースでも、生のタッチで毎回復帰させる。unlock は冪等。
+    Audio.unlock();
     this.gestureOnUI = this._isUI(e.target);
     if (this.gestureOnUI) return;
     // プレイ中以外は preventDefault しない（モーダル外のタップが暴発しないように）
@@ -2140,6 +2144,9 @@ const Input = {
 
   // キャラのAI生成イラストを読み込み、背景透過してタイトル＆プレイヤーに反映
   Assets.load((which, sprite) => UI.setTitleSprite(which, sprite));
+
+  // 背景から復帰したら AudioContext を resume（タップ無しでもBGMが戻る）
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) Audio.unlock(); });
 
   // 致命的なエラーが起きたらデバッグ表示に出す（ループは継続）
   window.addEventListener('error', e => UI.reportError((e.error && e.error.message) || e.message));
