@@ -1763,15 +1763,18 @@ const UI = {
   show(id) { this.el[id].classList.add('show'); },
   hide(id) { this.el[id].classList.remove('show'); },
   hideAllOverlays() {
-    ['title','tutorial','storyModal','resultModal','gameOverModal','pauseModal'].forEach(id => this.hide(id));
+    ['title','tutorial','storyModal','resultModal','gameOverModal','pauseModal','stageSelect']
+      .forEach(id => this.hide(id));
+  },
+  // 秒 → "mm:ss"（タイマー表示・リザルト表示で共有）
+  _mmss(secs) {
+    const m = Math.floor(secs/60).toString().padStart(2,'0');
+    const s = Math.floor(secs%60).toString().padStart(2,'0');
+    return `${m}:${s}`;
   },
   setStage(label)  { this.el.stageLabel.textContent = `STAGE ${label}`; },
   setCoins(n)      { this.el.coinCount.textContent  = `🔔 ${n}`; },
-  setTimer(secs)   {
-    const m = Math.floor(secs/60).toString().padStart(2,'0');
-    const s = Math.floor(secs%60).toString().padStart(2,'0');
-    this.el.timer.textContent = `${m}:${s}`;
-  },
+  setTimer(secs)   { this.el.timer.textContent = this._mmss(secs); },
   setSoundIcon(on, btn) { btn.textContent = on ? '🔊' : '🔇'; btn.classList.toggle('off', !on); },
 
   showStory(story, onClose) {
@@ -1790,9 +1793,7 @@ const UI = {
   showResult(stars, score, secs, coins, hasNext) {
     this.el.resultStars.textContent = '★'.repeat(stars) + '☆'.repeat(3-stars);
     this.el.resultScore.textContent = score;
-    const m = Math.floor(secs/60).toString().padStart(2,'0');
-    const s = Math.floor(secs%60).toString().padStart(2,'0');
-    this.el.resultTime.textContent  = `${m}:${s}`;
+    this.el.resultTime.textContent  = this._mmss(secs);
     this.el.resultCoins.textContent = coins;
     this.el.nextBtn.style.display = hasNext ? 'block' : 'none';
     this.show('resultModal');
