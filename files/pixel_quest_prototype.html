@@ -105,6 +105,13 @@ html,body{
 .btn.primary{background:#FF4D6D}
 .btn.secondary{background:rgba(255,255,255,.1);color:#F4F6FF}
 
+/* ===== Stage select ===== */
+#stageList{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.stage-cell{padding:12px 6px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;color:#fff;background:#3D6E8C;text-align:center}
+.stage-cell .nm{display:block;font-size:10px;font-weight:400;opacity:.85;margin-top:2px}
+.stage-cell:active{transform:scale(.96)}
+.stage-cell.locked{background:rgba(255,255,255,.08);color:#7A84A0;cursor:default}
+
 #storyModal .card{max-width:350px}
 #storyText{font-size:13px;line-height:1.85;color:#C8D0E8;text-align:left;white-space:pre-wrap}
 
@@ -228,6 +235,15 @@ html,body{
     </div>
   </div>
 
+  <!-- ステージ選択（クリア済みは再プレイ可・未到達はロック） -->
+  <div class="overlay" id="stageSelect">
+    <div class="card" style="border-top-color:#3DDCFF;max-width:320px">
+      <h2 style="color:#3DDCFF">ステージえらぶ</h2>
+      <div id="stageList"></div>
+      <button class="btn secondary" data-action="closeStageSelect" style="margin-top:14px">とじる</button>
+    </div>
+  </div>
+
   <!-- タイトル画面 -->
   <div id="title" data-action="startFromTitle">
     <div class="dots l"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
@@ -239,8 +255,9 @@ html,body{
       <img id="kokoImg" class="cat-img" alt="ここちゃん">
       <img id="naruImg" class="cat-img" alt="なるちゃん">
     </div>
-    <!-- つづきから（セーブ進行あり時のみ表示。タップ伝播はclick委譲が最近接で解決） -->
-    <button class="btn primary" id="continueBtn" data-action="continueGame" style="display:none;max-width:300px;margin:6px auto 0"></button>
+    <!-- つづきから／ステージえらぶ（セーブ進行あり時のみ表示。タップ伝播はclick委譲が最近接で解決） -->
+    <button class="btn primary"   id="continueBtn"    data-action="continueGame"   style="display:none;max-width:300px;margin:6px auto 0"></button>
+    <button class="btn secondary" id="stageSelectBtn" data-action="openStageSelect" style="display:none;max-width:300px;margin:6px auto 0">ステージをえらぶ ▦</button>
     <div class="tap">タップして最初から</div>
   </div>
 
@@ -1708,16 +1725,34 @@ const UI = {
     const ids = [
       'title','hud','tutorial','storyModal','resultModal','gameOverModal','pauseModal',
       'stageLabel','coinCount','timer','resultStars','resultScore','resultTime','resultCoins',
-      'nextBtn','storyIcon','storyTitle','storyText','dbg','kokoImg','naruImg','continueBtn',
+      'nextBtn','storyIcon','storyTitle','storyText','dbg','kokoImg','naruImg',
+      'continueBtn','stageSelectBtn','stageSelect','stageList',
     ];
     ids.forEach(id => this.el[id] = document.getElementById(id));
   },
 
-  // 「つづきから STAGE x-y」ボタンの表示/非表示（label が null で非表示）
+  // タイトルの「つづきから」「ステージをえらぶ」を進行に応じて表示
+  // unlocked=0（未クリア）なら両方隠す。それ以外は両方出す。
   setContinue(label) {
-    const b = this.el.continueBtn;
-    if (label) { b.textContent = `つづきから ${label} ▶`; b.style.display = 'block'; }
-    else       { b.style.display = 'none'; }
+    const show = !!label;
+    this.el.continueBtn.style.display    = show ? 'block' : 'none';
+    this.el.stageSelectBtn.style.display = show ? 'block' : 'none';
+    if (show) this.el.continueBtn.textContent = `つづきから ${label} ▶`;
+  },
+
+  // ステージ選択リストを構築（idx<=unlocked は再プレイ可、それ以外はロック）
+  buildStageList(stages, unlocked) {
+    this.el.stageList.innerHTML = '';
+    stages.forEach((st, i) => {
+      const open = i <= unlocked;
+      const b = document.createElement('button');
+      b.className = 'stage-cell' + (open ? '' : ' locked');
+      b.innerHTML = open
+        ? `${st.id}<span class="nm">${st.name}</span>`
+        : `🔒<span class="nm">？？？</span>`;
+      if (open) { b.dataset.action = 'playStage'; b.dataset.idx = i; }
+      this.el.stageList.appendChild(b);
+    });
   },
 
   // 透過済みスプライト canvas をタイトルの <img> にセット
@@ -1804,6 +1839,18 @@ const Game = {
   _refreshContinue() {
     const u = Progress.get();
     UI.setContinue(u > 0 ? `STAGE ${Config.stages[u].id}` : null);
+  },
+
+  // 指定ステージのストーリーを見せてから即プレイ（つづきから／ステージ選択 共通）
+  _startStage(idx) {
+    Audio.unlock();
+    Audio.sfx.coin();
+    UI.hide('title');
+    this.state.mode = MODE.STORY;
+    UI.showStory(Config.stages[idx].story, () => {
+      Game._loadStage(idx);
+      Game.state.mode = MODE.PLAYING;
+    });
   },
 
   _loadStage(idx) {
@@ -1913,17 +1960,21 @@ const Game = {
         Game.state.mode = MODE.PLAYING;
       }
     },
-    // つづきから：解放済み最大ステージのストーリーを見せてから即プレイ
-    continueGame() {
+    // つづきから：解放済み最大ステージへ
+    continueGame() { Game._startStage(Progress.get()); },
+
+    // ステージ選択を開く／閉じる
+    openStageSelect() {
       Audio.unlock();
-      Audio.sfx.coin();
-      UI.hide('title');
-      Game.state.mode = MODE.STORY;
-      const idx = Progress.get();
-      UI.showStory(Config.stages[idx].story, () => {
-        Game._loadStage(idx);
-        Game.state.mode = MODE.PLAYING;
-      });
+      UI.buildStageList(Config.stages, Progress.get());
+      UI.show('stageSelect');
+    },
+    closeStageSelect() { UI.hide('stageSelect'); },
+
+    // 選択した（クリア済みの）ステージを再プレイ。el.dataset.idx から取得
+    playStage(el) {
+      UI.hide('stageSelect');
+      Game._startStage(+el.dataset.idx);
     },
     storyNext() {
       // ストーリー閉じ。状態は UI.closeStory のコールバックが進める。
