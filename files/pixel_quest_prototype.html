@@ -106,6 +106,8 @@ html,body{
 .btn.secondary{background:rgba(255,255,255,.1);color:#F4F6FF}
 
 /* ===== Stage select ===== */
+/* タイトル(z-index:200)から開くので、その上に出す */
+#stageSelect{z-index:300}
 #stageList{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
 .stage-cell{padding:12px 6px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;color:#fff;background:#3D6E8C;text-align:center}
 .stage-cell .nm{display:block;font-size:10px;font-weight:400;opacity:.85;margin-top:2px}
