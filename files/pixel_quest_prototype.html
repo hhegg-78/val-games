@@ -757,6 +757,10 @@ const Audio = (() => {
     setDbgEl(el) { dbgEl = el; log('ready'); },
 
     unlock() {
+      // iOSの消音(マナー)スイッチを無視して鳴らすため、対応端末では
+      // オーディオを「メディア再生」扱いにする（iOS 16.4+ / 冪等）。
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (_) {}
+
       if (unlocked) { if (ctx && ctx.state === 'suspended') ctx.resume(); return; }
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) { log('unsupported'); return; }
