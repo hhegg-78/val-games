@@ -246,8 +246,8 @@ html,body{
     </div>
   </div>
 
-  <!-- タイトル画面 -->
-  <div id="title" data-action="startFromTitle">
+  <!-- タイトル画面（タップでステージ選択へ） -->
+  <div id="title" data-action="openStageSelect">
     <div class="dots l"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
     <div class="dots r"><span class="d3"></span><span class="d2"></span><span class="d1"></span></div>
     <h1>ここちゃんとなるちゃん<br>の冒険</h1>
@@ -257,10 +257,7 @@ html,body{
       <img id="kokoImg" class="cat-img" alt="ここちゃん">
       <img id="naruImg" class="cat-img" alt="なるちゃん">
     </div>
-    <!-- つづきから／ステージえらぶ（セーブ進行あり時のみ表示。タップ伝播はclick委譲が最近接で解決） -->
-    <button class="btn primary"   id="continueBtn"    data-action="continueGame"   style="display:none;max-width:300px;margin:6px auto 0"></button>
-    <button class="btn secondary" id="stageSelectBtn" data-action="openStageSelect" style="display:none;max-width:300px;margin:6px auto 0">ステージをえらぶ ▦</button>
-    <div class="tap">タップして最初から</div>
+    <div class="tap">タップしてはじめる</div>
   </div>
 
   <div id="dbg">audio: ready</div>
@@ -1732,18 +1729,9 @@ const UI = {
       'title','hud','tutorial','storyModal','resultModal','gameOverModal','pauseModal',
       'stageLabel','coinCount','timer','resultStars','resultScore','resultTime','resultCoins',
       'nextBtn','storyIcon','storyTitle','storyText','dbg','kokoImg','naruImg',
-      'continueBtn','stageSelectBtn','stageSelect','stageList',
+      'stageSelect','stageList',
     ];
     ids.forEach(id => this.el[id] = document.getElementById(id));
-  },
-
-  // タイトルの「つづきから」「ステージをえらぶ」を進行に応じて表示
-  // unlocked=0（未クリア）なら両方隠す。それ以外は両方出す。
-  setContinue(label) {
-    const show = !!label;
-    this.el.continueBtn.style.display    = show ? 'block' : 'none';
-    this.el.stageSelectBtn.style.display = show ? 'block' : 'none';
-    if (show) this.el.continueBtn.textContent = `つづきから ${label} ▶`;
   },
 
   // ステージ選択リストを構築（idx<=unlocked は再プレイ可、それ以外はロック）
@@ -1837,26 +1825,26 @@ const Game = {
 
   // ----- ライフサイクル -----
   init() {
-    this._refreshContinue();
     UI.show('title');
     Audio.startBgm('title');
   },
 
-  // セーブ進行があれば「つづきから」ボタンを更新（タイトル表示時に呼ぶ）
-  _refreshContinue() {
-    const u = Progress.get();
-    UI.setContinue(u > 0 ? `STAGE ${Config.stages[u].id}` : null);
-  },
-
-  // 指定ステージのストーリーを見せてから即プレイ（つづきから／ステージ選択 共通）
+  // ステージ選択から選ばれたステージを開始。ストーリー →（初回のみ
+  // チュートリアル）→ プレイ。タイトルとステージ選択を閉じる。
   _startStage(idx) {
     Audio.unlock();
     Audio.sfx.coin();
+    UI.hide('stageSelect');
     UI.hide('title');
     this.state.mode = MODE.STORY;
     UI.showStory(Config.stages[idx].story, () => {
       Game._loadStage(idx);
-      Game.state.mode = MODE.PLAYING;
+      if (!Game.state.seenTutorial) {
+        Game.state.mode = MODE.TUTORIAL;
+        UI.show('tutorial');
+      } else {
+        Game.state.mode = MODE.PLAYING;
+      }
     });
   },
 
@@ -1951,26 +1939,7 @@ const Game = {
 
   // ----- UI から呼ばれるアクション（data-action 名と一致） -----
   actions: {
-    startFromTitle() {
-      Audio.unlock();
-      Audio.sfx.coin();
-      UI.hide('title');
-      Game.state.mode = MODE.STORY;
-      UI.showStory(Config.stages[0].story, () => Game.actions.afterFirstStory());
-    },
-    afterFirstStory() {
-      Game._loadStage(0);
-      if (!Game.state.seenTutorial) {
-        Game.state.mode = MODE.TUTORIAL;
-        UI.show('tutorial');
-      } else {
-        Game.state.mode = MODE.PLAYING;
-      }
-    },
-    // つづきから：解放済み最大ステージへ
-    continueGame() { Game._startStage(Progress.get()); },
-
-    // ステージ選択を開く／閉じる
+    // タイトルタップ → ステージ選択を開く（解放済みのみプレイ可）
     openStageSelect() {
       Audio.unlock();
       UI.buildStageList(Config.stages, Progress.get());
@@ -1978,11 +1947,8 @@ const Game = {
     },
     closeStageSelect() { UI.hide('stageSelect'); },
 
-    // 選択した（クリア済みの）ステージを再プレイ。el.dataset.idx から取得
-    playStage(el) {
-      UI.hide('stageSelect');
-      Game._startStage(+el.dataset.idx);
-    },
+    // 選択したステージを開始（el.dataset.idx）。ストーリー→初回チュートリアル→プレイ
+    playStage(el) { Game._startStage(+el.dataset.idx); },
     storyNext() {
       // ストーリー閉じ。状態は UI.closeStory のコールバックが進める。
       UI.closeStory();
@@ -2022,7 +1988,6 @@ const Game = {
     backToTitle() {
       UI.hideAllOverlays();
       UI.el.hud.classList.remove('show');
-      Game._refreshContinue();
       UI.show('title');
       Game.state.mode = MODE.TITLE;
       Audio.startBgm('title');
